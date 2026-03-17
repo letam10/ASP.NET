@@ -31,8 +31,6 @@
                                         (p.Description != null && p.Description.ToLower().Contains(searchLower)));
             }
             // 4. Chèn điều kiện lọc theo Thương hiệu
-            if (!string.IsNullOrEmpty(brand))
-                query = query.Where(p => p.Brand == brand);
 
             // 5. Chèn điều kiện lọc theo Khoảng giá (Price Range)
             if (minPrice.HasValue)
@@ -56,7 +54,6 @@
 
             // 8. Tải danh mục và thương hiệu cho thanh Sidebar
             ViewBag.Categories = await _context.Categories.AsNoTracking().Include(c => c.Products).ToListAsync();
-            ViewBag.Brands = await _context.Products.Where(p => p.Brand != null).Select(p => p.Brand).Distinct().ToListAsync();
 
             // 9. Lưu trạng thái tham số để duy trì hiển thị trên giao diện (Two-way binding feeling)
             ViewBag.SelectedCategory = categoryId;
