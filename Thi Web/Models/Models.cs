@@ -51,6 +51,7 @@ namespace TechShop.Models
 
         [Display(Name = "Còn hàng")]
         public bool IsActive { get; set; } = true;
+        public string? Brand { get; set; }
     }
 
     public class Order
