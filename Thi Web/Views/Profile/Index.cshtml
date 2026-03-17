@@ -1,0 +1,122 @@
+﻿@model TechShop.Controllers.ProfileViewModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<div class="container py-5" style="margin-top:70px">
+    <div class="row g-4" style="max-width:900px;margin:0 auto">
+
+        <!-- Header -->
+        <div class="col-12">
+            <div style="display:flex;align-items:center;gap:20px;padding:28px;
+                background:var(--bg-card);border:1px solid var(--border);
+                border-radius:var(--radius-lg)">
+                <div style="width:80px;height:80px;border-radius:50%;
+                    background:rgba(37,99,235,0.15);border:2px solid var(--primary);
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:2rem;font-weight:800;color:var(--primary-light);flex-shrink:0">
+                    @(Model.FullName?.Substring(0, 1).ToUpper() ?? "U")
+                </div>
+                <div>
+                    <h4 class="mb-1">@Model.FullName</h4>
+                    <p class="text-muted mb-1"><i class="bi bi-envelope me-2"></i>@Model.Email</p>
+                    @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                    {
+                        <p class="text-muted mb-0"><i class="bi bi-telephone me-2"></i>@Model.PhoneNumber</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="col-12">
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="col-12">
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
+
+        <!-- Thông tin cá nhân -->
+        <div class="col-md-6">
+            <div style="background:var(--bg-card);border:1px solid var(--border);
+                border-radius:var(--radius-lg);padding:28px">
+                <h6 class="mb-4" style="font-family:'Syne',sans-serif;font-size:1rem">
+                    <i class="bi bi-person me-2 text-primary"></i>Thông tin cá nhân
+                </h6>
+                <form asp-controller="Profile" asp-action="Index" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" readonly
+                               style="opacity:0.6;cursor:not-allowed" />
+                        <small class="text-muted">Email không thể thay đổi</small>
+                    </div>
+                    <div class="mb-4">
+                        <label asp-for="PhoneNumber" class="form-label"></label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="0901234567" />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-save me-2"></i>Lưu thông tin
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Đổi mật khẩu -->
+        <div class="col-md-6">
+            <div style="background:var(--bg-card);border:1px solid var(--border);
+                border-radius:var(--radius-lg);padding:28px">
+                <h6 class="mb-4" style="font-family:'Syne',sans-serif;font-size:1rem">
+                    <i class="bi bi-lock me-2 text-warning"></i>Đổi mật khẩu
+                </h6>
+                <form asp-controller="Profile" asp-action="ChangePassword" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu hiện tại</label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-lock"></i>
+                            <input type="password" name="CurrentPassword" class="form-control"
+                                   placeholder="••••••" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu mới</label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-lock-fill"></i>
+                            <input type="password" name="NewPassword" class="form-control"
+                                   placeholder="Tối thiểu 6 ký tự" />
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Xác nhận mật khẩu mới</label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-shield-lock"></i>
+                            <input type="password" name="ConfirmPassword" class="form-control"
+                                   placeholder="Nhập lại mật khẩu mới" />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">
+                        <i class="bi bi-key me-2"></i>Đổi mật khẩu
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>

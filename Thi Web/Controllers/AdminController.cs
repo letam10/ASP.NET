@@ -267,11 +267,11 @@ namespace TechShop.Controllers
         public AdminRoleController(RoleManager<IdentityRole> roleManager) => _roleManager = roleManager;
 
         public IActionResult Index()
-            => View("~/Views/Admin/Role/Index.cshtml", _roleManager.Roles.ToList());
+            => View("~/Views/Admin/Roles/Index.cshtml", _roleManager.Roles.ToList());
 
         [HttpGet]
         public IActionResult Create()
-            => View("~/Views/Admin/Role/Create.cshtml");
+            => View("~/Views/Admin/Roles/Create.cshtml");
 
         [HttpPost]
         [ValidateAntiForgeryToken]

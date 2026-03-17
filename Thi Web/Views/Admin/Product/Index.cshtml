@@ -1,79 +1,47 @@
-﻿@* Views/Admin/Product/Index.cshtml *@
-@model List<TechShop.Models.Product>
+﻿@model List<TechShop.Models.Product>
 @{
     ViewData["Title"] = "Quản lý sản phẩm";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-
 <div class="admin-page-header">
-    <div>
-        <h4><i class="bi bi-box me-2"></i>Quản lý sản phẩm</h4>
-        <p class="text-muted mb-0">Tổng cộng @Model.Count sản phẩm</p>
-    </div>
-    <a href="/Admin/AdminProduct/Create" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-1"></i>Thêm sản phẩm
-    </a>
+    <div><h4><i class="bi bi-box me-2"></i>Quản lý sản phẩm</h4><p class="text-muted mb-0">@Model.Count sản phẩm</p></div>
+    <a asp-controller="AdminProduct" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Thêm sản phẩm</a>
 </div>
-
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
 
 <div class="admin-table-wrap">
     <table class="table admin-table">
-        <thead>
-            <tr>
-                <th>Ảnh</th>
-                <th>Tên sản phẩm</th>
-                <th>Danh mục</th>
-                <th>Giá</th>
-                <th>Tồn kho</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
+        <thead><tr><th>Ảnh</th><th>Tên sản phẩm</th><th>Danh mục</th><th>Giá</th><th>Tồn kho</th><th>Thao tác</th></tr></thead>
         <tbody>
             @foreach (var p in Model)
             {
                 <tr>
-                    <td><img src="@(p.ImageUrl ?? "https://via.placeholder.com/50")" alt="@p.Name" style="width:50px;height:50px;object-fit:cover;border-radius:8px;" /></td>
+                    <td><img src="@(p.ImageUrl ?? "https://via.placeholder.com/50")" style="width:50px;height:50px;object-fit:cover;border-radius:8px" /></td>
                     <td><strong>@p.Name</strong></td>
                     <td><span class="badge badge-cat">@p.Category?.Name</span></td>
                     <td class="text-primary fw-bold">@p.Price.ToString("N0") ₫</td>
-                    <td>
-                        @if (p.Stock == 0)
-                        {
-                            <span class="badge bg-danger">Hết hàng</span>
-                        }
-                        else if (p.Stock < 5)
-                        {
+                    <td>@if(p.Stock==0){
+                        <span class="badge bg-danger">Hết</span>
+                    }else if (p.Stock < 5)
+                    {
 
-                            <span class="badge bg-warning">@p.Stock</span>
-                        }
-                        else
-                        {
+                        <span class="badge bg-warning">@p.Stock</span>
+                    }
+                    else
+                    {
 
-                            <span class="badge bg-success">@p.Stock</span>
-                        }
-                    </td>
-                    <td><span class="badge @(p.IsActive ? "bg-success" : "bg-secondary")">@(p.IsActive ? "Hiển thị" : "Ẩn")</span></td>
-                    <td>
-                        <a href="/Admin/AdminProduct/Edit/@p.Id" class="btn btn-sm btn-warning me-1">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <form asp-controller="AdminProduct" asp-action="Delete" method="post" class="d-inline"
-                              onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@p.Id" />
-                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash3"></i></button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                        <span class="badge bg-success">@p.Stock</span>
+                    }
+                </td>
+                <td>
+                    <a asp-controller="AdminProduct" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i></a>
+                    <form asp-controller="AdminProduct" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Xóa?')">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@p.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash3"></i></button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 </div>

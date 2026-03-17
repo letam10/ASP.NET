@@ -3,21 +3,10 @@
     ViewData["Title"] = $"Đơn hàng #{Model.Id}";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-
 <div class="admin-page-header">
-    <div>
-        <h4><i class="bi bi-receipt me-2"></i>Chi tiết đơn hàng #@Model.Id.ToString("D6")</h4>
-        <p class="text-muted mb-0">Đặt ngày @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
-    </div>
-    <a href="/Admin/AdminOrder/Index" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left me-1"></i>Quay lại
-    </a>
+    <div><h4><i class="bi bi-receipt me-2"></i>Đơn hàng #@Model.Id.ToString("D6")</h4></div>
+    <a asp-controller="AdminOrder" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Quay lại</a>
 </div>
-
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>@TempData["Success"]</div>
-}
 
 <div class="row g-4">
     <div class="col-md-6">
@@ -25,22 +14,14 @@
             <h6 class="mb-3">Thông tin khách hàng</h6>
             <p><strong>Tên:</strong> @Model.FullName</p>
             <p><strong>Email:</strong> @Model.User?.Email</p>
-            <p><strong>Địa chỉ:</strong> @Model.Address</p>
-            <p><strong>Thành phố:</strong> @Model.City</p>
-            <p><strong>Mã bưu điện:</strong> @Model.PostalCode</p>
+            <p><strong>Địa chỉ:</strong> @Model.Address, @Model.City</p>
         </div>
     </div>
     <div class="col-md-6">
         <div class="admin-form-card">
-            <h6 class="mb-3">Trạng thái đơn hàng</h6>
-            <p>
-                <strong>Hiện tại:</strong>
-                @{
-                    var cls = Model.Status switch { "Completed" => "bg-success", "Cancelled" => "bg-danger", "Processing" => "bg-info", _ => "bg-warning" };
-                }
-                <span class="badge @cls">@Model.Status</span>
-            </p>
-            <form asp-controller="AdminOrder" asp-action="UpdateStatus" method="post" class="d-flex gap-2 align-items-center mt-3">
+            <h6 class="mb-3">Cập nhật trạng thái</h6>
+            <form asp-controller="AdminOrder" asp-action="UpdateStatus" method="post" class="d-flex gap-2">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="id" value="@Model.Id" />
                 <select name="status" class="form-select">
                     <option value="Pending" selected="@(Model.Status == "Pending")">Pending</option>
@@ -53,18 +34,9 @@
         </div>
     </div>
 </div>
-
 <div class="admin-table-wrap mt-4">
-    <h6 class="p-3 mb-0 border-bottom">Sản phẩm trong đơn</h6>
     <table class="table admin-table">
-        <thead>
-            <tr>
-                <th>Sản phẩm</th>
-                <th>Đơn giá</th>
-                <th>Số lượng</th>
-                <th>Thành tiền</th>
-            </tr>
-        </thead>
+        <thead><tr><th>Sản phẩm</th><th>Đơn giá</th><th>SL</th><th>Thành tiền</th></tr></thead>
         <tbody>
             @foreach (var od in Model.OrderDetails)
             {
@@ -76,11 +48,6 @@
                 </tr>
             }
         </tbody>
-        <tfoot>
-            <tr class="table-active">
-                <td colspan="3" class="text-end fw-bold">Tổng cộng:</td>
-                <td class="fw-bold text-primary fs-5">@Model.TotalAmount.ToString("N0") ₫</td>
-            </tr>
-        </tfoot>
+        <tfoot><tr><td colspan="3" class="text-end fw-bold">Tổng:</td><td class="fw-bold text-primary">@Model.TotalAmount.ToString("N0") ₫</td></tr></tfoot>
     </table>
 </div>

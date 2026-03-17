@@ -3,40 +3,22 @@
     ViewData["Title"] = "Quản lý Role";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-
 <div class="admin-page-header">
-    <div>
-        <h4><i class="bi bi-shield-lock me-2"></i>Quản lý Role</h4>
-        <p class="text-muted mb-0">@Model.Count roles</p>
-    </div>
-    <a href="/Admin/AdminRole/Create" class="btn btn-primary">
+    <div><h4><i class="bi bi-shield-lock me-2"></i>Quản lý Role</h4></div>
+    <a asp-controller="AdminRole" asp-action="Create" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i>Thêm Role
     </a>
 </div>
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-
 <div class="admin-table-wrap">
     <table class="table admin-table">
-        <thead>
-            <tr>
-                <th>Tên Role</th>
-                <th>ID</th>
-                <th>Thao tác</th>
-            </tr>
-        </thead>
+        <thead><tr><th>Tên Role</th><th>ID</th><th>Thao tác</th></tr></thead>
         <tbody>
             @foreach (var role in Model)
             {
                 <tr>
                     <td><span class="badge fs-6 @(role.Name == "Admin" ? "bg-danger" : "bg-primary")">@role.Name</span></td>
-                    <td class="text-muted small">@role.Id</td>
+                    <td class="text-muted" style="font-size:0.75rem">@role.Id</td>
                     <td>
                         @if (role.Name != "Admin")
                         {
@@ -46,10 +28,6 @@
                                 <input type="hidden" name="id" value="@role.Id" />
                                 <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash3"></i></button>
                             </form>
-                        }
-                        else
-                        {
-                            <span class="text-muted small">Không thể xóa</span>
                         }
                     </td>
                 </tr>

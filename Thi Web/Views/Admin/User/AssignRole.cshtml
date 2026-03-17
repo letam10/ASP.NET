@@ -11,39 +11,165 @@
         <h4><i class="bi bi-key me-2"></i>Phân quyền người dùng</h4>
         <p class="text-muted mb-0">@user?.FullName — @user?.Email</p>
     </div>
-    <a href="/Admin/AdminUser/Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Quay lại</a>
+    <a asp-controller="AdminUser" asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+    </a>
 </div>
 
-<div class="admin-form-card" style="max-width:500px">
-    <h6 class="mb-4">Quyền hiện tại của người dùng</h6>
-    @foreach (var role in allRoles!)
-    {
-        var hasRole = userRoles!.Contains(role.Name!);
-        <div class="role-toggle-item">
-            <div>
-                <strong>@role.Name</strong>
-                @if (hasRole)
+<div class="row g-4" style="max-width:900px">
+
+    <!-- Thông tin user -->
+    <div class="col-md-4">
+        <div class="admin-form-card h-100">
+            <div class="text-center mb-3">
+                <div style="width:70px;height:70px;border-radius:50%;background:rgba(37,99,235,0.15);
+                    border:2px solid var(--primary);display:flex;align-items:center;
+                    justify-content:center;font-size:1.8rem;font-weight:800;
+                    color:var(--primary-light);margin:0 auto">
+                    @(user?.FullName?.Substring(0, 1).ToUpper() ?? "U")
+                </div>
+                <h6 class="mt-3 mb-1">@user?.FullName</h6>
+                <small class="text-muted">@user?.Email</small>
+            </div>
+            <hr style="border-color:var(--border)">
+            <p class="mb-2" style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
+                letter-spacing:0.08em;color:var(--text-muted)">
+                Quyền hiện tại
+            </p>
+            @if (userRoles != null && userRoles.Any())
+            {
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var r in userRoles)
+                    {
+                        <span class="badge fs-6 @(r == "Admin" ? "bg-danger" : r == "Customer" ? "bg-primary" : "bg-secondary")">
+                            <i class="bi bi-shield-check me-1"></i>@r
+                        </span>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted fst-italic" style="font-size:0.85rem">Chưa có quyền nào</p>
+            }
+        </div>
+    </div>
+
+    <!-- Gán / Gỡ quyền -->
+    <div class="col-md-8">
+        <div class="admin-form-card">
+
+            <!-- Tab -->
+            <ul class="nav nav-pills mb-4 gap-2" id="roleTab">
+                <li class="nav-item">
+                    <button class="nav-link active" id="tab-assign" onclick="switchTab('assign')">
+                        <i class="bi bi-plus-circle me-1"></i>Gán quyền
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="tab-remove" onclick="switchTab('remove')"
+                        @(userRoles == null || !userRoles.Any() ? "disabled" : "")>
+                        <i class="bi bi-x-circle me-1"></i>Gỡ quyền
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Panel gán quyền -->
+            <div id="panel-assign">
+                @{
+                    var rolesCanAssign = allRoles!.Where(r => !userRoles!.Contains(r.Name!)).ToList();
+                }
+                @if (rolesCanAssign.Any())
                 {
-                    <span class="badge bg-success ms-2">Đang có</span>
+                    <form asp-controller="AdminUser" asp-action="AssignRole" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="userId" value="@user!.Id" />
+                        <input type="hidden" name="assign" value="true" />
+                        <div class="mb-3">
+                            <label class="form-label">Chọn quyền muốn gán</label>
+                            <select name="roleName" class="form-select" required>
+                                <option value="">-- Chọn quyền --</option>
+                                @foreach (var role in rolesCanAssign)
+                                {
+                                    <option value="@role.Name">@role.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-plus-circle me-2"></i>Xác nhận gán quyền
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-check-circle text-success" style="font-size:2.5rem"></i>
+                        <p class="mt-2 text-muted">Người dùng đã có tất cả các quyền.</p>
+                    </div>
                 }
             </div>
-            <form asp-controller="AdminUser" asp-action="AssignRole" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="userId" value="@user!.Id" />
-                <input type="hidden" name="roleName" value="@role.Name" />
-                <input type="hidden" name="assign" value="@(!hasRole)" />
-                <button type="submit" class="btn btn-sm @(hasRole ? "btn-danger" : "btn-success")">
-                    @if (hasRole)
-                    {
-                        <span><i class="bi bi-x me-1"></i>Gỡ quyền</span>
-                    }
-                    else
-                    {
 
-                        <span><i class="bi bi-plus me-1"></i>Gán quyền</span>
-                    }
-                </button>
-            </form>
+            <!-- Panel gỡ quyền -->
+            <div id="panel-remove" style="display:none">
+                @if (userRoles != null && userRoles.Any())
+                {
+                    <form asp-controller="AdminUser" asp-action="AssignRole" method="post"
+                          onsubmit="return confirm('Bạn có chắc muốn gỡ quyền này?')">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="userId" value="@user!.Id" />
+                        <input type="hidden" name="assign" value="false" />
+                        <div class="mb-3">
+                            <label class="form-label">Chọn quyền muốn gỡ</label>
+                            <select name="roleName" class="form-select" required>
+                                <option value="">-- Chọn quyền --</option>
+                                @foreach (var r in userRoles)
+                                {
+                                    <option value="@r">@r</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-x-circle me-2"></i>Xác nhận gỡ quyền
+                        </button>
+                    </form>
+                }
+            </div>
+
         </div>
-    }
+
+        <!-- Danh sách tất cả roles trong hệ thống -->
+        <div class="admin-form-card mt-4">
+            <p class="mb-3" style="font-size:0.78rem;font-weight:700;text-transform:uppercase;
+                letter-spacing:0.08em;color:var(--text-muted)">
+                Tất cả quyền trong hệ thống
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var role in allRoles!)
+                {
+                    var hasIt = userRoles!.Contains(role.Name!);
+                    <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;
+                        border-radius:10px;border:1px solid @(hasIt ? "var(--success)" : "var(--border)");
+                        background:@(hasIt ? "rgba(16,185,129,0.08)" : "var(--bg-dark-2)")">
+                        <i class="bi @(hasIt ? "bi-check-circle-fill text-success" : "bi-circle text-muted")"></i>
+                        <span style="font-size:0.88rem;font-weight:500">@role.Name</span>
+                        @if (hasIt)
+                        {
+                            <span class="badge bg-success" style="font-size:0.65rem">Đang có</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        function switchTab(tab) {
+            document.getElementById('panel-assign').style.display = tab === 'assign' ? 'block' : 'none';
+            document.getElementById('panel-remove').style.display = tab === 'remove' ? 'block' : 'none';
+            document.getElementById('tab-assign').classList.toggle('active', tab === 'assign');
+            document.getElementById('tab-remove').classList.toggle('active', tab === 'remove');
+        }
+    </script>
+}
