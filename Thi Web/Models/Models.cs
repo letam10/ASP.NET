@@ -51,9 +51,6 @@ namespace TechShop.Models
 
         [Display(Name = "Còn hàng")]
         public bool IsActive { get; set; } = true;
-        public string? Brand { get; set; }
-        public int ReviewCount { get; set; } = 0;
-        public decimal AverageRating { get; set; } = 0;
         // Quan hệ Navigation cho chi tiết đánh giá
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
