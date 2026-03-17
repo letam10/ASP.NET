@@ -2,6 +2,18 @@
 @{
     ViewData["Title"] = Model.Name;
     var related = ViewBag.Related as List<TechShop.Models.Product>;
+
+    // CHUYỂN LOGIC TẠO SỐ LIỆU ẢO LÊN TRÊN CÙNG ĐỂ DÙNG CHUNG CHO TOÀN TRANG
+    var randomDetail = new Random(Model.Id);
+    decimal fakeRatingDetail = Math.Round((decimal)(randomDetail.NextDouble() * 1.0 + 4.0), 1);
+    int fakeReviewCountDetail = randomDetail.Next(12, 345);
+
+    string[] fakeBrands = { "Asus", "Dell", "Logitech", "Apple", "Samsung", "Sony" };
+    string fakeBrand = fakeBrands[randomDetail.Next(fakeBrands.Length)];
+
+    int fullStarsDetail = (int)Math.Floor(fakeRatingDetail);
+    bool hasHalfStarDetail = (fakeRatingDetail - fullStarsDetail) >= 0.5m;
+    int emptyStarsDetail = 5 - fullStarsDetail - (hasHalfStarDetail ? 1 : 0);
 }
 
 <div class="container py-5" style="margin-top:70px">
@@ -22,20 +34,6 @@
         <div class="col-lg-7">
             <span class="badge badge-cat mb-2">@Model.Category?.Name</span>
             <h1 class="detail-title">@Model.Name</h1>
-            <!-- CHÈN DƯỚI TÊN SẢN PHẨM Ở TRANG CHI TIẾT -->
-            @{
-                var randomDetail = new Random(Model.Id);
-                decimal fakeRatingDetail = Math.Round((decimal)(randomDetail.NextDouble() * 1.0 + 4.0), 1);
-                int fakeReviewCountDetail = randomDetail.Next(12, 345);
-
-                // Tạo 1 thương hiệu ảo
-                string[] fakeBrands = { "Asus", "Dell", "Logitech", "Apple", "Samsung", "Sony" };
-                string fakeBrand = fakeBrands[randomDetail.Next(fakeBrands.Length)];
-
-                int fullStarsDetail = (int)Math.Floor(fakeRatingDetail);
-                bool hasHalfStarDetail = (fakeRatingDetail - fullStarsDetail) >= 0.5m;
-                int emptyStarsDetail = 5 - fullStarsDetail - (hasHalfStarDetail ? 1 : 0);
-            }
 
             <div class="product-rating-container d-flex align-items-center mb-3">
                 <div class="stars-outer text-warning" style="color: var(--brand-gold)!important; font-size: 1.2rem;">
@@ -56,6 +54,7 @@
                 <span class="ms-2 text-muted">(@fakeReviewCountDetail lượt đánh giá)</span>
                 <span class="ms-3 text-muted border-start border-secondary ps-3">Thương hiệu: <span class="text-cyan fw-bold">@fakeBrand</span></span>
             </div>
+
             <div class="d-flex align-items-center gap-3 mb-3">
                 <span class="detail-price">@Model.Price.ToString("N0") ₫</span>
                 @if (Model.Stock > 0)
@@ -64,7 +63,6 @@
                 }
                 else
                 {
-
                     <span class="badge bg-danger">Hết hàng</span>
                 }
             </div>
@@ -126,6 +124,30 @@
         </div>
     }
 </div>
+
+<script type="application/ld+json">
+    {
+      "@@context": "https://schema.org/",
+      "@@type": "Product",
+      "name": "@Html.Raw(Model.Name)",
+      "image": "https://techshop.vn/images/products/@Model.Id",
+      "brand": {
+        "@@type": "Brand",
+        "name": "@Html.Raw(fakeBrand)"
+      },
+      "aggregateRating": {
+        "@@type": "AggregateRating",
+        "ratingValue": "@fakeRatingDetail.ToString(System.Globalization.CultureInfo.InvariantCulture)",
+        "reviewCount": "@fakeReviewCountDetail"
+      },
+      "offers": {
+        "@@type": "Offer",
+        "priceCurrency": "VND",
+        "price": "@Model.Price",
+        "availability": "https://schema.org/InStock"
+      }
+    }
+</script>
 
 @section Scripts {
     <script>
