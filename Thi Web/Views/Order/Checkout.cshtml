@@ -34,6 +34,15 @@
                         <input name="Phone" type="tel" class="form-control bg-dark text-light border-secondary" placeholder="0901 234 567" required />
                     </div>
                 </div>
+                <!-- --- Thêm Email --- -->
+                <div class="col-md-6">
+                    <label class="form-label text-muted fw-bold">Email nhận thông báo <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark text-muted border-secondary"><i class="bi bi-envelope"></i></span>
+                        <!-- Order model có property CustomerEmail dùng asp-for -->
+                        <input type="email" name="CustomerEmail" class="form-control bg-dark text-light border-secondary" placeholder="you@example.com" required />
+                    </div>
+                </div>
 
                 <div class="col-12">
                     <label asp-for="Address" class="form-label text-muted fw-bold">Địa chỉ chi tiết <span class="text-danger">*</span></label>
@@ -57,19 +66,30 @@
                 </div>
             </div>
 
+            <!-- --- Phương thức thanh toán --- -->
             <div class="payment-method-wrap mb-4 p-3 rounded" style="background-color: rgba(255,255,255,0.03);">
                 <h6 class="text-white mb-3">Phương thức thanh toán</h6>
-                <label class="pay-option active">
-                    <input type="radio" name="payment" value="cod" checked />
-                    <i class="bi bi-cash-coin"></i>
-                    <span>Thanh toán khi nhận hàng (COD)</span>
-                </label>
-                <label class="pay-option">
-                    <input type="radio" name="payment" value="bank" />
-                    <i class="bi bi-bank"></i>
-                    <span>Chuyển khoản ngân hàng</span>
-                </label>
-                <div class="d-flex flex-column gap-2">
+
+                <div class="d-flex gap-3 align-items-center flex-wrap">
+                    <label class="pay-option active">
+                        <input type="radio" name="payment" value="cod" id="payCOD" checked />
+                        <i class="bi bi-cash-coin"></i>
+                        <span>Thanh toán khi nhận hàng (COD)</span>
+                    </label>
+
+                    <label class="pay-option">
+                        <input type="radio" name="payment" value="bank" id="payBank" />
+                        <i class="bi bi-bank"></i>
+                        <span>Chuyển khoản ngân hàng</span>
+                    </label>
+                </div>
+
+                <!-- QR (ẩn mặc định) -->
+                <div id="qr-code-section" class="text-center mt-3 mb-2" style="display: none;">
+                    <h6 class="text-warning mb-2">Quét mã QR để thanh toán</h6>
+                    <img id="qr-image" src="https://api.vietqr.io/image/970436-0123456789-dAbCdEf.jpg?accountName=TECHSHOP" alt="Mã QR" style="width: 250px; border-radius:10px;" />
+                    <p id="qr-instruction" class="mt-2 text-muted small">Vui lòng ghi nội dung CK: "Thanh toan don hang {SĐT của bạn}"</p>
+                    <div class="small text-muted">Nếu bạn đã chuyển khoản, vui lòng chờ xác nhận từ hệ thống hoặc liên hệ CSKH.</div>
                 </div>
             </div>
 
@@ -123,11 +143,52 @@
 
 @section Scripts {
     <script>
-        document.querySelectorAll('.pay-option input').forEach(input => {
-            input.addEventListener('change', function() {
-                document.querySelectorAll('.pay-option').forEach(l => l.classList.remove('active'));
-                this.closest('.pay-option').classList.add('active');
+        // xử lý thay đổi chọn phương thức và active class
+        function refreshPayOptions() {
+            document.querySelectorAll('.pay-option input').forEach(input => {
+                // ensure visual active class
+                input.addEventListener('change', function () {
+                    document.querySelectorAll('.pay-option').forEach(l => l.classList.remove('active'));
+                    var parent = this.closest('.pay-option');
+                    if (parent) parent.classList.add('active');
+                    toggleQR();
+                });
             });
+        }
+
+        // show/hide QR
+        function toggleQR() {
+            var isBank = document.getElementById('payBank') && document.getElementById('payBank').checked;
+            var qrSection = document.getElementById('qr-code-section');
+            if (!qrSection) return;
+
+            qrSection.style.display = isBank ? 'block' : 'none';
+
+            // cập nhật nội dung bằng số điện thoại
+            var phoneInput = document.querySelector('input[name="Phone"]');
+            var instruction = document.getElementById('qr-instruction');
+            if (instruction) {
+                var phone = phoneInput ? phoneInput.value.trim() : '';
+                if (phone) {
+                    instruction.textContent = 'Vui lòng ghi nội dung CK: "Thanh toan don hang ' + phone + '"';
+                } else {
+                    instruction.textContent = 'Vui lòng ghi nội dung CK: "Thanh toan don hang {SĐT của bạn}"';
+                }
+            }
+        }
+
+        // Khởi tạo khi load
+        document.addEventListener('DOMContentLoaded', function () {
+            refreshPayOptions();
+            // gọi 1 lần để set trạng thái ban đầu
+            toggleQR();
+
+            var phoneInput = document.querySelector('input[name="Phone"]');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function () {
+                    toggleQR();
+                });
+            }
         });
     </script>
 }
