@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Xác minh 2 bước";
+}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="bi bi-phone brand-icon"></i>
+            <h2>Xác minh 2 bước</h2>
+            <p>Nhập mã từ Google Authenticator</p>
+        </div>
+
+        <form asp-action="TwoFactorLogin" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="rememberMe" value="@ViewBag.RememberMe" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="mb-4">
+                <label class="form-label">Mã xác minh (6 số)</label>
+                <div class="input-icon-wrap">
+                    <i class="bi bi-shield-lock"></i>
+                    <input type="text" name="code" class="form-control"
+                           placeholder="123456" maxlength="6" autofocus
+                           style="letter-spacing:0.3em;font-size:1.2rem;text-align:center" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-lg">
+                <i class="bi bi-check-circle me-2"></i>Xác minh
+            </button>
+        </form>
+    </div>
+</div>
