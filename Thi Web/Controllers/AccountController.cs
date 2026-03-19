@@ -246,7 +246,7 @@ namespace TechShop.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError("", "Mã xác minh không đúng.");
+            TempData["Error"] = "Mã xác minh không đúng. Vui lòng thử lại.";
             return View();
         }
 

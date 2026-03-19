@@ -1,31 +1,390 @@
 ﻿@{
     ViewData["Title"] = "Xác minh 2 bước";
+    Layout = null;
 }
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xác minh 2 bước — TechShop</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<div class="auth-page">
-    <div class="auth-card">
-        <div class="auth-header">
-            <i class="bi bi-phone brand-icon"></i>
-            <h2>Xác minh 2 bước</h2>
-            <p>Nhập mã từ Google Authenticator</p>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #060910;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-layer {
+            position: fixed; inset: 0; z-index: 0;
+            background:
+                radial-gradient(ellipse 70% 60% at 20% 20%, rgba(99,102,241,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 80% 80%, rgba(6,182,212,0.12) 0%, transparent 55%),
+                #060910;
+        }
+
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image:
+                linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        .orb {
+            position: fixed; border-radius: 50%;
+            filter: blur(80px); z-index: 0;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+        .orb-1 { width:400px; height:400px; background:rgba(99,102,241,0.12); top:-100px; left:-100px; }
+        .orb-2 { width:300px; height:300px; background:rgba(6,182,212,0.1); bottom:-80px; right:-80px; animation-delay:3s; }
+
+        @@keyframes orbFloat {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            33%       { transform: translate(30px,-20px) scale(1.05); }
+            66%       { transform: translate(-20px,15px) scale(0.97); }
+        }
+
+        .login-wrapper {
+            position: relative; z-index: 1;
+            width: 100%; max-width: 440px; padding: 20px;
+        }
+
+        .brand-bar { text-align: center; margin-bottom: 28px; }
+        .brand-bar a {
+            display: inline-flex; align-items: center; gap: 10px;
+            text-decoration: none; color: #f1f5f9;
+            font-family: 'Syne', sans-serif;
+            font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em;
+        }
+        .brand-icon-wrap {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+        }
+
+        .login-card {
+            background: rgba(15,23,42,0.8);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 36px 36px 32px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow:
+                0 0 0 1px rgba(99,102,241,0.1),
+                0 24px 60px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+
+        .card-heading { text-align: center; margin-bottom: 28px; }
+        .card-heading .shield-icon {
+            width: 64px; height: 64px; border-radius: 18px;
+            background: rgba(99,102,241,0.15);
+            border: 2px solid rgba(99,102,241,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; color: #818cf8;
+            margin: 0 auto 16px;
+        }
+        .card-heading h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.55rem; font-weight: 800;
+            color: #f1f5f9; letter-spacing: -0.03em; margin-bottom: 6px;
+        }
+        .card-heading p { font-size: 0.88rem; color: #64748b; }
+
+        .field-group { margin-bottom: 18px; }
+        .field-label {
+            display: block; margin-bottom: 8px;
+            font-size: 0.78rem; font-weight: 600;
+            color: #64748b; letter-spacing: 0.07em; text-transform: uppercase;
+        }
+        .field-wrap { position: relative; }
+        .field-icon {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.88rem; color: #475569;
+            pointer-events: none; z-index: 1;
+        }
+        .field-input {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; color: #f1f5f9;
+            font-size: 1.3rem; font-family: 'Inter', sans-serif;
+            padding: 14px 14px 14px 44px;
+            outline: none; letter-spacing: 0.25em;
+            text-align: center;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none;
+        }
+        .field-input::placeholder {
+            color: #2d3d50;
+            letter-spacing: 0.1em;
+            font-size: 0.9rem;
+        }
+        .field-input:focus {
+            border-color: rgba(99,102,241,0.6);
+            background: rgba(99,102,241,0.06);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+        }
+
+        .btn-verify {
+            width: 100%; padding: 13px 20px;
+            border-radius: 13px; border: none;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: #fff; font-family: 'Inter', sans-serif;
+            font-size: 0.92rem; font-weight: 700;
+            letter-spacing: 0.02em; cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+            display: flex; align-items: center;
+            justify-content: center; gap: 8px;
+            margin-top: 8px; margin-bottom: 22px;
+        }
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(99,102,241,0.5);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        .btn-verify:active { transform: translateY(0); }
+
+        .card-footer-text {
+            text-align: center; font-size: 0.85rem; color: #475569;
+        }
+        .card-footer-text a {
+            color: #818cf8; font-weight: 600;
+            text-decoration: none; transition: color 0.2s;
+        }
+        .card-footer-text a:hover { color: #a5b4fc; }
+
+        .bottom-link {
+            text-align: center; margin-top: 20px; font-size: 0.82rem;
+        }
+        .bottom-link a { color: #475569; text-decoration: none; transition: color 0.2s; }
+        .bottom-link a:hover { color: #94a3b8; }
+
+        /* ===== TOAST POPUP ===== */
+        .toast-wrap {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            min-width: 320px;
+            max-width: 420px;
+            pointer-events: none;
+        }
+
+        .toast-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            pointer-events: all;
+            animation: toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
+
+        .toast-box.error {
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(239,68,68,0.4);
+            color: #fca5a5;
+            box-shadow: 0 8px 32px rgba(239,68,68,0.2), 0 2px 8px rgba(0,0,0,0.4);
+            backdrop-filter: blur(12px);
+        }
+
+        .toast-box.success {
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(16,185,129,0.4);
+            color: #6ee7b7;
+            box-shadow: 0 8px 32px rgba(16,185,129,0.2), 0 2px 8px rgba(0,0,0,0.4);
+            backdrop-filter: blur(12px);
+        }
+
+        .toast-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+
+        .toast-box.error .toast-icon {
+            background: rgba(239,68,68,0.15);
+            color: #f87171;
+        }
+
+        .toast-box.success .toast-icon {
+            background: rgba(16,185,129,0.15);
+            color: #34d399;
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 3px; border-radius: 0 0 14px 14px;
+            animation: progressBar 5s linear forwards;
+        }
+
+        .toast-box.error .toast-progress { background: rgba(239,68,68,0.6); }
+        .toast-box.success .toast-progress { background: rgba(16,185,129,0.6); }
+
+        .toast-close {
+            margin-left: auto; background: none; border: none;
+            color: #475569; cursor: pointer; font-size: 1rem;
+            padding: 2px; transition: color 0.2s; flex-shrink: 0;
+        }
+        .toast-close:hover { color: #94a3b8; }
+
+        .toast-fade-out {
+            animation: toastOut 0.3s ease forwards !important;
+        }
+
+        @@keyframes toastIn {
+            from { opacity: 0; transform: translateY(-16px) scale(0.95); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @@keyframes toastOut {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to   { opacity: 0; transform: translateY(-10px) scale(0.95); }
+        }
+
+        @@keyframes progressBar {
+            from { width: 100%; }
+            to   { width: 0%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    @* Toast Error *@
+    @if (TempData["Error"] != null)
+    {
+        <div class="toast-wrap" id="toastWrap">
+            <div class="toast-box error" style="position:relative">
+                <div class="toast-icon"><i class="bi bi-x-circle-fill"></i></div>
+                <span>@TempData["Error"]</span>
+                <button class="toast-close" onclick="closeToast()">
+                    <i class="bi bi-x"></i>
+                </button>
+                <div class="toast-progress"></div>
+            </div>
+        </div>
+    }
+
+    @* Toast Success *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="toast-wrap" id="toastWrap">
+            <div class="toast-box success" style="position:relative">
+                <div class="toast-icon"><i class="bi bi-check-circle-fill"></i></div>
+                <span>@TempData["Success"]</span>
+                <button class="toast-close" onclick="closeToast()">
+                    <i class="bi bi-x"></i>
+                </button>
+                <div class="toast-progress"></div>
+            </div>
+        </div>
+    }
+
+    <div class="login-wrapper">
+
+        <div class="brand-bar">
+            <a href="/">
+                <div class="brand-icon-wrap">
+                    <i class="bi bi-cpu-fill" style="color:#fff"></i>
+                </div>
+                TechShop
+            </a>
         </div>
 
-        <form asp-action="TwoFactorLogin" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="rememberMe" value="@ViewBag.RememberMe" />
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-            <div class="mb-4">
-                <label class="form-label">Mã xác minh (6 số)</label>
-                <div class="input-icon-wrap">
-                    <i class="bi bi-shield-lock"></i>
-                    <input type="text" name="code" class="form-control"
-                           placeholder="123456" maxlength="6" autofocus
-                           style="letter-spacing:0.3em;font-size:1.2rem;text-align:center" />
+        <div class="login-card">
+            <div class="card-heading">
+                <div class="shield-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
                 </div>
+                <h1>Xác minh 2 bước</h1>
+                <p>Nhập mã 6 số từ ứng dụng Google Authenticator</p>
             </div>
-            <button type="submit" class="btn btn-primary w-100 btn-lg">
-                <i class="bi bi-check-circle me-2"></i>Xác minh
-            </button>
-        </form>
+
+            <form asp-action="TwoFactorLogin" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="rememberMe" value="@ViewBag.RememberMe" />
+
+                <div class="field-group">
+                    <label class="field-label">Mã xác minh</label>
+                    <div class="field-wrap">
+                        <i class="bi bi-phone field-icon"></i>
+                        <input type="text" name="code" class="field-input"
+                               placeholder="• • • • • •"
+                               maxlength="6" autofocus
+                               inputmode="numeric" autocomplete="one-time-code" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-verify">
+                    <i class="bi bi-shield-check"></i>
+                    Xác minh ngay
+                </button>
+
+                <p class="card-footer-text">
+                    <a asp-controller="Account" asp-action="Login">
+                        <i class="bi bi-arrow-left me-1"></i>Quay lại đăng nhập
+                    </a>
+                </p>
+            </form>
+        </div>
+
+        <div class="bottom-link">
+            <a href="/"><i class="bi bi-arrow-left me-1"></i>Về trang chủ</a>
+        </div>
+
     </div>
-</div>
+
+    <script>
+        function closeToast() {
+            var wrap = document.getElementById('toastWrap');
+            if (wrap) {
+                wrap.querySelector('.toast-box').classList.add('toast-fade-out');
+                setTimeout(function () { wrap.remove(); }, 300);
+            }
+        }
+
+        // Tự đóng sau 5 giây
+        window.addEventListener('DOMContentLoaded', function () {
+            var wrap = document.getElementById('toastWrap');
+            if (wrap) {
+                setTimeout(function () {
+                    var box = wrap.querySelector('.toast-box');
+                    if (box) {
+                        box.classList.add('toast-fade-out');
+                        setTimeout(function () { wrap.remove(); }, 300);
+                    }
+                }, 5000);
+            }
+        });
+
+        // Tự format mã: chỉ nhận số
+        document.querySelector('input[name="code"]').addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+        });
+    </script>
+</body>
+</html>
