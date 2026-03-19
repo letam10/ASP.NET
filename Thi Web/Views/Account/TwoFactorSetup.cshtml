@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Cài đặt xác minh 2 bước";
+}
+
+<div class="auth-page">
+    <div class="auth-card" style="max-width:500px">
+        <div class="auth-header">
+            <i class="bi bi-shield-lock brand-icon"></i>
+            <h2>Xác minh 2 bước</h2>
+            <p>Quét mã QR bằng Google Authenticator</p>
+        </div>
+
+        <div class="text-center mb-4">
+            <div id="qrcode" style="display:inline-block;padding:12px;background:#fff;border-radius:12px"></div>
+            <p class="text-muted mt-3" style="font-size:0.85rem">
+                Hoặc nhập thủ công: <code style="color:var(--primary-light)">@ViewBag.Key</code>
+            </p>
+        </div>
+
+        <form asp-action="TwoFactorSetup" method="post">
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label class="form-label">Nhập mã 6 số từ app</label>
+                <div class="input-icon-wrap">
+                    <i class="bi bi-phone"></i>
+                    <input type="text" name="code" class="form-control"
+                           placeholder="123456" maxlength="6"
+                           style="letter-spacing:0.3em;font-size:1.2rem;text-align:center" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-lg">
+                <i class="bi bi-shield-check me-2"></i>Xác nhận & Bật 2FA
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        new QRCode(document.getElementById("qrcode"), {
+        text: "@ViewBag.QrCode",
+        width: 200,
+        height: 200,
+        colorDark: "#000",
+        colorLight: "#fff"
+        });
+    </script>
+}

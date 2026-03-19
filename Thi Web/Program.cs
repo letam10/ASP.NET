@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -23,7 +24,29 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
+// Google & Facebook OAuth
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+    })
+   .AddFacebook(options =>
+   {
+       options.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
+       options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
+       options.Fields.Add("name");
+       options.Fields.Add("email");
+       options.Scope.Clear(); // xóa scope mặc định
+       options.Scope.Add("public_profile"); // chỉ dùng public_profile
+   });
 
+// Xác minh 2 bước (2FA)
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
+});
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
