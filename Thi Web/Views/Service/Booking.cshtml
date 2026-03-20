@@ -1,0 +1,72 @@
+﻿@model TechShop.Models.ServiceTicket
+@{
+    ViewData["Title"] = "Đặt lịch sửa chữa & Vệ sinh";
+}
+
+<div class="container py-5" style="margin-top:70px">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-primary text-white p-4 rounded-top-4">
+                    <h3 class="mb-0"><i class="bi bi-tools me-2"></i>Đặt lịch Dịch vụ</h3>
+                    <p class="mb-0 mt-1 opacity-75">Vệ sinh PC/Laptop, sửa chữa phần cứng chuyên nghiệp</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Booking" method="post">
+                        <input type="hidden" asp-for="UserId" />
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label asp-for="CustomerName" class="form-label fw-bold">Họ và tên *</label>
+                                <input asp-for="CustomerName" class="form-control" placeholder="Nhập tên của bạn" required />
+                                <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label fw-bold">Số điện thoại *</label>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="Để nhân viên liên hệ" required />
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="DeviceModel" class="form-label fw-bold">Tên thiết bị / Model *</label>
+                                <input asp-for="DeviceModel" class="form-control" placeholder="VD: Lenovo Legion Slim 2024" required />
+                                <span asp-validation-for="DeviceModel" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ServiceType" class="form-label fw-bold">Loại dịch vụ *</label>
+                                <select asp-for="ServiceType" class="form-select">
+                                    <option value="Vệ sinh máy - Tra keo tản nhiệt">Vệ sinh máy - Tra keo tản nhiệt</option>
+                                    <option value="Nâng cấp RAM / Ổ cứng">Nâng cấp RAM / Ổ cứng</option>
+                                    <option value="Sửa chữa phần cứng">Sửa chữa phần cứng</option>
+                                    <option value="Cài đặt phần mềm / Windows">Cài đặt phần mềm / Windows</option>
+                                    <option value="Kiểm tra lỗi tổng quát">Kiểm tra lỗi tổng quát</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label asp-for="BookingDate" class="form-label fw-bold">Ngày giờ mang máy đến *</label>
+                                <input asp-for="BookingDate" type="datetime-local" class="form-control" required />
+                                <span asp-validation-for="BookingDate" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label asp-for="Description" class="form-label fw-bold">Mô tả tình trạng lỗi (Nếu có)</label>
+                                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Máy bị nóng, quạt kêu to, bật không lên..."></textarea>
+                            </div>
+
+                            <div class="col-12 mt-4 text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
+                                    Xác nhận đặt lịch
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
