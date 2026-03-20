@@ -1,9 +1,14 @@
-﻿@model TechShop.Services.DummyProduct
+﻿@model TechShop.Models.Product
 @{
-    ViewData["Title"] = Model.Title;
-    var related = ViewBag.Related as List<TechShop.Services.DummyProduct>;
-    int fullStars = (int)Math.Floor(Model.Rating);
-    bool hasHalf = (Model.Rating - fullStars) >= 0.5;
+    ViewData["Title"] = Model.Name;
+    var related = ViewBag.Related as List<TechShop.Models.Product>;
+
+    // Tạo Rating giả lập vì Việt Anh không cần đánh giá thật cho sản phẩm
+    var random = new Random(Model.Id);
+    decimal rating = Math.Round((decimal)(random.NextDouble() * 1.0 + 4.0), 1);
+    int reviewCount = random.Next(12, 345);
+    int fullStars = (int)Math.Floor(rating);
+    bool hasHalf = (rating - fullStars) >= 0.5m;
     int emptyStars = 5 - fullStars - (hasHalf ? 1 : 0);
 }
 
@@ -12,49 +17,40 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
             <li class="breadcrumb-item">
-                <a asp-controller="Product" asp-action="Index"
-                       asp-route-category="@Model.Category">
-                    @(DummyJsonService.TechCategories.GetValueOrDefault(Model.Category, Model.Category))
+                <a asp-controller="Product" asp-action="Index" asp-route-category="@Model.Category?.Name">
+                    @Model.Category?.Name
                 </a>
             </li>
-            <li class="breadcrumb-item active">@Model.Title</li>
+            <li class="breadcrumb-item active">@Model.Name</li>
         </ol>
     </nav>
 
     <div class="row g-5">
-        <!-- Ảnh -->
         <div class="col-lg-5">
             <div class="detail-img-wrap mb-3">
-                <img src="@Model.Thumbnail" alt="@Model.Title"
-                     class="detail-img" id="mainImg" />
+                <img src="@(Model.ImageUrl ?? "https://via.placeholder.com/500")" alt="@Model.Name" class="detail-img" id="mainImg" />
             </div>
-            @if (Model.Images.Count > 1)
+            @if (Model.Images != null && Model.Images.Any())
             {
                 <div class="d-flex gap-2 flex-wrap">
-                    @foreach (var img in Model.Images.Take(5))
+                    @foreach (var img in Model.Images.OrderBy(i => i.DisplayOrder).Take(5))
                     {
-                        <img src="@img" alt="thumb"
-                             onclick="document.getElementById('mainImg').src='@img'"
-                             style="width:60px;height:60px;object-fit:cover;border-radius:8px;
-                        cursor:pointer;border:2px solid var(--border);transition:all 0.2s"
-                             onmouseover="this.style.borderColor='var(--primary)'"
-                             onmouseout="this.style.borderColor='var(--border)'" />
+                        <img src="@img.ImageUrl" alt="thumb"
+                             onclick="document.getElementById('mainImg').src='@img.ImageUrl'"
+                             style="width:60px;height:60px;object-fit:cover;border-radius:8px; cursor:pointer;border:2px solid var(--bs-border-color);transition:all 0.2s"
+                             onmouseover="this.style.borderColor='var(--bs-primary)'"
+                             onmouseout="this.style.borderColor='var(--bs-border-color)'" />
                     }
                 </div>
             }
         </div>
 
-        <!-- Thông tin -->
         <div class="col-lg-7">
-            <span class="badge badge-cat mb-2">
-                @(DummyJsonService.TechCategories.GetValueOrDefault(Model.Category, Model.Category))
-            </span>
-            <h1 class="detail-title">@Model.Title</h1>
-            <p class="text-muted mb-2">Thương hiệu: <strong>@Model.Brand</strong></p>
+            <span class="badge bg-secondary mb-2">@Model.Category?.Name</span>
+            <h1 class="detail-title">@Model.Name</h1>
 
-            <!-- Rating thật -->
             <div class="d-flex align-items-center gap-2 mb-3">
-                <div style="color:var(--warning)">
+                <div class="text-warning">
                     @for (int i = 0; i < fullStars; i++)
                     {
                         <i class="bi bi-star-fill"></i>
@@ -65,24 +61,26 @@
                     }
                     @for (int i = 0; i < emptyStars; i++)
                     {
-                        <i class="bi bi-star" style="opacity:0.4"></i>
+                        <i class="bi bi-star text-muted"></i>
                     }
                 </div>
-                <span class="text-muted">@Model.Rating.ToString("N1") / 5</span>
-                <span class="badge @(Model.Stock > 10 ? "bg-success" : Model.Stock > 0 ? "bg-warning" : "bg-danger")">
+                <span class="text-muted fw-bold">@rating / 5</span>
+                <span class="text-muted">(@reviewCount đánh giá)</span>
+                <span class="badge @(Model.Stock > 10 ? "bg-success" : Model.Stock > 0 ? "bg-warning text-dark" : "bg-danger") ms-2">
                     @(Model.Stock > 0 ? $"Còn {Model.Stock} sản phẩm" : "Hết hàng")
                 </span>
             </div>
 
-            <!-- Giá -->
             <div class="d-flex align-items-center gap-3 mb-4">
-                <span class="detail-price">@Model.DiscountedPriceVnd.ToString("N0") ₫</span>
-                @if (Model.DiscountPercentage > 0)
+                @{
+                    decimal displayPrice = Model.DiscountPrice ?? Model.Price;
+                }
+                <span class="detail-price text-danger fw-bold fs-2">@displayPrice.ToString("N0") ₫</span>
+                @if (Model.DiscountPrice.HasValue && Model.DiscountPrice < Model.Price)
                 {
-                    <span class="text-muted text-decoration-line-through fs-5">
-                        @Model.PriceVnd.ToString("N0") ₫
-                    </span>
-                    <span class="badge bg-danger fs-6">-@((int)Model.DiscountPercentage)%</span>
+                    <span class="text-muted text-decoration-line-through fs-5">@Model.Price.ToString("N0") ₫</span>
+                    var percent = Math.Round((1 - Model.DiscountPrice.Value / Model.Price) * 100);
+                    <span class="badge bg-danger fs-6">-@percent%</span>
                 }
             </div>
 
@@ -124,16 +122,15 @@
                     </div>
                 </div>
             }
-
             <div class="d-flex flex-wrap gap-3 align-items-center mt-3">
                 @if (Model.Stock > 0)
                 {
                     <form id="addToCartForm" asp-controller="Product" asp-action="AddToCart" method="post" class="d-flex gap-3 align-items-center mb-0">
                         <input type="hidden" name="productId" value="@Model.Id" />
-                        <div class="qty-control">
-                            <button type="button" onclick="changeQty(-1)">-</button>
-                            <input type="number" name="quantity" id="qty" value="1" min="1" max="@Model.Stock" />
-                            <button type="button" onclick="changeQty(1)">+</button>
+                        <div class="qty-control d-flex border rounded">
+                            <button type="button" class="btn btn-light border-0" onclick="changeQty(-1)">-</button>
+                            <input type="number" name="quantity" id="qty" value="1" min="1" max="@Model.Stock" class="form-control border-0 text-center" style="width: 60px;" />
+                            <button type="button" class="btn btn-light border-0" onclick="changeQty(1)">+</button>
                         </div>
                         <button type="submit" class="btn btn-primary btn-lg">
                             <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
@@ -146,7 +143,6 @@
                         <i class="bi bi-x-circle me-2"></i>Hết hàng
                     </button>
                 }
-
                 <button type="button" class="btn btn-outline-danger btn-lg" onclick="toggleWishlist(@Model.Id)">
                     <i class="bi bi-heart me-1" id="wishlist-icon-@Model.Id"></i> Yêu thích
                 </button>
@@ -154,37 +150,29 @@
                     <i class="bi bi-bar-chart me-1"></i> So sánh
                 </button>
             </div>
-            <div class="detail-badges mt-4">
-                <span><i class="bi bi-shield-check text-success"></i> Hàng chính hãng</span>
-                <span><i class="bi bi-truck text-primary"></i> Giao hàng toàn quốc</span>
+            <div class="detail-badges mt-4 pt-3 border-top">
+                <span class="me-3"><i class="bi bi-shield-check text-success"></i> Hàng chính hãng</span>
+                <span class="me-3"><i class="bi bi-truck text-primary"></i> Giao hàng toàn quốc</span>
                 <span><i class="bi bi-arrow-repeat text-warning"></i> Đổi trả 30 ngày</span>
             </div>
         </div>
     </div>
-
-    <!-- Sản phẩm liên quan -->
     @if (related != null && related.Any())
     {
-        <div class="mt-5">
-            <h4 class="section-title">Sản phẩm <span class="text-gradient">liên quan</span></h4>
+        <div class="mt-5 pt-5 border-top">
+            <h4 class="section-title mb-4">Sản phẩm <span class="text-primary">cùng danh mục</span></h4>
             <div class="row g-4">
                 @foreach (var p in related)
                 {
                     <div class="col-6 col-md-3">
-                        <div class="product-card">
-                            <div class="product-img-wrap">
-                                <img src="@p.Thumbnail" alt="@p.Title" class="product-img" loading="lazy" />
+                        <div class="card h-100 shadow-sm border-0 product-card">
+                            <img src="@(p.ImageUrl ?? "https://via.placeholder.com/300")" alt="@p.Name" class="card-img-top p-3" style="object-fit:contain; height:200px;" loading="lazy" />
+                            <div class="card-body">
+                                <h6 class="card-title text-truncate">@p.Name</h6>
+                                <p class="text-danger fw-bold mb-0">@((p.DiscountPrice ?? p.Price).ToString("N0")) ₫</p>
                             </div>
-                            <div class="product-body">
-                                <p class="product-cat">@p.Brand</p>
-                                <h6 class="product-name">@p.Title</h6>
-                                <div class="product-footer">
-                                    <span class="product-price">@p.DiscountedPriceVnd.ToString("N0") ₫</span>
-                                    <a asp-controller="Product" asp-action="Detail"
-                                           asp-route-id="@p.Id" class="btn-add-cart">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                </div>
+                            <div class="card-footer bg-transparent border-0 pb-3">
+                                <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id" class="btn btn-outline-primary w-100">Xem chi tiết</a>
                             </div>
                         </div>
                     </div>
@@ -194,39 +182,32 @@
     }
 </div>
 
-<script>
-    // Hàm cũ
-    function changeQty(delta) {
-        const input = document.getElementById('qty');
-        const val = parseInt(input.value) + delta;
-        if (val >= 1 && val <= parseInt(input.max)) input.value = val;
-    }
-
-    // Tính năng Yêu thích
-    function toggleWishlist(id) {
-        $.post('/Product/ToggleWishlist', { productId: id }, function(res) {
-            if(res.success) {
-                alert(res.message); // Có thể thay bằng Toast notification cho đẹp
-                let icon = $('#wishlist-icon-' + id);
-                if(res.isAdded) {
-                    icon.removeClass('bi-heart').addClass('bi-heart-fill');
+@section Scripts {
+    <script>
+        function changeQty(delta) {
+            const input = document.getElementById('qty');
+            let val = parseInt(input.value) + delta;
+            if (val >= 1 && val <= parseInt(input.max)) input.value = val;
+        }
+        function toggleWishlist(id) {
+            $.post('/Product/ToggleWishlist', { productId: id }, function(res) {
+                if(res.success) {
+                    alert(res.message);
+                    let icon = $('#wishlist-icon-' + id);
+                    if(res.isAdded) {
+                        icon.removeClass('bi-heart').addClass('bi-heart-fill');
+                    } else {
+                        icon.removeClass('bi-heart-fill').addClass('bi-heart');
+                    }
                 } else {
-                    icon.removeClass('bi-heart-fill').addClass('bi-heart');
+                    window.location.href = '/Account/Login';
                 }
-            } else {
-                window.location.href = '/Account/Login'; // Bắt đăng nhập
-            }
-        });
-    }
-
-    // Tính năng So sánh
-    function addToCompare(id) {
-        $.post('/Product/AddToCompare', { productId: id }, function(res) {
-            alert(res.message);
-            if(res.success) {
-                // Tùy chọn: Chuyển hướng người dùng sang trang so sánh nếu muốn
-                // window.location.href = '/Product/Compare';
-            }
-        });
-    }
-</script>
+            });
+        }
+        function addToCompare(id) {
+            $.post('/Product/AddToCompare', { productId: id }, function(res) {
+                alert(res.message);
+            });
+        }
+    </script>
+}
