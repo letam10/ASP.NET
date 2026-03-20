@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<TechShop.Models.ApplicationUser> UserManager
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -116,6 +118,7 @@
                     <!-- Account -->
                     @if (User.Identity!.IsAuthenticated)
                     {
+                        var user = await UserManager.GetUserAsync(User);
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle me-1"></i>@User.Identity.Name?.Split('@')[0]
@@ -124,6 +127,12 @@
                                 <li>
                                     <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
                                         <i class="bi bi-person-badge me-2"></i>Hồ sơ cá nhân
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="badge bg-warning text-dark fs-6">
+                                        <i class="bi bi-star-fill"></i> @@(user?.LoyaltyPoints ?? 0) Điểm (@@(user?.MembershipTier ?? "Bronze"))
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
