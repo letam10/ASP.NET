@@ -14,141 +14,196 @@ namespace TechShop.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<CommissionLog> CommissionLogs { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<ProductSpecification> ProductSpecifications { get; set; }
+        public DbSet<WarrantyPackage> WarrantyPackages { get; set; }
+        public DbSet<Wishlist> Wishlists { get; set; }
+        public DbSet<ServiceTicket> ServiceTickets { get; set; }
+        public DbSet<StoreBranch> StoreBranches { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<StoreInventory> StoreInventories { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<StoreInventory>()
+                .HasKey(si => new { si.StoreBranchId, si.ProductId });
+
+            builder.Entity<StoreInventory>()
+                .HasOne(si => si.StoreBranch)
+                .WithMany(sb => sb.Inventories)
+                .HasForeignKey(si => si.StoreBranchId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<StoreInventory>()
+                .HasOne(si => si.Product)
+                .WithMany(p => p.Inventories)
+                .HasForeignKey(si => si.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ===== SEED CATEGORIES =====
             builder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Laptop", Description = "Máy tính xách tay các loại" },
                 new Category { Id = 2, Name = "Chuột", Description = "Chuột máy tính có dây và không dây" },
                 new Category { Id = 3, Name = "Bàn phím", Description = "Bàn phím cơ và membrane" },
                 new Category { Id = 4, Name = "Màn hình", Description = "Màn hình máy tính các kích thước" },
-                new Category { Id = 5, Name = "Linh kiện PC", Description = "CPU, RAM, GPU, SSD và các linh kiện khác" }
+                new Category { Id = 5, Name = "Linh kiện PC", Description = "CPU, RAM, GPU, SSD và các linh kiện khác" },
+                new Category { Id = 6, Name = "Tai nghe", Description = "Tai nghe gaming và văn phòng" },
+                new Category { Id = 7, Name = "Ổ cứng", Description = "SSD, HDD lưu trữ dữ liệu" },
+                new Category { Id = 8, Name = "Ghế gaming", Description = "Ghế gaming chuyên dụng" },
+                new Category { Id = 9, Name = "Điện thoại", Description = "Smartphone iOS và Android" },
+                new Category { Id = 10, Name = "Bản quyền phần mềm", Description = "Key Office, Windows, phần mềm AI và thiết kế" }
             );
 
-            var seedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var d = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
             builder.Entity<Product>().HasData(
-                new Product
-                {
-                    Id = 1,
-                    Name = "Laptop ASUS ROG Strix G16",
-                    Description = "Laptop gaming cao cấp, CPU Intel Core i9, GPU RTX 4070",
-                    Price = 45000000,
-                    Stock = 10,
-                    CategoryId = 1,
-                    IsActive = true,
-                    CreatedAt = seedDate,
-                    ImageUrl = "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=400"
-                },
-                new Product
-                {
-                    Id = 2,
-                    Name = "Laptop Dell XPS 15",
-                    Description = "Laptop văn phòng cao cấp, màn hình OLED 15.6 inch",
-                    Price = 38000000,
-                    Stock = 8,
-                    CategoryId = 1,
-                    IsActive = true,
-                    CreatedAt = seedDate,
-                    ImageUrl = "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=400"
-                },
-                new Product
-                {
-                    Id = 3,
-                    Name = "Chuột Logitech G Pro X Superlight",
-                    Description = "Chuột gaming không dây siêu nhẹ 61g, cảm biến HERO 25K",
-                    Price = 2800000,
-                    Stock = 25,
-                    CategoryId = 2,
-                    IsActive = true,
-                    CreatedAt = seedDate,
-                    ImageUrl = "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400"
-                },
-                new Product
-                {
-                    Id = 4,
-                    Name = "Chuột Razer DeathAdder V3",
-                    Description = "Chuột gaming ergonomic với cảm biến Focus Pro 30K",
-                    Price = 1900000,
-                    Stock = 30,
-                    CategoryId = 2,
-                    IsActive = true,
-                    CreatedAt = seedDate,
-                    ImageUrl = "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=400"
-                },
-                new Product
-                {
-                    Id = 5,
-                    Name = "Bàn phím cơ Keychron K2",
-                    Description = "Bàn phím cơ compact 75%, kết nối Bluetooth",
-                    Price = 1800000,
-                    Stock = 20,
-                    CategoryId = 3,
-                    IsActive = true,
-                    CreatedAt = seedDate,
-                    ImageUrl = "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400"
-                },
-                new Product
-                {
-                    Id = 6,
-                    Name = "Bàn phím cơ Ducky One 3",
-                    Description = "Bàn phím cơ fullsize cao cấp, hot-swap switch Cherry MX",
-                    Price = 2500000,
-                    Stock = 15,
-                    CategoryId = 3,
-                    IsActive = true,
-                    CreatedAt = seedDate,
-                    ImageUrl = "https://images.unsplash.com/photo-1601445638532-3c6f6c3aa1d6?w=400"
-                },
-                new Product
-                {
-                    Id = 7,
-                    Name = "Màn hình LG 27GP850-B",
-                    Description = "Màn hình gaming 27 inch 2K 165Hz IPS",
-                    Price = 8500000,
-                    Stock = 12,
-                    CategoryId = 4,
-                    IsActive = true,
-                    CreatedAt = seedDate,
-                    ImageUrl = "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400"
-                },
-                new Product
-                {
-                    Id = 8,
-                    Name = "Màn hình Samsung Odyssey G7",
-                    Description = "Màn hình cong 32 inch 4K 144Hz, VA panel",
-                    Price = 15000000,
-                    Stock = 6,
-                    CategoryId = 4,
-                    IsActive = true,
-                    CreatedAt = seedDate,
-                    ImageUrl = "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=400"
-                },
-                new Product
-                {
-                    Id = 9,
-                    Name = "GPU NVIDIA RTX 4070 Ti",
-                    Description = "Card đồ họa gaming cao cấp 12GB GDDR6X",
-                    Price = 22000000,
-                    Stock = 5,
-                    CategoryId = 5,
-                    IsActive = true,
-                    CreatedAt = seedDate,
-                    ImageUrl = "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400"
-                },
-                new Product
-                {
-                    Id = 10,
-                    Name = "RAM Corsair Vengeance DDR5 32GB",
-                    Description = "Bộ nhớ DDR5 6000MHz CL36, 2x16GB",
-                    Price = 3200000,
-                    Stock = 20,
-                    CategoryId = 5,
-                    IsActive = true,
-                    CreatedAt = seedDate,
-                    ImageUrl = "https://images.unsplash.com/photo-1562976540-1502c2145851?w=400"
-                }
+
+                // ==========================================
+                // LAPTOP - CategoryId = 1 (12 sản phẩm)
+                // ==========================================
+                new Product { Id = 1, Name = "ASUS ROG Strix G16 2024", Description = "Laptop gaming cao cấp Intel Core i9-14900HX, RTX 4070 8GB, RAM 16GB DDR5, SSD 1TB PCIe 4.0, màn hình 16 inch QHD 165Hz", Price = 45990000, DiscountPrice = 42990000, Stock = 10, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://dlcdnwebimgs.asus.com/gain/9BCCE5B8-9B6F-4857-B1B9-04FF37DAD6E1/w1000/h732" },
+                new Product { Id = 2, Name = "Dell XPS 15 9530", Description = "Laptop văn phòng cao cấp Intel Core i7-13700H, RTX 4060 8GB, màn hình OLED 3.5K 60Hz, RAM 16GB, SSD 512GB, pin 86Whr", Price = 38990000, Stock = 8, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/xps-notebooks/xps-15-9530/media-gallery/black/notebook-xps-15-9530-nt-black-gallery-1.psd?fmt=png-alpha&pscan=auto&scl=1&hei=402&wid=402&qlt=100,1&resMode=sharp2&size=402,402&chrss=full" },
+                new Product { Id = 3, Name = "MacBook Pro M3 Pro 14 inch", Description = "Laptop Apple chip M3 Pro 11 nhân, màn hình Liquid Retina XDR 14.2 inch, RAM 18GB, SSD 512GB, pin 18 giờ, MagSafe 3", Price = 52990000, Stock = 6, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/mbp14-spaceblack-select-202310?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1697230830200" },
+                new Product { Id = 4, Name = "MacBook Air M3 15 inch", Description = "Laptop mỏng nhẹ Apple chip M3 8 nhân, màn hình Liquid Retina 15.3 inch, RAM 8GB, SSD 256GB, pin 18 giờ, không quạt tản nhiệt", Price = 32990000, DiscountPrice = 30990000, Stock = 10, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/mba15-midnight-select-202306?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1684518479433" },
+                new Product { Id = 5, Name = "Lenovo ThinkPad X1 Carbon Gen 12", Description = "Laptop doanh nhân siêu mỏng Intel Core Ultra 7 155U, RAM 32GB LPDDR5, SSD 1TB, màn hình 2.8K OLED, pin 15 giờ, cân nặng chỉ 1.12kg", Price = 42990000, Stock = 5, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://p1-ofp.static.pub/medias/bWFzdGVyfHJvb3R8MjQ2NjI5fGltYWdlL3BuZ3xoZTYvaGRkLzE0Mjc5NTM5MDYyNjE0LnBuZ3w0YjdiMzJjYmNhMzFkMGEzMGM0YzYxZDQ4OThhMzY5NGRhNjBhODA3YmFiMTBjODU1MzNhYzFiZDA3ZjY5YTAy/Lenovo-laptop-thinkpad-x1-carbon-gen-12-hero.png" },
+                new Product { Id = 6, Name = "HP Spectre x360 14", Description = "Laptop 2-in-1 cao cấp Intel Core Ultra 5 125H, màn hình OLED cảm ứng 2.8K 120Hz, RAM 16GB, SSD 512GB, bút HP Tilt Pen đi kèm", Price = 35990000, DiscountPrice = 32990000, Stock = 7, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://ssl-product-images.www8-hp.com/digmedialib/prodimg/knowledgebase/c08586213.png" },
+                new Product { Id = 7, Name = "Acer Nitro 16 AN16-51", Description = "Laptop gaming tầm trung Intel Core i5-13500H, RTX 4050 6GB, RAM 16GB DDR5, SSD 512GB, màn hình 16 inch FHD 144Hz, tản nhiệt 4 quạt", Price = 22990000, DiscountPrice = 20990000, Stock = 15, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://static-ecshop.acer.com/media/catalog/product/n/h/nh.qlfsv.00e_1_1.png" },
+                new Product { Id = 8, Name = "MSI Raider GE78 HX", Description = "Laptop gaming flagship Intel Core i9-14900HX, RTX 4090 16GB, RAM 64GB DDR5, SSD 2TB, màn hình 17 inch QHD+ 240Hz, Thunderbolt 4", Price = 79990000, Stock = 3, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://asset.msi.com/resize/image/global/product/product_16920631213e2f6d573ead3.png62405b38c58fe0f07fcef2367d8a9ba1/1024.png" },
+                new Product { Id = 9, Name = "ASUS Zenbook 14 OLED UX3405", Description = "Laptop mỏng nhẹ Intel Core Ultra 9 185H, màn hình OLED 2.8K 120Hz, RAM 32GB LPDDR5X, SSD 1TB, pin 75Whr sạc nhanh 65W", Price = 28990000, Stock = 12, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://dlcdnwebimgs.asus.com/gain/C43AECF2-D312-4BDA-B8D1-43BD8A2C3D99/w1000/h732" },
+                new Product { Id = 10, Name = "Razer Blade 16 2024", Description = "Laptop gaming siêu cao cấp Intel Core i9-14900HX, RTX 4090 16GB, màn hình OLED 4K 240Hz, RAM 32GB DDR5, SSD 2TB", Price = 89990000, DiscountPrice = 84990000, Stock = 3, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://assets2.razerzone.com/images/pnx.assets/93f03d7a0bf8a50d7a8e8e2b2bc1e4a2/razer-blade-16-2024-500x500.png" },
+                new Product { Id = 11, Name = "LG Gram 17 2024", Description = "Laptop siêu nhẹ Intel Core Ultra 7 155H, màn hình 17 inch WQXGA IPS, RAM 16GB, SSD 512GB, cân nặng 1.35kg, pin 90Whr 20 giờ", Price = 34990000, Stock = 8, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://www.lg.com/us/images/laptops/md08003753/gallery/large01.jpg" },
+                new Product { Id = 12, Name = "Samsung Galaxy Book4 Pro 360", Description = "Laptop 2-in-1 màn hình AMOLED 16 inch 3K cảm ứng, Intel Core Ultra 7 155H, RAM 16GB, SSD 512GB, bút S Pen tích hợp, pin 76Whr", Price = 38990000, DiscountPrice = 35990000, Stock = 6, CategoryId = 1, IsActive = true, CreatedAt = d, ImageUrl = "https://images.samsung.com/is/image/samsung/p6pim/vn/2401/gallery/vn-galaxy-book4-pro-360-np960qgk-kg1vn-thumb-539493745" },
+
+                // ==========================================
+                // CHUỘT - CategoryId = 2 (10 sản phẩm)
+                // ==========================================
+                new Product { Id = 13, Name = "Logitech G Pro X Superlight 2", Description = "Chuột gaming không dây siêu nhẹ 60g, cảm biến HERO 2 25600 DPI, pin 95 giờ, kết nối LIGHTSPEED, thiết kế đối xứng pro", Price = 2990000, DiscountPrice = 2690000, Stock = 30, CategoryId = 2, IsActive = true, CreatedAt = d, ImageUrl = "https://resource.logitech.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/pro-x-superlight-2/pro-x-superlight-2-gallery-1.png" },
+                new Product { Id = 14, Name = "Razer DeathAdder V3 Pro", Description = "Chuột gaming ergonomic không dây, cảm biến Focus Pro 30000 DPI, 6 nút lập trình, pin 90 giờ, kết nối HyperSpeed 4000Hz", Price = 2490000, Stock = 25, CategoryId = 2, IsActive = true, CreatedAt = d, ImageUrl = "https://assets2.razerzone.com/images/pnx.assets/07cf6e7eb0e7e8f55ad32e2b17d5d7c9/razer-deathadder-v3-pro-500x500.png" },
+                new Product { Id = 15, Name = "SteelSeries Aerox 5 Wireless", Description = "Chuột gaming không dây siêu nhẹ 74g lưới, cảm biến TrueMove Air+ 18000 DPI, IP54, 9 nút, pin 180 giờ", Price = 1990000, DiscountPrice = 1790000, Stock = 20, CategoryId = 2, IsActive = true, CreatedAt = d, ImageUrl = "https://media.steelseriescdn.com/thumbs/catalogue/products/01806-aerox-5-wireless/5e9e1a4f1e6a4b3baa3c0e0e0e0e0e0e/aerox-5-wireless-pdp-hero.png" },
+                new Product { Id = 16, Name = "Logitech MX Master 3S", Description = "Chuột văn phòng cao cấp, cảm biến 8000 DPI, cuộn MagSpeed điện từ, pin 70 ngày, Bluetooth + USB, 7 nút tùy chỉnh", Price = 1690000, Stock = 40, CategoryId = 2, IsActive = true, CreatedAt = d, ImageUrl = "https://resource.logitech.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/mice/mx-master-3s/gallery/mx-master-3s-mouse-top-view-graphite.png" },
+                new Product { Id = 17, Name = "Zowie EC2-CW", Description = "Chuột gaming không dây esports, cảm biến 3200 DPI, thiết kế ergonomic tay phải, không cần driver, kết nối 2.4G độ trễ thấp", Price = 2190000, Stock = 15, CategoryId = 2, IsActive = true, CreatedAt = d, ImageUrl = "https://zowie.benq.com/content/dam/zowie/products/mouse/ec2-cw/gallery/ec2-cw-front.png" },
+                new Product { Id = 18, Name = "Pulsar X2V2 Wireless", Description = "Chuột gaming không dây siêu nhẹ 55g, cảm biến PAW3395 26000 DPI, thiết kế đối xứng, pin 70 giờ, polling 1000Hz", Price = 1890000, Stock = 18, CategoryId = 2, IsActive = true, CreatedAt = d, ImageUrl = "https://www.pulsar.gg/cdn/shop/files/x2v2-white-hero.png?v=1706864731&width=1080" },
+                new Product { Id = 19, Name = "Apple Magic Mouse", Description = "Chuột không dây Apple thiết kế mỏng phẳng, Multi-Touch surface, kết nối Bluetooth, sạc Lightning, tương thích Mac", Price = 1590000, Stock = 25, CategoryId = 2, IsActive = true, CreatedAt = d, ImageUrl = "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MMMQ3?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1645138962000" },
+                new Product { Id = 20, Name = "Razer Basilisk V3 Pro", Description = "Chuột gaming không dây, cảm biến Focus Pro 30000 DPI, cuộn HyperScroll Tilt, 11 nút lập trình, đèn RGB Chroma, pin 90 giờ", Price = 2290000, DiscountPrice = 1990000, Stock = 22, CategoryId = 2, IsActive = true, CreatedAt = d, ImageUrl = "https://assets2.razerzone.com/images/pnx.assets/c0d1ff37f06e07fecef4bb7a234a82e5/razer-basilisk-v3-pro-500x500.png" },
+                new Product { Id = 21, Name = "Logitech G502 X Plus", Description = "Chuột gaming không dây 89g, cảm biến HERO 25600 DPI, 13 nút lập trình, đèn LIGHTFORCE, cuộn LIGHTTUNE, pin 130 giờ", Price = 2190000, Stock = 18, CategoryId = 2, IsActive = true, CreatedAt = d, ImageUrl = "https://resource.logitech.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g502-x-plus/g502-x-plus-gallery-1-black.png" },
+                new Product { Id = 22, Name = "Corsair M75 Air Wireless", Description = "Chuột gaming không dây siêu nhẹ 60g, cảm biến PixArt PAW3395 26000 DPI, pin 200 giờ, thiết kế ergonomic tay phải, USB-C sạc", Price = 1790000, Stock = 20, CategoryId = 2, IsActive = true, CreatedAt = d, ImageUrl = "https://www.corsair.com/medias/sys_master/images/images/h72/hec/9476017373214/CH-931D010-NA-Gallery-M75-Air-Wireless-01.png" },
+
+                // ==========================================
+                // BÀN PHÍM - CategoryId = 3 (10 sản phẩm)
+                // ==========================================
+                new Product { Id = 23, Name = "Keychron Q1 Pro", Description = "Bàn phím cơ 75% không dây, khung nhôm CNC, switch QMK/VIA, hotswap, Bluetooth 5.1, pin 4000mAh, gasket mount", Price = 3290000, Stock = 20, CategoryId = 3, IsActive = true, CreatedAt = d, ImageUrl = "https://cdn.shopify.com/s/files/1/0059/0630/1017/files/Keychron-Q1-Pro-QMK-VIA-wireless-custom-mechanical-keyboard-1_1800x1800.jpg" },
+                new Product { Id = 24, Name = "Ducky One 3 SF 65%", Description = "Bàn phím cơ 65% premium switch Cherry MX Red, hotswap socket, đèn RGB per-key, thiết kế compact gaming, PBT double-shot keycaps", Price = 2690000, DiscountPrice = 2490000, Stock = 15, CategoryId = 3, IsActive = true, CreatedAt = d, ImageUrl = "https://www.duckychannel.com.tw/upload/images/keyboard/one3/one3-sf-matcha/2022_one3_sf_matcha_01.jpg" },
+                new Product { Id = 25, Name = "Logitech G915 TKL Wireless", Description = "Bàn phím cơ TKL không dây GL Low Profile switch, đèn RGB LIGHTSYNC, pin 40 giờ, LIGHTSPEED 1ms, Bluetooth 5.0, thiết kế mỏng", Price = 3990000, Stock = 10, CategoryId = 3, IsActive = true, CreatedAt = d, ImageUrl = "https://resource.logitech.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g915-tkl/gallery/g915-tkl-keyboard-top-view-black.png" },
+                new Product { Id = 26, Name = "Razer BlackWidow V4 Pro", Description = "Bàn phím cơ fullsize switch Razer Yellow, đèn Chroma RGB per-key, macro dial, wrist rest từ tính, USB passthrough, media keys", Price = 3490000, Stock = 12, CategoryId = 3, IsActive = true, CreatedAt = d, ImageUrl = "https://assets2.razerzone.com/images/pnx.assets/ba8a3b1f68b26fae3dddca5dbb4b6840/razer-blackwidow-v4-pro-500x500.png" },
+                new Product { Id = 27, Name = "Akko 3087 DS Ocean Star", Description = "Bàn phím cơ TKL giá tốt switch Akko CS Jelly Pink, hotswap, đèn RGB, PBT double-shot keycaps, thiết kế màu sắc đẹp", Price = 1190000, DiscountPrice = 990000, Stock = 35, CategoryId = 3, IsActive = true, CreatedAt = d, ImageUrl = "https://en.akkogear.com/wp-content/uploads/2021/08/Akko-3087-DS-Ocean-Star-1.jpg" },
+                new Product { Id = 28, Name = "Leopold FC900R PD", Description = "Bàn phím cơ fullsize cao cấp switch Cherry MX Brown, thiết kế tối giản không đèn, PBT double-shot keycaps bền, chất lượng build quality xuất sắc", Price = 1990000, Stock = 8, CategoryId = 3, IsActive = true, CreatedAt = d, ImageUrl = "https://mechanicalkeyboards.com/cdn/shop/products/fc900r-pd-white-blue_grande.jpg" },
+                new Product { Id = 29, Name = "Apple Magic Keyboard Touch ID", Description = "Bàn phím không dây Apple slim profile, phím scissor mechanism, Touch ID tích hợp, Bluetooth, sạc Lightning, dành cho Mac", Price = 2390000, Stock = 15, CategoryId = 3, IsActive = true, CreatedAt = d, ImageUrl = "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MK293LL?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1645138963000" },
+                new Product { Id = 30, Name = "NuPhy Air75 V2", Description = "Bàn phím cơ 75% không dây low profile, switch Gateron Low Profile 2.0, Bluetooth 5.0 + USB, RGB, pin 3000mAh, gasket mount", Price = 2190000, DiscountPrice = 1990000, Stock = 18, CategoryId = 3, IsActive = true, CreatedAt = d, ImageUrl = "https://cdn.shopify.com/s/files/1/0268/9673/3662/products/NuPhy-Air75-V2-Wireless-Mechanical-Keyboard-1.jpg" },
+                new Product { Id = 31, Name = "Wooting 60HE+", Description = "Bàn phím cơ 60% analog hall effect, rapid trigger công nghệ, switch Lekker 60g, polling 1000Hz, dành cho esports pro player", Price = 3890000, Stock = 8, CategoryId = 3, IsActive = true, CreatedAt = d, ImageUrl = "https://wooting.io/static/wooting-60he-plus-product-shot-b19f9d5f1a4e5a6d2c7b8e9f0a1b2c3d.jpg" },
+                new Product { Id = 32, Name = "SteelSeries Apex Pro TKL Wireless", Description = "Bàn phím gaming TKL không dây, switch OmniPoint 2.0 điều chỉnh actuation, OLED display, đèn RGB, LIGHTSPEED 1ms, pin 45 giờ", Price = 4490000, DiscountPrice = 3990000, Stock = 10, CategoryId = 3, IsActive = true, CreatedAt = d, ImageUrl = "https://media.steelseriescdn.com/thumbs/catalogue/products/01776-apex-pro-tkl-wireless/98ae37f8c8bc4c2d8c2d4e5f6a7b8c9d/apex-pro-tkl-wireless-pdp-hero.png" },
+
+                // ==========================================
+                // MÀN HÌNH - CategoryId = 4 (10 sản phẩm)
+                // ==========================================
+                new Product { Id = 33, Name = "LG 27GP850-B Nano IPS 2K 165Hz", Description = "Màn hình gaming 27 inch 2K 165Hz Nano IPS, 1ms GtG, AMD FreeSync Premium Pro, G-Sync Compatible, HDR400, DisplayPort 1.4 + HDMI 2.0", Price = 8990000, DiscountPrice = 7990000, Stock = 12, CategoryId = 4, IsActive = true, CreatedAt = d, ImageUrl = "https://www.lg.com/us/images/monitors/md07521413/gallery/large01.jpg" },
+                new Product { Id = 34, Name = "Samsung Odyssey G7 32 inch 4K", Description = "Màn hình gaming cong 32 inch 4K 144Hz VA, HDR600, 1ms, G-Sync Compatible, DisplayHDR 600, USB Hub, Height Adjustable", Price = 15990000, Stock = 6, CategoryId = 4, IsActive = true, CreatedAt = d, ImageUrl = "https://image-us.samsung.com/SamsungUS/home/computing/monitors/gaming/05222020/lc32g75tqsnxza-gallery-1.jpg" },
+                new Product { Id = 35, Name = "ASUS ROG Swift PG279QM 240Hz", Description = "Màn hình gaming 27 inch 2K 240Hz IPS, 1ms GTG, G-Sync, ELMB Sync, HDR400, DisplayPort 1.4, ASUS Extreme Low Motion Blur", Price = 18990000, Stock = 5, CategoryId = 4, IsActive = true, CreatedAt = d, ImageUrl = "https://dlcdnwebimgs.asus.com/gain/2BF2E66D-C5F9-4D6A-89FD-A5F7C8BC64B7/w1000/h732" },
+                new Product { Id = 36, Name = "Dell U2723D UltraSharp 4K", Description = "Màn hình văn phòng 27 inch 4K 60Hz IPS Black, Delta-E < 2, 100% sRGB, USB-C 90W, KVM built-in, Height/Pivot/Tilt/Swivel", Price = 14990000, Stock = 8, CategoryId = 4, IsActive = true, CreatedAt = d, ImageUrl = "https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/peripherals/monitors/u-series/u2723de/media-gallery/monitor-u2723de-gallery-1.psd?fmt=png-alpha&pscan=auto&scl=1&hei=402&wid=402&qlt=100,1&resMode=sharp2&size=402,402&chrss=full" },
+                new Product { Id = 37, Name = "BenQ EX2780Q 2K 144Hz IPS", Description = "Màn hình gaming 27 inch 2K 144Hz IPS, HDRi tự động, loa 2.1 tích hợp, FreeSync Premium, USB-C, remote điều khiển", Price = 9990000, DiscountPrice = 8990000, Stock = 10, CategoryId = 4, IsActive = true, CreatedAt = d, ImageUrl = "https://video.benq.com/is/image/benqco/EX2780Q_main?$ResponsiveImage$" },
+                new Product { Id = 38, Name = "Acer Predator X28 4K 155Hz", Description = "Màn hình gaming 28 inch 4K 155Hz IPS, G-Sync Ultimate, HDR400, 1ms GTG, VESA DisplayHDR 400, thiết kế gaming premium", Price = 22990000, Stock = 4, CategoryId = 4, IsActive = true, CreatedAt = d, ImageUrl = "https://static.acer.com/up/Resource/Acer/Monitors/Predator/Predator-X28/Specifications/20211101/X28-hero-image.png" },
+                new Product { Id = 39, Name = "MSI MAG 274QRF-QD 2K 165Hz", Description = "Màn hình gaming 27 inch 2K 165Hz Rapid IPS Quantum Dot, 1ms, FreeSync Premium, 99% DCI-P3, USB Hub, Night Vision tắt tối", Price = 8490000, DiscountPrice = 7490000, Stock = 12, CategoryId = 4, IsActive = true, CreatedAt = d, ImageUrl = "https://asset.msi.com/resize/image/global/product/product_17006987161efe8b5e9df7e.png62405b38c58fe0f07fcef2367d8a9ba1/1024.png" },
+                new Product { Id = 40, Name = "LG 45GR95QE OLED 45 inch 240Hz", Description = "Màn hình OLED gaming siêu rộng 45 inch cong 800R, 2K 240Hz, 0.03ms, G-Sync Compatible, HDR True Black 400, DCI-P3 98.5%", Price = 38990000, DiscountPrice = 34990000, Stock = 3, CategoryId = 4, IsActive = true, CreatedAt = d, ImageUrl = "https://www.lg.com/us/images/monitors/md08003253/gallery/large01.jpg" },
+                new Product { Id = 41, Name = "Gigabyte M27Q X 2K 240Hz", Description = "Màn hình gaming 27 inch 2K 240Hz Fast IPS, 1ms, KVM built-in, USB-C 18W, FreeSync Premium Pro, thiết kế không viền 3 cạnh", Price = 7990000, Stock = 14, CategoryId = 4, IsActive = true, CreatedAt = d, ImageUrl = "https://static.gigabyte.com/StaticFile/Image/Global/8cbcc5bb5ad84de20e9af62c9faf5c6e/Product/30133/png/1000" },
+                new Product { Id = 42, Name = "ASUS ProArt PA279CRV 4K USB-C", Description = "Màn hình đồ họa chuyên nghiệp 27 inch 4K 60Hz IPS, Delta-E < 1, 100% sRGB/P3, Calman Verified, USB-C 96W, HDMI 2.1, DisplayPort 1.4", Price = 17990000, Stock = 5, CategoryId = 4, IsActive = true, CreatedAt = d, ImageUrl = "https://dlcdnwebimgs.asus.com/gain/CB02B60E-D4C9-4E7F-BD21-A3FA55F6F7B6/w1000/h732" },
+
+                // ==========================================
+                // LINH KIỆN PC - CategoryId = 5 (10 sản phẩm)
+                // ==========================================
+                new Product { Id = 43, Name = "NVIDIA GeForce RTX 4070 Ti Super", Description = "Card đồ họa gaming 16GB GDDR6X, DLSS 3.5 Frame Generation, Ray Tracing Ada, PCIe 4.0 x16, TDP 285W, 4x DisplayPort 1.4a + HDMI 2.1", Price = 24990000, Stock = 5, CategoryId = 5, IsActive = true, CreatedAt = d, ImageUrl = "https://www.nvidia.com/content/dam/en-zz/Solutions/geforce/ada/rtx-4070-ti-super/geforce-rtx-4070-ti-super-product-photo-003-webp.webp" },
+                new Product { Id = 44, Name = "AMD Ryzen 9 7950X3D", Description = "CPU AMD flagship 16 nhân 32 luồng, 4.2GHz base 5.7GHz boost, 3D V-Cache 128MB L3, TDP 120W, socket AM5, dành cho gaming và workstation", Price = 19990000, DiscountPrice = 17990000, Stock = 6, CategoryId = 5, IsActive = true, CreatedAt = d, ImageUrl = "https://www.amd.com/system/files/2023-02/7950x3d-PIB-angle.png" },
+                new Product { Id = 45, Name = "Intel Core i9-14900KS", Description = "CPU Intel flagship 24 nhân (8P+16E) 36 luồng, 3.2GHz base 6.2GHz boost, TDP 150W, socket LGA1700, hỗ trợ DDR5 và DDR4", Price = 16990000, DiscountPrice = 15490000, Stock = 8, CategoryId = 5, IsActive = true, CreatedAt = d, ImageUrl = "https://www.intel.com/content/dam/www/public/us/en/images/products/hero/14th-gen-core-desktop-processor-hero-badge-rwd.png" },
+                new Product { Id = 46, Name = "Corsair Vengeance DDR5 64GB 6000MHz", Description = "RAM DDR5 4x16GB dual channel, 6000MHz CL36, XMP 3.0, Intel Extreme Memory Profile, tản nhiệt nhôm thấp, tương thích Intel và AMD", Price = 5990000, DiscountPrice = 5490000, Stock = 20, CategoryId = 5, IsActive = true, CreatedAt = d, ImageUrl = "https://www.corsair.com/medias/sys_master/images/images/h44/hce/9501839073310/CMK32GX5M2B6000C36-Gallery-CMK32GX5M2B6000C36-1.png" },
+                new Product { Id = 47, Name = "Samsung 990 Pro 2TB NVMe PCIe 4.0", Description = "SSD NVMe PCIe 4.0 2TB, đọc 7450 MB/s ghi 6900 MB/s, cache 2GB LPDDR4, tản nhiệt heatshield, TBW 1200TB, bảo hành 5 năm", Price = 3990000, DiscountPrice = 3490000, Stock = 20, CategoryId = 5, IsActive = true, CreatedAt = d, ImageUrl = "https://image-us.samsung.com/SamsungUS/home/computing/memory-storage/ssd/07182022/MZ-V9P2T0B-galaxy-999.jpg" },
+                new Product { Id = 48, Name = "ASUS ROG Strix B650E-F Gaming WiFi", Description = "Mainboard AMD B650E ATX socket AM5, DDR5 7200MHz OC, PCIe 5.0 x16, WiFi 6E, Bluetooth 5.3, 4x M.2 PCIe 4.0, 2.5G LAN, USB4 Type-C", Price = 8490000, Stock = 6, CategoryId = 5, IsActive = true, CreatedAt = d, ImageUrl = "https://dlcdnwebimgs.asus.com/gain/EBD3A3E1-7437-4F91-A5A2-6B1C7ADE7EC6/w1000/h732" },
+                new Product { Id = 49, Name = "Corsair RM1000x Shift 80+ Gold", Description = "Nguồn 1000W modular 80+ Gold, fan Zero RPM mode, ATX 3.0, PCIe 5.0 native, cổng side-connector độc đáo, bảo hành 10 năm", Price = 4990000, Stock = 10, CategoryId = 5, IsActive = true, CreatedAt = d, ImageUrl = "https://www.corsair.com/medias/sys_master/images/images/hcf/hae/9476017471518/CP-9020253-NA-Gallery-RM1000x-SHIFT-01.png" },
+                new Product { Id = 50, Name = "Noctua NH-D15 chromax.black", Description = "Tản nhiệt CPU dual tower cao cấp, 2 quạt 140mm NF-A15, TDP 250W+, socket 1700/AM5, chiều cao 165mm, zero noise ở tải thấp", Price = 1890000, Stock = 15, CategoryId = 5, IsActive = true, CreatedAt = d, ImageUrl = "https://noctua.at/pub/media/catalog/product/cache/0d834e97c2d4c56a4cbf49b1dd48db85/n/h/nh-d15-chromax-black_1.jpg" },
+                new Product { Id = 51, Name = "AMD Radeon RX 7900 XTX 24GB", Description = "Card đồ họa AMD RDNA3 24GB GDDR6, compute 61 TFLOPS, DisplayPort 2.1, HDMI 2.1, Radeon Super Resolution, FSR3, TDP 355W", Price = 21990000, DiscountPrice = 19990000, Stock = 4, CategoryId = 5, IsActive = true, CreatedAt = d, ImageUrl = "https://www.amd.com/system/files/2022-11/1013991-radeon-rx-7900-xt-xtx-product-photo.png" },
+                new Product { Id = 52, Name = "G.SKILL Trident Z5 RGB DDR5 32GB", Description = "RAM DDR5 2x16GB 7200MHz CL34, XMP 3.0, tản nhiệt nhôm RGB cao cấp, hỗ trợ Intel 12th/13th/14th gen, kit được test kỹ càng", Price = 3490000, DiscountPrice = 2990000, Stock = 22, CategoryId = 5, IsActive = true, CreatedAt = d, ImageUrl = "https://www.gskill.com/img/product/memory/20230210120753-zoom.jpg" },
+
+                // ==========================================
+                // TAI NGHE - CategoryId = 6 (10 sản phẩm)
+                // ==========================================
+                new Product { Id = 53, Name = "SteelSeries Arctis Nova Pro Wireless", Description = "Tai nghe gaming không dây cao cấp driver 40mm neodymium, ANC chủ động AI, Hi-Res Audio 96kHz/24-bit, pin hot-swap 2 viên, đa nền tảng PC/PS", Price = 8990000, Stock = 8, CategoryId = 6, IsActive = true, CreatedAt = d, ImageUrl = "https://media.steelseriescdn.com/thumbs/catalogue/products/01852-arctis-nova-pro-wireless/fba175af15594f5f9b51a37aac2e9e44/arctis-nova-pro-wireless-pdp-hero.png" },
+                new Product { Id = 54, Name = "Sony WH-1000XM5", Description = "Tai nghe chống ồn số 1 thế giới, 8 mic ANC, Hi-Res Audio 30Hz-40kHz, pin 30 giờ, Bluetooth 5.2 LDAC, multipoint 2 thiết bị, QN2e chip", Price = 7490000, DiscountPrice = 6490000, Stock = 15, CategoryId = 6, IsActive = true, CreatedAt = d, ImageUrl = "https://www.sony.com/image/5d02da5df552836db894cead8a68f5f3?fmt=png-alpha&wid=440" },
+                new Product { Id = 55, Name = "HyperX Cloud Alpha Wireless", Description = "Tai nghe gaming không dây kỷ lục pin 300 giờ, driver 50mm Dual Chamber riêng bass/mid-treble, âm thanh 7.1 ảo, mic cardioid tháo rời", Price = 3290000, Stock = 20, CategoryId = 6, IsActive = true, CreatedAt = d, ImageUrl = "https://hyperx.com/cdn/shop/products/HyperX-Cloud-Alpha-Wireless-Gaming-Headset-Hero.png" },
+                new Product { Id = 56, Name = "Razer BlackShark V2 Pro 2023", Description = "Tai nghe gaming không dây esports, driver 50mm Triforce Titanium 3 đơn vị riêng, mic SuperCardioid, pin 70 giờ, THX Spatial Audio 360°", Price = 3990000, DiscountPrice = 3490000, Stock = 12, CategoryId = 6, IsActive = true, CreatedAt = d, ImageUrl = "https://assets2.razerzone.com/images/pnx.assets/4a17a8c73e8f0c69b2b3e6ddd9e0b853/razer-blackshark-v2-pro-2023-500x500.png" },
+                new Product { Id = 57, Name = "Apple AirPods Pro 2nd Gen", Description = "Tai nghe true wireless ANC H2 chip, Transparency mode Adaptive, Personalized Spatial Audio, IP54, MagSafe, pin 6h + 24h case, USB-C", Price = 5990000, DiscountPrice = 5490000, Stock = 20, CategoryId = 6, IsActive = true, CreatedAt = d, ImageUrl = "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MQTP3?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1660803972000" },
+                new Product { Id = 58, Name = "Logitech G PRO X 2 Lightspeed", Description = "Tai nghe gaming không dây 47.4g siêu nhẹ, driver PRO-G 50mm graphene, Blue VO!CE mic AI, pin 50 giờ, LIGHTSPEED + Bluetooth", Price = 4490000, Stock = 10, CategoryId = 6, IsActive = true, CreatedAt = d, ImageUrl = "https://resource.logitech.com/w_692,c_lpad,ar_4:3,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g-pro-x-2/g-pro-x-2-gallery-1.png" },
+                new Product { Id = 59, Name = "Beyerdynamic DT 990 Pro 250 Ohm", Description = "Tai nghe studio open-back 250 Ohm, dải tần 5-35000Hz, driver Tesla, thiết kế velour earpads, không dây, dành cho mixing/mastering chuyên nghiệp", Price = 2890000, Stock = 8, CategoryId = 6, IsActive = true, CreatedAt = d, ImageUrl = "https://www.beyerdynamic.com/media/catalog/product/cache/1/image/800x800/9df78eab33525d08d6e5fb8d27136e95/d/t/dt-990-pro-01.png" },
+                new Product { Id = 60, Name = "Samsung Galaxy Buds3 Pro", Description = "Tai nghe true wireless ANC thông minh, driver 2-way coaxial, SSC Hi-Fi codec, IP57, pin 6h + 24h case, Galaxy AI real-time translation", Price = 3990000, DiscountPrice = 3490000, Stock = 18, CategoryId = 6, IsActive = true, CreatedAt = d, ImageUrl = "https://images.samsung.com/vn/smartphones/galaxy-buds3-pro/images/galaxy-buds3-pro-silver-detail-image-01.jpg" },
+                new Product { Id = 61, Name = "JBL Quantum 910 Wireless", Description = "Tai nghe gaming không dây, driver 50mm, ANC + Ambient Aware, JBL QuantumSURROUND, 2.4GHz + Bluetooth, pin 34 giờ ANC off", Price = 3290000, DiscountPrice = 2890000, Stock = 12, CategoryId = 6, IsActive = true, CreatedAt = d, ImageUrl = "https://www.jbl.com/dw/image/v2/AAUJ_PRD/on/demandware.static/-/Sites-masterCatalog_Harman/default/dw3b3c3b3d/JBL_QUANTUM910_WIRELESS_IMAGE_HERO_BLK.png" },
+                new Product { Id = 62, Name = "Sennheiser HD 599 SE", Description = "Tai nghe audiophile open-back, driver 38mm transducer, E.A.R. technology, dải tần 12-38500Hz, thiết kế ergonomic, đi kèm 2 cáp 3m và 1.2m", Price = 1990000, DiscountPrice = 1690000, Stock = 10, CategoryId = 6, IsActive = true, CreatedAt = d, ImageUrl = "https://assets.sennheiser.com/img/21630/x1_desktop_Sennheiser_HD599SE_03.jpg" },
+
+                // ==========================================
+                // Ổ CỨNG - CategoryId = 7 (10 sản phẩm)
+                // ==========================================
+                new Product { Id = 63, Name = "WD Black SN850X 2TB NVMe PCIe 4.0", Description = "SSD gaming NVMe PCIe 4.0 2TB, đọc 7300 MB/s ghi 6600 MB/s, Game Mode 2.0, tối ưu PS5, tản nhiệt heatsink tùy chọn, TBW 1200TB", Price = 3990000, DiscountPrice = 3490000, Stock = 20, CategoryId = 7, IsActive = true, CreatedAt = d, ImageUrl = "https://shop.westerndigital.com/content/dam/store/en-us/assets/products/internal-gaming-drives/wd-black-sn850x-nvme-ssd/gallery/wd-black-sn850x-nvme-ssd-1tb-hero.png.thumb.1280.1280.png" },
+                new Product { Id = 64, Name = "Seagate Barracuda 4TB HDD 3.5 inch", Description = "Ổ cứng HDD 3.5 inch 4TB, 5400 RPM, cache 256MB, SATA III 6Gb/s, phù hợp NAS và lưu trữ dữ liệu lớn, bảo hành 2 năm", Price = 1990000, Stock = 30, CategoryId = 7, IsActive = true, CreatedAt = d, ImageUrl = "https://www.seagate.com/www-content/product-content/barracuda-fam/barracuda-new/images/barracuda-3-5-ssd-2tb-400x400.png" },
+                new Product { Id = 65, Name = "Crucial T700 2TB PCIe 5.0 NVMe", Description = "SSD PCIe 5.0 nhanh nhất thế giới 2TB, đọc 12400 MB/s ghi 11800 MB/s, heatsink tản nhiệt graphene, DirectStorage Xbox, bảo hành 5 năm", Price = 4990000, DiscountPrice = 4490000, Stock = 10, CategoryId = 7, IsActive = true, CreatedAt = d, ImageUrl = "https://www.crucial.com/content/dam/crucial/ssd-products/t700/images/in-box/crucial-t700-ssd-with-heatsink-in-box-image.psd.transform/medium-jpg/img.jpg" },
+                new Product { Id = 66, Name = "Seagate IronWolf Pro 20TB NAS", Description = "Ổ cứng NAS chuyên dụng 20TB, 7200 RPM, cache 256MB, IronWolf Health Management, tối ưu cho NAS 24/7, bảo hành 5 năm + Rescue", Price = 9990000, Stock = 8, CategoryId = 7, IsActive = true, CreatedAt = d, ImageUrl = "https://www.seagate.com/www-content/product-content/ironwolf-fam/ironwolf-pro/images/ironwolf-pro-14tb-400x400.png" },
+                new Product { Id = 67, Name = "Samsung T9 4TB Portable SSD", Description = "SSD di động USB 3.2 Gen 2x2 tốc độ 2000 MB/s, 4TB, chống shock, IP65 bụi/nước, nhỏ gọn 88g, cáp USB-C + USB-A đi kèm", Price = 3490000, DiscountPrice = 2990000, Stock = 15, CategoryId = 7, IsActive = true, CreatedAt = d, ImageUrl = "https://image-us.samsung.com/SamsungUS/home/computing/memory-storage/portable-ssd/08032023/MU-PG4T0B-galaxy-999.jpg" },
+                new Product { Id = 68, Name = "Kingston KC3000 2TB PCIe 4.0", Description = "SSD NVMe PCIe 4.0 2TB enterprise-grade, đọc 7000 MB/s ghi 7000 MB/s, controller Phison E18, TBW 1.6PB, nhiệt độ hoạt động -40°C đến 85°C", Price = 3290000, Stock = 18, CategoryId = 7, IsActive = true, CreatedAt = d, ImageUrl = "https://www.kingston.com/dataSheets/SKC3000D2048G_en.pdf" },
+                new Product { Id = 69, Name = "WD Blue 1TB 2.5 inch HDD", Description = "Ổ cứng HDD 2.5 inch 1TB cho laptop, 5400 RPM, cache 128MB, SATA III, chiều dày 7mm, phù hợp nâng cấp laptop đời cũ", Price = 890000, DiscountPrice = 790000, Stock = 40, CategoryId = 7, IsActive = true, CreatedAt = d, ImageUrl = "https://shop.westerndigital.com/content/dam/store/en-us/assets/products/internal-pc-storage/wd-blue-mobile-hard-drive/gallery/wd-blue-mobile-hard-drive-500gb-2.5-7mm.png.thumb.1280.1280.png" },
+                new Product { Id = 70, Name = "Silicon Power XS70 2TB PCIe 4.0", Description = "SSD NVMe PCIe 4.0 2TB heatsink tản nhiệt, đọc 7300 MB/s ghi 6800 MB/s, controller Phison E18, dung lượng cache 2GB DDR4", Price = 2490000, DiscountPrice = 2190000, Stock = 20, CategoryId = 7, IsActive = true, CreatedAt = d, ImageUrl = "https://www.silicon-power.com/web/images/product/SP_XD80_1.png" },
+                new Product { Id = 71, Name = "Lexar Professional 1800x CFexpress B", Description = "Thẻ nhớ CFexpress Type B 256GB tốc độ cao, đọc 1800 MB/s ghi 1700 MB/s, dành cho máy ảnh/quay phim 8K RAW, bền bỉ -25°C đến 85°C", Price = 4990000, DiscountPrice = 4490000, Stock = 8, CategoryId = 7, IsActive = true, CreatedAt = d, ImageUrl = "https://www.lexar.com/content/dam/lexar/products/cfexpress-cards/professional-1800x-cfexpress-type-b-card/gallery/lexar-cfexpress-type-b-256gb-1800x-product.png" },
+                new Product { Id = 72, Name = "Sabrent Rocket 4 Plus 4TB NVMe", Description = "SSD NVMe PCIe 4.0 4TB dung lượng lớn, đọc 7100 MB/s ghi 6600 MB/s, Phison E18, TBW 3000TB, bảo hành 5 năm, dành cho creative professional", Price = 7990000, DiscountPrice = 6990000, Stock = 5, CategoryId = 7, IsActive = true, CreatedAt = d, ImageUrl = "https://sabrent.com/cdn/shop/products/SB-RKT4P-4TB-main.jpg" },
+
+                // ==========================================
+                // GHẾ GAMING - CategoryId = 8 (8 sản phẩm)
+                // ==========================================
+                new Product { Id = 73, Name = "Secretlab TITAN Evo 2022 XL", Description = "Ghế gaming cao cấp nhất, da Neo Hybrid Leatherette, tựa đầu 4D từ tính, tựa lưng điều chỉnh 165°, lumbar built-in, tay vịn 4D điều chỉnh", Price = 11990000, DiscountPrice = 10490000, Stock = 8, CategoryId = 8, IsActive = true, CreatedAt = d, ImageUrl = "https://secretlab.co/cdn/shop/files/TITAN-Evo-2022-SoftWeave-Plus-Charcoal-Blue-Hero_1800x.jpg" },
+                new Product { Id = 74, Name = "Herman Miller Embody Gaming Chair", Description = "Ghế gaming ergonomic cao cấp nhất, PostureFit SL hỗ trợ cột sống, vải thoáng khí Rhythm, bảo hành 12 năm, tùy chỉnh hoàn toàn", Price = 42990000, Stock = 3, CategoryId = 8, IsActive = true, CreatedAt = d, ImageUrl = "https://www.hermanmiller.com/content/dam/hermanmiller/images/products/seating/embody/embody-gaming-chair-3q-black-tr-gr-az.jpg" },
+                new Product { Id = 75, Name = "DXRacer Formula F08 Gaming Chair", Description = "Ghế gaming phổ biến nhất esports, khung thép, đệm PU leather cao cấp, tựa lưng 90-135°, tay vịn 3D, gối đầu và lưng đi kèm", Price = 5990000, DiscountPrice = 5490000, Stock = 15, CategoryId = 8, IsActive = true, CreatedAt = d, ImageUrl = "https://www.dxracer.com/cdn/shop/files/Formula_Series_F08_Black_and_Red_001.jpg" },
+                new Product { Id = 76, Name = "Noblechairs HERO Gaming Chair", Description = "Ghế gaming premium Đức, da vegan PU màng đôi, Memory Foam lumbar, tựa lưng 135°, tải 150kg, 4D armrest, thiết kế thể thao", Price = 8990000, DiscountPrice = 7990000, Stock = 10, CategoryId = 8, IsActive = true, CreatedAt = d, ImageUrl = "https://noblechairs.com/cdn/shop/products/hero-series-gaming-chair-black-white.jpg" },
+                new Product { Id = 77, Name = "AndaSeat Kaiser 4 XL", Description = "Ghế gaming tải 180kg, vải Linen Cloud 5D, tựa lưng 165°, 4D armrest, tựa đầu và lưng Memory Foam, khung thép 2mm, bảo hành 2 năm", Price = 6490000, DiscountPrice = 5990000, Stock = 12, CategoryId = 8, IsActive = true, CreatedAt = d, ImageUrl = "https://www.andaseat.com/cdn/shop/products/kaiser-4-xl-gaming-chair.jpg" },
+                new Product { Id = 78, Name = "Corsair TC200 Leatherette Gaming Chair", Description = "Ghế gaming Corsair leatherette cao cấp, tựa lưng 90-180° flat, Memory Foam tựa đầu và lưng, tay vịn 4D, tải 120kg, thiết kế racing", Price = 7990000, Stock = 8, CategoryId = 8, IsActive = true, CreatedAt = d, ImageUrl = "https://www.corsair.com/medias/sys_master/images/images/ha9/h3b/9545432113182/CF-9010052-WW-Gallery-Corsair-T3-RUSH-Fabric-Gaming-Chair-Grey-Blue-01.png" },
+                new Product { Id = 79, Name = "Razer Iskur V2", Description = "Ghế gaming Razer ergonomic, tựa lưng lumbar built-in điều chỉnh, da vegan, tựa đầu memory foam, tay vịn 4D, tải 136kg, bảo hành 2 năm", Price = 9990000, DiscountPrice = 8990000, Stock = 6, CategoryId = 8, IsActive = true, CreatedAt = d, ImageUrl = "https://assets2.razerzone.com/images/pnx.assets/0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d/razer-iskur-v2-500x500.png" },
+                new Product { Id = 80, Name = "Xiaomi Gaming Chair", Description = "Ghế gaming giá tốt, khung thép chắc chắn, da PU bền, tựa lưng 150°, tay vịn 3D, bơm hơi điều chỉnh độ cao, phù hợp sinh viên", Price = 2990000, DiscountPrice = 2590000, Stock = 20, CategoryId = 8, IsActive = true, CreatedAt = d, ImageUrl = "https://cdn.cnbj1.fds.api.mi-img.com/b2c-shopapi-pms/pms_1694677900.11358949.png" },
+
+                // ==========================================
+                // ĐIỆN THOẠI - CategoryId = 9 (12 sản phẩm)
+                // ==========================================
+                new Product { Id = 81, Name = "iPhone 16 Pro Max 256GB", Description = "iPhone cao cấp nhất Apple chip A18 Pro, màn hình Super Retina XDR 6.9 inch ProMotion 120Hz, camera 48MP Fusion + 12MP Tetra Prism 5x zoom", Price = 34990000, DiscountPrice = 32990000, Stock = 15, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-16-pro-finish-select-202409-6-9inch-deserttitanium?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1725415431361" },
+                new Product { Id = 82, Name = "iPhone 15 128GB", Description = "iPhone tầm trung Apple chip A16 Bionic, màn hình Super Retina XDR 6.1 inch, Dynamic Island, camera 48MP chính, USB-C, pin 20 giờ video", Price = 19990000, DiscountPrice = 18490000, Stock = 20, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-pink?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1692982705895" },
+                new Product { Id = 83, Name = "Samsung Galaxy S25 Ultra 512GB", Description = "Flagship Android Snapdragon 8 Elite, màn hình Dynamic AMOLED 6.9 inch 120Hz, bút S Pen tích hợp, camera 200MP, Galaxy AI, RAM 12GB", Price = 32990000, DiscountPrice = 29990000, Stock = 12, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://images.samsung.com/vn/smartphones/galaxy-s25-ultra/images/galaxy-s25-ultra-titanium-blue-1.jpg" },
+                new Product { Id = 84, Name = "Samsung Galaxy S25+ 256GB", Description = "Flagship Android Snapdragon 8 Elite, màn hình Dynamic AMOLED 6.7 inch 120Hz, camera 50MP, Galaxy AI translation real-time, IP68, RAM 12GB", Price = 22990000, DiscountPrice = 20990000, Stock = 15, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://images.samsung.com/vn/smartphones/galaxy-s25-plus/images/galaxy-s25-plus-icyblue-1.jpg" },
+                new Product { Id = 85, Name = "Google Pixel 9 Pro XL 256GB", Description = "Flagship Google chip Tensor G4, màn hình LTPO OLED 6.8 inch 1-120Hz, camera 50MP + 48MP ultrawide + 48MP 5x zoom, Gemini AI tích hợp", Price = 24990000, Stock = 8, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://lh3.googleusercontent.com/nu1BpvkpFDh1KI7oqKjhFjwOyV4H7q0RoAU0KWtTM34WvHf1vXVHHjAJ8VYr6A7LVHjQ7nT3HGw=rw-w820" },
+                new Product { Id = 86, Name = "OnePlus 13 512GB", Description = "Flagship Android Snapdragon 8 Elite, màn hình AMOLED 6.82 inch 1-120Hz, camera Hasselblad 50MP, sạc nhanh 100W, sạc không dây 50W, RAM 16GB", Price = 18990000, DiscountPrice = 16990000, Stock = 10, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://image01.oneplus.net/ebp/202412/17/1-m00-53-e9-rb8bwwygczuatooxaap5c3cukzw967.png" },
+                new Product { Id = 87, Name = "Xiaomi 15 Pro 512GB", Description = "Flagship Xiaomi Snapdragon 8 Elite, màn hình LTPO AMOLED 6.73 inch 1-120Hz, camera Leica 50MP, sạc 90W có dây + 50W không dây, RAM 16GB", Price = 23990000, DiscountPrice = 21990000, Stock = 8, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://i02.appmifile.com/mi-com-product/fly-birds/xiaomi-15-pro/m/3b90b51c0c0869ac55618bc1c5b84e95.png" },
+                new Product { Id = 88, Name = "OPPO Find X8 Pro 512GB", Description = "Flagship OPPO Dimensity 9400, màn hình AMOLED 6.78 inch 120Hz BOE, camera Hasselblad 50MP periscope 6x, sạc nhanh 80W + 50W wireless, RAM 16GB", Price = 25990000, DiscountPrice = 23990000, Stock = 6, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://image.oppo.com/content/dam/oppo/common/mkt/v2en/find-x8-pro/find-x8-pro-kv.png" },
+                new Product { Id = 89, Name = "Samsung Galaxy A55 5G 256GB", Description = "Tầm trung Samsung Exynos 1480, màn hình Super AMOLED 6.6 inch FHD+ 120Hz, camera 50MP OIS, IP67, RAM 8GB, pin 5000mAh sạc 45W", Price = 9490000, DiscountPrice = 8490000, Stock = 25, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://images.samsung.com/vn/smartphones/galaxy-a55-5g/images/galaxy-a55-5g-awesome-icyblue-1.jpg" },
+                new Product { Id = 90, Name = "iPhone SE 3rd Gen 64GB", Description = "iPhone nhỏ gọn giá tốt Apple chip A15 Bionic, màn hình Retina 4.7 inch, camera 12MP, Touch ID Home button, 5G, pin 15 giờ video", Price = 11990000, DiscountPrice = 10990000, Stock = 18, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-se-finish-select-202203-6-1inch-midnight?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1646445666203" },
+                new Product { Id = 91, Name = "Vivo X200 Pro 512GB", Description = "Flagship Vivo Dimensity 9400, camera Zeiss 200MP periscope + 50MP ultrawide, màn hình AMOLED 6.78 inch 1-120Hz, sạc 90W, pin 6000mAh, RAM 16GB", Price = 22990000, DiscountPrice = 20490000, Stock = 7, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://www.vivo.com/content/dam/vivo/en/products/x200-pro/blue.png" },
+                new Product { Id = 92, Name = "Nothing Phone 2a Plus 256GB", Description = "Thiết kế Glyph Interface LED độc đáo, Dimensity 7350 Pro, màn hình AMOLED 6.7 inch 120Hz, camera 50MP + 50MP ultrawide, RAM 12GB, IP54", Price = 8990000, DiscountPrice = 7990000, Stock = 12, CategoryId = 9, IsActive = true, CreatedAt = d, ImageUrl = "https://global-website-assets.nothing.tech/images/phone-2a-plus/phone-2a-plus-overview-01.jpg" },
+
+                // ==========================================
+                // BẢN QUYỀN PHẦN MỀM - CategoryId = 10 (12 sản phẩm)
+                // ==========================================
+                new Product { Id = 93, Name = "Microsoft 365 Personal 1 năm", Description = "Bộ Office đầy đủ Word, Excel, PowerPoint, Outlook, OneNote, OneDrive 1TB, Teams Premium, cập nhật tự động, 1 người dùng đa thiết bị", Price = 1590000, DiscountPrice = 1390000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE4OXeo?ver=6db3" },
+                new Product { Id = 94, Name = "Microsoft 365 Family 1 năm", Description = "Bộ Office cho gia đình 6 người dùng, Word/Excel/PowerPoint/Outlook, OneDrive 1TB/người, 60 phút Skype/tháng, đa thiết bị Win/Mac/iOS/Android", Price = 2390000, DiscountPrice = 2090000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE4OXeo?ver=6db3" },
+                new Product { Id = 95, Name = "Windows 11 Pro OEM Key", Description = "Bản quyền Windows 11 Pro chính hãng Microsoft, kích hoạt trực tuyến vĩnh viễn, hỗ trợ nâng cấp miễn phí, dùng được cho 1 thiết bị, ngôn ngữ đa quốc gia", Price = 1290000, DiscountPrice = 990000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RWEHjV?ver=b5e6" },
+                new Product { Id = 96, Name = "Adobe Creative Cloud All Apps 1 năm", Description = "Toàn bộ ứng dụng Adobe: Photoshop, Illustrator, Premiere Pro, After Effects, Lightroom, Acrobat Pro, 100GB cloud storage, cập nhật liên tục", Price = 12990000, DiscountPrice = 10990000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://www.adobe.com/content/dam/cc/icons/Creative_Cloud.svg" },
+                new Product { Id = 97, Name = "ChatGPT Plus 1 tháng", Description = "Đăng ký ChatGPT Plus GPT-4o không giới hạn, DALL-E 3 tạo ảnh AI, GPT-4 phân tích file, web browsing real-time, Custom GPTs, ưu tiên tốc độ", Price = 520000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/1024px-ChatGPT_logo.svg.png" },
+                new Product { Id = 98, Name = "ChatGPT Plus 12 tháng", Description = "Gói ChatGPT Plus 1 năm tiết kiệm 15%, GPT-4o + DALL-E 3 + Advanced Data Analysis + Browsing, Custom GPTs marketplace, ưu tiên tốc độ 24/7", Price = 5290000, DiscountPrice = 4990000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/1024px-ChatGPT_logo.svg.png" },
+                new Product { Id = 99, Name = "Claude Pro 1 tháng", Description = "Đăng ký Claude Pro Anthropic, truy cập Claude 3.5 Sonnet/Opus không giới hạn, Projects tổ chức hội thoại, độ dài context 200K token, ưu tiên tốc độ", Price = 520000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/1200px-Claude_AI_logo.svg.png" },
+                new Product { Id = 100, Name = "Midjourney Standard Plan 1 tháng", Description = "Tạo ảnh AI không giới hạn Midjourney v6.1, 15 giờ Fast GPU/tháng, Relax mode unlimited, Stealth mode ẩn ảnh, Remix + Vary Region chỉnh sửa", Price = 390000, DiscountPrice = 350000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Midjourney_Emblem.png/800px-Midjourney_Emblem.png" },
+                new Product { Id = 101, Name = "Canva Pro 1 năm", Description = "Thiết kế chuyên nghiệp Canva Pro 1 năm, 100M+ template, 75M+ stock ảnh/video, Background Remover, Magic Resize, Brand Kit, 1TB storage", Price = 1290000, DiscountPrice = 990000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Canva_Logo.svg/1200px-Canva_Logo.svg.png" },
+                new Product { Id = 102, Name = "Notion AI Plus 1 năm", Description = "Workspace all-in-one Notion Plus + AI không giới hạn, AI viết/tóm tắt/dịch/phân tích, 100GB file storage, unlimited guest, custom domain", Price = 1590000, DiscountPrice = 1390000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
+                new Product { Id = 103, Name = "Grammarly Business 1 năm", Description = "Kiểm tra ngữ pháp tiếng Anh AI nâng cao, full-sentence rewrites, tone detector, plagiarism checker, tích hợp 500k+ app, phân tích writing analytics", Price = 2990000, DiscountPrice = 2490000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Grammarly_logo.svg/2560px-Grammarly_logo.svg.png" },
+                new Product { Id = 104, Name = "NordVPN 2 năm", Description = "VPN bảo mật hàng đầu thế giới 6 thiết bị/cùng lúc, 6400+ server 111 quốc gia, Threat Protection chặn malware, Meshnet kết nối thiết bị riêng", Price = 1390000, DiscountPrice = 990000, Stock = 999, CategoryId = 10, IsActive = true, CreatedAt = d, ImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/NordVPN_logo_monochromatic.svg/1280px-NordVPN_logo_monochromatic.svg.png" }
             );
         }
     }

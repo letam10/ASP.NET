@@ -1,0 +1,63 @@
+﻿@model List<TechShop.Models.Product>
+@{
+    ViewData["Title"] = "Sản phẩm yêu thích";
+}
+
+<div class="container py-5" style="margin-top:70px">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Sản phẩm <span class="text-gradient">yêu thích</span> của bạn</h2>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-heart text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 text-muted">Danh sách yêu thích trống</h4>
+            <p>Hãy thêm các sản phẩm bạn quan tâm vào đây để xem lại sau nhé.</p>
+            <a asp-action="Index" class="btn btn-primary mt-2">Khám phá sản phẩm</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var p in Model)
+            {
+                <div class="col-6 col-md-4 col-lg-3" id="wishlist-item-@p.Id">
+                    <div class="product-card position-relative">
+                        <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 rounded-circle z-3"
+                                onclick="removeWishlist(@p.Id)" title="Bỏ yêu thích">
+                            <i class="bi bi-x"></i>
+                        </button>
+
+                        <div class="product-img-wrap">
+                            <img src="@(p.ImageUrl ?? "https://via.placeholder.com/300")" alt="@p.Name" class="product-img" />
+                        </div>
+                        <div class="product-body">
+                            <h6 class="product-name">@p.Name</h6>
+                            <div class="product-footer">
+                                <span class="product-price">@p.Price.ToString("N0") ₫</span>
+                                <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id" class="btn-add-cart">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function removeWishlist(id) {
+            if(confirm('Bạn muốn bỏ sản phẩm này khỏi danh sách yêu thích?')) {
+                $.post('/Product/ToggleWishlist', { productId: id }, function(res) {
+                    if(res.success) {
+                        $('#wishlist-item-' + id).fadeOut(); // Ẩn card bằng jQuery animation
+                    }
+                });
+            }
+        }
+    </script>
+}

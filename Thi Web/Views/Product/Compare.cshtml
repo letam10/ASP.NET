@@ -1,0 +1,68 @@
+﻿@model List<TechShop.Models.Product>
+@{
+    ViewData["Title"] = "So sánh sản phẩm";
+    // Lấy tất cả các thuộc tính kỹ thuật độc nhất từ các máy đang so sánh
+    var allSpecs = Model.SelectMany(p => p.Specifications.Select(s => s.SpecName)).Distinct().ToList();
+}
+
+<div class="container py-5" style="margin-top:70px">
+    <h2 class="mb-4">So sánh sản phẩm <span class="text-muted">(@Model.Count/3)</span></h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Bạn chưa chọn sản phẩm nào để so sánh.</div>
+        <a asp-action="Index" class="btn btn-primary">Tiếp tục mua sắm</a>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover bg-white text-dark text-center align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th width="20%" class="text-start fs-5">Thông số kỹ thuật</th>
+                        @foreach (var p in Model)
+                        {
+                            <th width="26%">
+                                <div class="position-relative p-2">
+                                    <img src="@(p.ImageUrl ?? "https://via.placeholder.com/150")" alt="@p.Name" class="img-fluid mb-2 rounded" style="max-height: 150px;" />
+                                    <h6 class="text-truncate">@p.Name</h6>
+                                    <p class="text-danger fw-bold">@p.Price.ToString("N0") ₫</p>
+
+                                    <div class="d-flex justify-content-center gap-2 mt-2">
+                                        <a asp-action="Detail" asp-route-id="@p.Id" class="btn btn-sm btn-primary">Xem chi tiết</a>
+                                        <form asp-action="RemoveFromCompare" method="post" class="m-0">
+                                            <input type="hidden" name="productId" value="@p.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-start fw-bold text-muted">Bảo hành</td>
+                        @foreach (var p in Model)
+                        {
+                            <td>@p.WarrantyPolicy</td>
+                        }
+                    </tr>
+                    @foreach (var specName in allSpecs)
+                    {
+                        <tr>
+                            <td class="text-start fw-bold text-muted">@specName</td>
+                            @foreach (var p in Model)
+                            {
+                                var specValue = p.Specifications.FirstOrDefault(s => s.SpecName == specName)?.SpecValue;
+                                <td>@(string.IsNullOrEmpty(specValue) ? "-" : specValue)</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

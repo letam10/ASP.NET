@@ -36,6 +36,26 @@
                             <i class="bi bi-grid me-1"></i>Sản phẩm
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Product" asp-action="Wishlist">
+                            <i class="bi bi-heart me-1"></i>Yêu thích
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Product" asp-action="Compare">
+                            <i class="bi bi-bar-chart me-1"></i>So sánh
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Service" asp-action="Booking">
+                            <i class="bi bi-tools me-1"></i>Dịch vụ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold" asp-controller="Game" asp-action="LuckyWheel">
+                            <i class="bi bi-controller me-1"></i>Minigame
+                        </a>
+                    </li>
                     @if (User.IsInRole("Admin"))
                     {
                         <li class="nav-item dropdown">
@@ -75,19 +95,6 @@
                 </ul>
 
                 <ul class="navbar-nav ms-auto align-items-center">
-                    <!-- Search -->
-@*                     <li class="nav-item me-2">
-                        <form asp-controller="Home" asp-action="Index" method="get" class="d-flex">
-                            <div class="search-box">
-                                <input type="text" name="search" class="form-control search-input"
-                                       placeholder="Tìm kiếm..." value="@ViewBag.Search" />
-                                <button type="submit" class="search-btn">
-                                    <i class="bi bi-search"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </li>
- *@                    <!-- Cart -->
                     <li class="nav-item me-2">
                         <a class="nav-link cart-icon" asp-controller="Cart" asp-action="Index">
                             <i class="bi bi-cart3"></i>
