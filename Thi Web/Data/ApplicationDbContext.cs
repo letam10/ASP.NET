@@ -26,6 +26,23 @@ namespace TechShop.Data
         {
             base.OnModelCreating(builder);
 
+            // Cấu hình Composite Key cho bảng tồn kho chi nhánh
+            builder.Entity<StoreInventory>()
+                .HasKey(si => new { si.StoreBranchId, si.ProductId });
+
+            // Cấu hình quan hệ tránh xóa vòng lặp
+            builder.Entity<StoreInventory>()
+                .HasOne(si => si.StoreBranch)
+                .WithMany(sb => sb.Inventories)
+                .HasForeignKey(si => si.StoreBranchId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<StoreInventory>()
+                .HasOne(si => si.Product)
+                .WithMany(p => p.Inventories)
+                .HasForeignKey(si => si.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Laptop", Description = "Máy tính xách tay các loại" },
                 new Category { Id = 2, Name = "Chuột", Description = "Chuột máy tính có dây và không dây" },
@@ -33,9 +50,7 @@ namespace TechShop.Data
                 new Category { Id = 4, Name = "Màn hình", Description = "Màn hình máy tính các kích thước" },
                 new Category { Id = 5, Name = "Linh kiện PC", Description = "CPU, RAM, GPU, SSD và các linh kiện khác" }
             );
-
             var seedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
             builder.Entity<Product>().HasData(
                 new Product
                 {
