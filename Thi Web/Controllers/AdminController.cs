@@ -189,6 +189,18 @@ namespace TechShop.Controllers
             TempData["Success"] = "Cập nhật trạng thái thành công!";
             return RedirectToAction(nameof(Detail), new { id });
         }
+        [HttpPost]
+        public async Task<IActionResult> ConfirmPOS(int orderId)
+        {
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order != null && order.OrderStatus == "Pending")
+            {
+                order.OrderStatus = "Processing"; // Hoặc "Paid" tùy bạn đặt tên
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xác nhận thanh toán POS thành công!";
+            }
+            return RedirectToAction("Detail", new { id = orderId });
+        }
     }
 
     // ================================================================
@@ -294,5 +306,6 @@ namespace TechShop.Controllers
             TempData["Success"] = "Đã xóa role.";
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

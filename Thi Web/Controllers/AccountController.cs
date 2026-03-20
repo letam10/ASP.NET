@@ -8,13 +8,16 @@ namespace TechShop.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IEmailService _emailService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailService = emailService;
         }
 
         // ===== LOGIN =====
@@ -69,6 +72,7 @@ namespace TechShop.Controllers
             {
                 await _userManager.AddToRoleAsync(user, "Customer");
                 await _signInManager.SignInAsync(user, false);
+                await _emailService.SendWelcomeEmailAsync(user.Email, user.FullName);
                 TempData["Success"] = "Đăng ký thành công! Chào mừng bạn đến với TechShop.";
                 return RedirectToAction("Index", "Home");
             }

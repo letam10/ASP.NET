@@ -30,6 +30,16 @@
                     <option value="Cancelled" selected="@(Model.Status == "Cancelled")">Cancelled</option>
                 </select>
                 <button type="submit" class="btn btn-primary">Cập nhật</button>
+                @if (Model.OrderStatus == "Pending")
+                {
+                    <form asp-controller="AdminOrder" asp-action="ConfirmPOS" method="post" class="d-inline">
+                        <input type="hidden" name="orderId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-success" onclick="return confirm('Xác nhận khách đã thanh toán tiền mặt tại quầy?')">
+                            <i class="bi bi-cash-coin"></i> Xác nhận POS (Đã thanh toán)
+                        </button>
+                    </form>
+                }
+
             </form>
         </div>
     </div>

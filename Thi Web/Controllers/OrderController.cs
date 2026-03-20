@@ -49,6 +49,23 @@ namespace TechShop.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
 
+            // TÍNH PHÍ VẬN CHUYỂN
+            decimal shippingFee = 35000; // Phí ship mặc định
+            int totalItems = cart.Sum(c => c.Quantity);
+            decimal cartTotal = _cartService.GetTotal(HttpContext.Session);
+
+            // Giảm phí ship nếu mua nhiều hoặc đơn giá cao
+            if (totalItems >= 3 || cartTotal > 5000000)
+            {
+                shippingFee = 15000;
+            }
+
+            // Miễn phí vận chuyển cho khách VIP
+            if (user.MembershipTier == "Gold" || user.MembershipTier == "Diamond")
+            {
+                shippingFee = 0;
+            }
+
             var order = new Order
             {
                 UserId = user.Id,
@@ -56,7 +73,7 @@ namespace TechShop.Controllers
                 Address = model.Address,
                 City = model.City,
                 PostalCode = model.PostalCode,
-                TotalAmount = _cartService.GetTotal(HttpContext.Session),
+                TotalAmount = cartTotal + shippingFee, // Đã cộng phí ship
                 Status = "Pending",
                 OrderDate = DateTime.Now,
                 OrderDetails = cart.Select(c => new OrderDetail
@@ -69,28 +86,25 @@ namespace TechShop.Controllers
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
+
             // TÍCH ĐIỂM VÀ NÂNG HẠNG THẺ CHO NGƯỜI DÙNG
-            // Tỷ lệ quy đổi: Cứ 100,000 VNĐ = 1 điểm Loyalty
             int earnedPoints = (int)(order.TotalAmount / 100000);
             user.LoyaltyPoints += earnedPoints;
 
-            // Cập nhật hạng thẻ dựa trên tổng điểm tích lũy
             if (user.LoyaltyPoints >= 5000)
-                user.MembershipTier = "Diamond"; // Kim cương
+                user.MembershipTier = "Diamond";
             else if (user.LoyaltyPoints >= 2000)
-                user.MembershipTier = "Gold";    // Vàng
+                user.MembershipTier = "Gold";
             else if (user.LoyaltyPoints >= 500)
-                user.MembershipTier = "Silver";  // Bạc
+                user.MembershipTier = "Silver";
             else
-                user.MembershipTier = "Bronze";  // Đồng
-            // Lưu cập nhật vào user
+                user.MembershipTier = "Bronze";
+
             await _userManager.UpdateAsync(user);
 
-            // ====> HÀM GỬI EMAIL <====
+            // HÀM GỬI EMAIL 
             if (!string.IsNullOrEmpty(user.Email))
             {
-                // Để SendOrderConfirmationAsync chạy bất đồng bộ
-                // không cần await nếu không muốn giao diện bị treo chờ gửi email
                 _ = _emailService.SendOrderConfirmationAsync(user.Email, user.UserName ?? "Khách hàng", order);
             }
             _cartService.ClearCart(HttpContext.Session);

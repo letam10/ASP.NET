@@ -8,6 +8,7 @@ namespace TechShop.Services
     public interface IEmailService
     {
         Task SendOrderConfirmationAsync(string toEmail, string customerName, Order order);
+        Task SendWelcomeEmailAsync(string email, string fullName);
     }
 
     public class EmailService : IEmailService
