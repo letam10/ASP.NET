@@ -6,15 +6,10 @@ namespace TechShop.Models
     public class Category
     {
         public int Id { get; set; }
-
         [Required(ErrorMessage = "Tên danh mục là bắt buộc")]
         [StringLength(100)]
-        [Display(Name = "Tên danh mục")]
         public string Name { get; set; } = string.Empty;
-
-        [Display(Name = "Mô tả")]
         public string? Description { get; set; }
-
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 
@@ -36,23 +31,126 @@ namespace TechShop.Models
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0")]
         public decimal Price { get; set; }
 
-        [Display(Name = "Hình ảnh URL")]
-        public string? ImageUrl { get; set; }
+        // Tính năng: Sales, Thu hút khách hàng
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? DiscountPrice { get; set; }
 
-        [Display(Name = "Số lượng tồn kho")]
-        public int Stock { get; set; }
+        // Tính năng: Thu cũ đổi mới
+        public bool IsTradeInEligible { get; set; } = false;
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? MaxTradeInValue { get; set; }
 
-        [Display(Name = "Danh mục")]
+        // Chính sách bảo hành mặc định
+        [StringLength(200)]
+        public string WarrantyPolicy { get; set; } = "Bảo hành chính hãng 12 tháng";
+
+        public string? ImageUrl { get; set; } // Ảnh đại diện
+        public int Stock { get; set; } // Tổng tồn kho
         public int CategoryId { get; set; }
         public Category? Category { get; set; }
-
-        [Display(Name = "Ngày tạo")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-
-        [Display(Name = "Còn hàng")]
         public bool IsActive { get; set; } = true;
-        // Quan hệ Navigation cho chi tiết đánh giá
+
+        // Quan hệ mới được thêm vào
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+        public ICollection<ProductSpecification> Specifications { get; set; } = new List<ProductSpecification>();
+        public ICollection<WarrantyPackage> WarrantyPackages { get; set; } = new List<WarrantyPackage>();
+        public ICollection<StoreInventory> Inventories { get; set; } = new List<StoreInventory>();
+        public ICollection<Wishlist> WishlistedBy { get; set; } = new List<Wishlist>();
+    }
+    // 1. Ảnh con hiển thị chi tiết
+    public class ProductImage
+    {
+        public int Id { get; set; }
+        public int ProductId { get; set; }
+        public Product? Product { get; set; }
+        public string ImageUrl { get; set; } = string.Empty;
+        public int DisplayOrder { get; set; } = 0;
+    }
+
+    // 2. Thông số kỹ thuật
+    public class ProductSpecification
+    {
+        public int Id { get; set; }
+        public int ProductId { get; set; }
+        public Product? Product { get; set; }
+        [StringLength(100)]
+        public string SpecName { get; set; } = string.Empty; //"CPU", "GPU", "Màn hình"
+        [StringLength(255)]
+        public string SpecValue { get; set; } = string.Empty; //"Intel Core i9-14900HX", "RTX 4070 8GB"
+    }
+
+    // 3. Gói nâng cấp bảo hành
+    public class WarrantyPackage
+    {
+        public int Id { get; set; }
+        public int ProductId { get; set; }
+        public Product? Product { get; set; }
+        public string PackageName { get; set; } = string.Empty; //"Gói bảo hành vàng ? tháng"
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal AdditionalPrice { get; set; } // Giá mua thêm
+    }
+
+    // 4. Sản phẩm yêu thích
+    public class Wishlist
+    {
+        public int Id { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public ApplicationUser? User { get; set; }
+        public int ProductId { get; set; }
+        public Product? Product { get; set; }
+        public DateTime AddedDate { get; set; } = DateTime.Now;
+    }
+
+    // 5. Đặt lịch Sửa chữa, Vệ sinh máy
+    public class ServiceTicket
+    {
+        public int Id { get; set; }
+        public string? UserId { get; set; }
+        [Required]
+        public string CustomerName { get; set; } = string.Empty;
+        [Required]
+        public string PhoneNumber { get; set; } = string.Empty;
+        [Required]
+        public string DeviceModel { get; set; } = string.Empty; // Tên máy tính/Linh kiện
+        public string ServiceType { get; set; } = "Vệ sinh máy"; //"Sửa chữa", "Nâng cấp"
+        public string? Description { get; set; }
+        public DateTime BookingDate { get; set; }
+        public string Status { get; set; } = "Đang chờ xử lý"; // Đang chờ xử lý, Đang tiến hành, Đã hoàn thành, Đã hủy
+    }
+
+    // 6. Quản lý chi nhánh
+    public class StoreBranch
+    {
+        public int Id { get; set; }
+        [Required]
+        public string Name { get; set; } = string.Empty;
+        [Required]
+        public string Address { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public ICollection<StoreInventory> Inventories { get; set; } = new List<StoreInventory>();
+    }
+
+    // 7. Nhà cung cấp
+    public class Supplier
+    {
+        public int Id { get; set; }
+        [Required]
+        public string Name { get; set; } = string.Empty;
+        public string? ContactPerson { get; set; }
+        public string? Email { get; set; }
+        public string? Phone { get; set; }
+    }
+
+    // 8. Quản lý kho trung gian
+    public class StoreInventory
+    {
+        public int StoreBranchId { get; set; }
+        public StoreBranch? StoreBranch { get; set; }
+        public int ProductId { get; set; }
+        public Product? Product { get; set; }
+        public int Quantity { get; set; }
     }
 
     public class Order
@@ -60,7 +158,6 @@ namespace TechShop.Models
         public int Id { get; set; }
         public string UserId { get; set; } = string.Empty;
         public ApplicationUser? User { get; set; }
-
         [Required(ErrorMessage = "Họ tên là bắt buộc")]
         [Display(Name = "Họ tên")]
         public string FullName { get; set; } = string.Empty;
@@ -86,7 +183,6 @@ namespace TechShop.Models
 
         [Display(Name = "Ngày đặt")]
         public DateTime OrderDate { get; set; } = DateTime.Now;
-
         public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 
@@ -97,10 +193,8 @@ namespace TechShop.Models
         public Order? Order { get; set; }
         public int ProductId { get; set; }
         public Product? Product { get; set; }
-
         [Display(Name = "Số lượng")]
         public int Quantity { get; set; }
-
         [Column(TypeName = "decimal(18,2)")]
         [Display(Name = "Đơn giá")]
         public decimal UnitPrice { get; set; }
@@ -115,6 +209,4 @@ namespace TechShop.Models
         public string? ImageUrl { get; set; }
         public decimal Subtotal => Price * Quantity;
     }
-
-
 }
