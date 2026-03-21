@@ -4,9 +4,7 @@
 }
 
 <style>
-    /* =============================================
-       PAGE HEADER
-    ============================================= */
+    /* === HEADER === */
     .booking-header {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
         border-bottom: 1px solid rgba(99,102,241,.2);
@@ -50,13 +48,9 @@
         background-clip: text;
     }
 
-    .booking-header p {
-        color: #64748b; font-size: .92rem; margin: 0;
-    }
+    .booking-header p { color: #64748b; font-size: .92rem; margin: 0; }
 
-    /* =============================================
-       SERVICE BADGES
-    ============================================= */
+    /* === SERVICE FEATURE BADGES === */
     .service-features {
         display: flex; justify-content: center;
         flex-wrap: wrap; gap: 10px;
@@ -74,17 +68,14 @@
 
     .sf-badge i { color: #6366f1; }
 
-    /* =============================================
-       FORM CARD
-    ============================================= */
+    /* === FORM CARD === */
     .booking-card {
         max-width: 720px;
-        margin: 0 auto;
+        margin: 0 auto 60px;
         background: #0f172a;
         border: 1px solid rgba(255,255,255,.08);
         border-radius: 24px;
         overflow: hidden;
-        margin-bottom: 60px;
     }
 
     .booking-card-head {
@@ -107,15 +98,11 @@
         color: #f1f5f9; letter-spacing: -.01em;
     }
 
-    .booking-card-head p {
-        margin: 0; font-size: .8rem; color: #64748b;
-    }
+    .booking-card-head p { margin: 0; font-size: .8rem; color: #64748b; }
 
     .booking-card-body { padding: 30px 32px; }
 
-    /* =============================================
-       FORM GRID
-    ============================================= */
+    /* === FORM GRID === */
     .bk-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -131,9 +118,7 @@
         .booking-card-head { padding: 20px 18px; }
     }
 
-    /* =============================================
-       FIELD
-    ============================================= */
+    /* === FIELD === */
     .bk-field { display: flex; flex-direction: column; gap: 7px; }
 
     .bk-label {
@@ -170,10 +155,26 @@
         box-shadow: 0 0 0 3px rgba(99,102,241,.12);
     }
 
-    /* Date input color fix */
-    .bk-input[type="datetime-local"] { color-scheme: dark; }
+    /* datetime-local */
+    .bk-input[type="datetime-local"] {
+        color-scheme: dark;
+        cursor: pointer;
+    }
 
-    /* Select arrow */
+    .bk-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: invert(55%) sepia(50%) saturate(500%) hue-rotate(200deg);
+        cursor: pointer;
+        opacity: .75;
+        transition: opacity .2s;
+        border-radius: 4px;
+        padding: 2px;
+    }
+
+    .bk-input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
+    }
+
+    /* Select */
     .bk-select-wrap { position: relative; }
 
     .bk-select-wrap::after {
@@ -196,178 +197,10 @@
     /* Error */
     .bk-error { font-size: .78rem; color: #f87171; }
 
-    /* =============================================
-       FLATPICKR CUSTOM THEME
-    ============================================= */
-    .flatpickr-calendar {
-        background: #1e293b !important;
-        border: 1px solid rgba(99,102,241,.3) !important;
-        border-radius: 16px !important;
-        box-shadow: 0 20px 50px rgba(0,0,0,.5), 0 0 0 1px rgba(99,102,241,.1) !important;
-        font-family: inherit !important;
-        padding: 6px !important;
-        width: 300px !important;
-    }
-
-    .flatpickr-months {
-        padding: 6px 4px 4px !important;
-        align-items: center !important;
-    }
-
-    .flatpickr-month {
-        height: 36px !important;
-        color: #f1f5f9 !important;
-        fill: #f1f5f9 !important;
-    }
-
-    .flatpickr-current-month {
-        font-size: .95rem !important;
-        font-weight: 700 !important;
-        color: #f1f5f9 !important;
-        padding-top: 6px !important;
-    }
-
-    .flatpickr-current-month .flatpickr-monthDropdown-months {
-        background: #1e293b !important;
-        color: #f1f5f9 !important;
-        border-radius: 8px !important;
-        font-weight: 700 !important;
-    }
-
-    .flatpickr-current-month input.cur-year {
-        color: #f1f5f9 !important;
-        font-weight: 700 !important;
-    }
-
-    .flatpickr-prev-month,
-    .flatpickr-next-month {
-        color: #64748b !important;
-        fill: #64748b !important;
-        padding: 6px !important;
-        border-radius: 8px !important;
-        transition: background .2s, fill .2s !important;
-    }
-
-    .flatpickr-prev-month:hover,
-    .flatpickr-next-month:hover {
-        background: rgba(99,102,241,.15) !important;
-        color: #818cf8 !important;
-        fill: #818cf8 !important;
-    }
-
-    .flatpickr-weekdays {
-        background: transparent !important;
-        margin-top: 4px !important;
-    }
-
-    span.flatpickr-weekday {
-        background: transparent !important;
-        color: #475569 !important;
-        font-size: .72rem !important;
-        font-weight: 700 !important;
-        letter-spacing: .06em !important;
-    }
-
-    .flatpickr-days { border: none !important; width: 288px !important; }
-    .dayContainer { width: 288px !important; min-width: 288px !important; max-width: 288px !important; }
-
-    .flatpickr-day {
-        background: transparent !important;
-        border: 1px solid transparent !important;
-        border-radius: 9px !important;
-        color: #94a3b8 !important;
-        font-size: .84rem !important;
-        height: 36px !important;
-        line-height: 34px !important;
-        max-width: 36px !important;
-        transition: background .15s, color .15s !important;
-    }
-
-    .flatpickr-day:hover {
-        background: rgba(99,102,241,.15) !important;
-        border-color: rgba(99,102,241,.25) !important;
-        color: #a5b4fc !important;
-    }
-
-    .flatpickr-day.today {
-        border-color: rgba(99,102,241,.4) !important;
-        color: #818cf8 !important;
-        font-weight: 700 !important;
-    }
-
-    .flatpickr-day.today:hover {
-        background: rgba(99,102,241,.2) !important;
-    }
-
-    .flatpickr-day.selected,
-    .flatpickr-day.selected:hover {
-        background: #6366f1 !important;
-        border-color: #6366f1 !important;
-        color: #fff !important;
-        font-weight: 700 !important;
-        box-shadow: 0 4px 12px rgba(99,102,241,.4) !important;
-    }
-
-    .flatpickr-day.flatpickr-disabled,
-    .flatpickr-day.prevMonthDay,
-    .flatpickr-day.nextMonthDay {
-        color: #1e293b !important;
-    }
-
-    /* Time picker */
-    .flatpickr-time {
-        background: rgba(99,102,241,.06) !important;
-        border-top: 1px solid rgba(255,255,255,.06) !important;
-        border-radius: 0 0 12px 12px !important;
-        height: 44px !important;
-        margin-top: 6px !important;
-    }
-
-    .flatpickr-time input {
-        background: transparent !important;
-        border: none !important;
-        color: #f1f5f9 !important;
-        font-size: .95rem !important;
-        font-weight: 700 !important;
-    }
-
-    .flatpickr-time input:hover,
-    .flatpickr-time input:focus {
-        background: rgba(99,102,241,.1) !important;
-        border-radius: 8px !important;
-    }
-
-    .flatpickr-time .flatpickr-time-separator,
-    .flatpickr-time .flatpickr-am-pm {
-        color: #475569 !important;
-        font-weight: 700 !important;
-    }
-
-    .flatpickr-time .numInputWrapper span.arrowUp,
-    .flatpickr-time .numInputWrapper span.arrowDown {
-        border-color: rgba(255,255,255,.06) !important;
-    }
-
-    .flatpickr-time .numInputWrapper span.arrowUp:after  { border-bottom-color: #64748b !important; }
-    .flatpickr-time .numInputWrapper span.arrowDown:after { border-top-color: #64748b !important; }
-
-    /* Input wrapper with calendar icon */
-    .bk-date-wrap { position: relative; }
-    .bk-date-wrap .bk-input { padding-right: 40px; cursor: pointer; }
-    .bk-date-icon {
-        position: absolute; right: 13px; top: 50%;
-        transform: translateY(-50%);
-        color: #6366f1; font-size: .95rem;
-        pointer-events: none;
-    }
-
-    /* =============================================
-       DIVIDER
-    ============================================= */
+    /* Divider */
     .bk-divider {
         grid-column: 1 / -1;
         display: flex; align-items: center; gap: 12px;
-        color: #1e293b;
         font-size: .72rem; font-weight: 700;
         letter-spacing: .1em; text-transform: uppercase;
         color: #334155;
@@ -379,9 +212,7 @@
         height: 1px; background: rgba(255,255,255,.06);
     }
 
-    /* =============================================
-       SUBMIT BUTTON
-    ============================================= */
+    /* Submit */
     .bk-submit-wrap {
         grid-column: 1 / -1;
         display: flex; flex-direction: column;
@@ -456,10 +287,8 @@
 
                 <div class="bk-grid">
 
-                    <!-- Divider 1 -->
                     <div class="bk-divider bk-col-full">Thông tin khách hàng</div>
 
-                    <!-- Họ tên -->
                     <div class="bk-field">
                         <label asp-for="CustomerName" class="bk-label">
                             Họ và tên <span class="req">*</span>
@@ -469,7 +298,6 @@
                         <span asp-validation-for="CustomerName" class="bk-error"></span>
                     </div>
 
-                    <!-- SĐT -->
                     <div class="bk-field">
                         <label asp-for="PhoneNumber" class="bk-label">
                             Số điện thoại <span class="req">*</span>
@@ -479,10 +307,8 @@
                         <span asp-validation-for="PhoneNumber" class="bk-error"></span>
                     </div>
 
-                    <!-- Divider 2 -->
                     <div class="bk-divider bk-col-full">Thông tin thiết bị & dịch vụ</div>
 
-                    <!-- Thiết bị -->
                     <div class="bk-field">
                         <label asp-for="DeviceModel" class="bk-label">
                             Tên thiết bị / Model <span class="req">*</span>
@@ -492,7 +318,6 @@
                         <span asp-validation-for="DeviceModel" class="bk-error"></span>
                     </div>
 
-                    <!-- Loại dịch vụ -->
                     <div class="bk-field">
                         <label asp-for="ServiceType" class="bk-label">
                             Loại dịch vụ <span class="req">*</span>
@@ -508,25 +333,18 @@
                         </div>
                     </div>
 
-                    <!-- Ngày hẹn -->
                     <div class="bk-field bk-col-full">
                         <label asp-for="BookingDate" class="bk-label">
                             Ngày & giờ mang máy đến <span class="req">*</span>
                         </label>
-                        <div class="bk-date-wrap">
-                            <input id="bookingDatePicker"
-                                   type="text"
-                                   class="bk-input"
-                                   placeholder="Chọn ngày và giờ..."
-                                   autocomplete="off"
-                                   required readonly />
-                            <input type="hidden" id="bookingDateHidden" asp-for="BookingDate" />
-                            <i class="bi bi-calendar3 bk-date-icon"></i>
-                        </div>
+                        <input asp-for="BookingDate"
+                               type="datetime-local"
+                               class="bk-input"
+                               step="60"
+                               required />
                         <span asp-validation-for="BookingDate" class="bk-error"></span>
                     </div>
 
-                    <!-- Mô tả -->
                     <div class="bk-field bk-col-full">
                         <label asp-for="Description" class="bk-label">
                             Mô tả tình trạng lỗi
@@ -535,7 +353,6 @@
                                   placeholder="Máy bị nóng, quạt kêu to, bật không lên..."></textarea>
                     </div>
 
-                    <!-- Submit -->
                     <div class="bk-submit-wrap">
                         <button type="submit" class="btn-bk-submit">
                             <i class="bi bi-calendar2-check"></i>
@@ -555,35 +372,9 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
-    <!-- Flatpickr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
-
     <script>
-        flatpickr("#bookingDatePicker", {
-            locale: "vn",
-            enableTime: true,
-            noCalendar: false,
-            dateFormat: "d/m/Y H:i",
-            altInput: false,
-            time_24hr: true,
-            minuteIncrement: 30,
-            minDate: "today",
-            disableMobile: true,
-            onChange: function(selectedDates, dateStr, instance) {
-                // Sync giá trị sang field hidden đúng định dạng ISO cho model binding
-                if (selectedDates.length > 0) {
-                    var d = selectedDates[0];
-                    var iso = d.getFullYear() + '-'
-                        + String(d.getMonth()+1).padStart(2,'0') + '-'
-                        + String(d.getDate()).padStart(2,'0') + 'T'
-                        + String(d.getHours()).padStart(2,'0') + ':'
-                        + String(d.getMinutes()).padStart(2,'0');
-                    document.getElementById('bookingDateHidden').value = iso;
-                }
-            }
-        });
+        var dtInput = document.querySelector('input[type="datetime-local"]');
+        if (dtInput && dtInput.value && dtInput.value.length > 16)
+            dtInput.value = dtInput.value.substring(0, 16);
     </script>
 }
