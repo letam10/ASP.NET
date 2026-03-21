@@ -53,6 +53,9 @@ namespace TechShop.Controllers
             {
                 ViewBag.Cart = cart;
                 ViewBag.Total = _cartService.GetTotal(HttpContext.Session);
+                ViewBag.CartTotal = _cartService.GetTotal(HttpContext.Session);
+                ViewBag.ShippingFee = 35000; // Giá trị mặc định, bạn có thể tính lại nếu muốn
+                ViewBag.MemberDiscount = 0;
                 return View(model);
             }
 
@@ -93,34 +96,23 @@ namespace TechShop.Controllers
                     UnitPrice = c.Price
                 }).ToList()
             };
-
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
-
-            // TÍCH ĐIỂM VÀ NÂNG HẠNG THẺ CHO NGƯỜI DÙNG
-            int earnedPoints = (int)(order.TotalAmount / 100000);
-            user.LoyaltyPoints += earnedPoints;
-
-            if (user.LoyaltyPoints >= 5000)
-                user.MembershipTier = "Diamond";
-            else if (user.LoyaltyPoints >= 2000)
-                user.MembershipTier = "Gold";
-            else if (user.LoyaltyPoints >= 500)
-                user.MembershipTier = "Silver";
-            else
-                user.MembershipTier = "Bronze";
-
-            await _userManager.UpdateAsync(user);
-
             // HÀM GỬI EMAIL 
             if (!string.IsNullOrEmpty(user.Email))
             {
-                _ = _emailService.SendOrderConfirmationAsync(user.Email, user.UserName ?? "Khách hàng", order);
+                try
+                {
+                    await _emailService.SendOrderConfirmationAsync(user.Email, user.FullName ?? user.UserName ?? "Khách hàng", order);
+                }
+                catch
+                {
+                }
+
             }
             _cartService.ClearCart(HttpContext.Session);
             return RedirectToAction(nameof(Completed), new { id = order.Id });
         }
-
         public async Task<IActionResult> Completed(int id)
         {
             var order = await _context.Orders
