@@ -36,7 +36,14 @@
                     <a href="/Admin/AdminOrder/Index" class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/AdminOrder") ? "active" : "")">
                         <i class="bi bi-receipt"></i><span>Đơn hàng</span>
                     </a>
+                    <a asp-controller="AdminService" asp-action="Index" class="sidebar-link">
+                        <i class="bi bi-wrench-adjustable"></i><span>Phiếu dịch vụ</span>
+                    </a>
                     <div class="nav-section-label">Hệ thống</div>
+                    <a href="https://dashboard.tawk.to/" target="_blank" rel="noopener">
+                        <i class="bi bi-chat-dots me-2"></i>Chat khách hàng (Tawk.to)
+                    </a>
+
                     <a href="/Admin/AdminUser/Index" class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/AdminUser") ? "active" : "")">
                         <i class="bi bi-people"></i><span>Người dùng</span>
                     </a>

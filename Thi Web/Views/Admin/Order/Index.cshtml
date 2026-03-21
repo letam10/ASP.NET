@@ -16,7 +16,7 @@
         <div class="card bg-success text-white">
             <div class="card-body">
                 <h5>Tổng doanh thu</h5>
-                <h3>@Model.Where(o => o.Status == "Đã giao").Sum(o => o.TotalAmount).ToString("N0") ₫</h3>
+                <h3>@Model.Where(o => o.Status == "Completed").Sum(o => o.TotalAmount).ToString("N0") ₫</h3>
             </div>
         </div>
     </div>
@@ -25,7 +25,7 @@
         <div class="card bg-primary text-white">
             <div class="card-body">
                 <h5>Đơn chờ xử lý</h5>
-                <h3>@(Model.Count(o => o.Status == "Chờ xác nhận")) đơn</h3>
+                <h3>@(Model.Count(o => o.Status == "Pending")) đơn</h3>
             </div>
         </div>
     </div>
