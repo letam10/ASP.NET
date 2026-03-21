@@ -17,6 +17,16 @@ namespace TechShop.Controllers
             _userManager = userManager;
             _emailService = emailService;
         }
+        private decimal GetMembershipDiscountRate(string tier)
+        {
+            return tier switch
+            {
+                "Silver" => 0.03m,
+                "Gold" => 0.05m,
+                "Diamond" => 0.08m,
+                _ => 0m
+            };
+        }
 
         [HttpGet]
         public IActionResult Checkout()
