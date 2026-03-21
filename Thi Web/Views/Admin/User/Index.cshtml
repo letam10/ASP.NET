@@ -10,7 +10,7 @@
 
 <div class="admin-table-wrap">
     <table class="table admin-table">
-        <thead><tr><th>Họ tên</th><th>Email</th><th>Quyền</th><th>Thao tác</th></tr></thead>
+        <thead><tr><th>Họ tên</th><th>Email</th><th>Quyền</th><th>Thẻ / Điểm</th><th>Thao tác</th></tr></thead>
         <tbody>
             @foreach (var user in Model)
             {
@@ -27,16 +27,58 @@
                         }
                     </td>
                     <td>
-                        <a asp-controller="AdminUser" asp-action="AssignRole" asp-route-userId="@user.Id"
-                           class="btn btn-sm btn-warning me-1"><i class="bi bi-key"></i></a>
-                        <form asp-controller="AdminUser" asp-action="Delete" method="post" class="d-inline"
-                              onsubmit="return confirm('Xóa người dùng này?')">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@user.Id" />
-                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash3"></i></button>
-                        </form>
+                        <span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> @user.LoyaltyPoints</span>
+                        <span class="badge bg-secondary">@user.MembershipTier</span>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editLoyalty-@user.Id" title="Sửa Điểm/Thẻ">
+                                <i class="bi bi-star"></i>
+                            </button>
+
+                            <a asp-controller="AdminUser" asp-action="AssignRole" asp-route-userId="@user.Id"
+                               class="btn btn-sm btn-info text-white" title="Phân Quyền"><i class="bi bi-key"></i></a>
+
+                            <form asp-controller="AdminUser" asp-action="Delete" method="post" class="m-0"
+                                  onsubmit="return confirm('Xóa người dùng này?')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger" title="Xóa"><i class="bi bi-trash3"></i></button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
+
+                <div class="modal fade" id="editLoyalty-@user.Id" tabindex="-1">
+                    <div class="modal-dialog">
+                        <form asp-action="UpdateLoyalty" method="post" class="modal-content">
+                            @Html.AntiForgeryToken()
+                            <div class="modal-header bg-warning">
+                                <h5 class="modal-title"><i class="bi bi-star me-2"></i>Cập nhật thẻ: @user.FullName</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-start">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <div class="mb-3">
+                                    <label class="fw-bold">Điểm tích lũy (Loyalty Points)</label>
+                                    <input type="number" name="points" class="form-control" value="@user.LoyaltyPoints" required min="0" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="fw-bold">Hạng thẻ</label>
+                                    <select name="tier" class="form-select">
+                                        <option value="Bronze" selected="@(user.MembershipTier == "Bronze")">Bronze (Đồng)</option>
+                                        <option value="Silver" selected="@(user.MembershipTier == "Silver")">Silver (Bạc)</option>
+                                        <option value="Gold" selected="@(user.MembershipTier == "Gold")">Gold (Vàng)</option>
+                                        <option value="Diamond" selected="@(user.MembershipTier == "Diamond")">Diamond (Kim cương)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             }
         </tbody>
     </table>

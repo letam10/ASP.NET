@@ -140,39 +140,31 @@
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        let currentRotation = 0;
-        let isSpinning = false;
+<script>
+    let currentRotation = 0;
+    let isSpinning = false;
 
-        function spinWheel() {
-            if (isSpinning) return;
+    function spinWheel() {
+        if (isSpinning) return;
 
-            // Gọi API Backend để lấy kết quả
-            $.post('/Game/SpinWheel', function(res) {
+        $.ajax({
+            url: '/Game/SpinWheel',
+            type: 'POST',
+            success: function(res) {
                 if (!res.success) {
                     alert(res.message);
                     return;
                 }
-
                 isSpinning = true;
                 $('#spinBtn').prop('disabled', true);
-                $('#currentPoints').text(res.remainingPoints); // Cập nhật điểm ngay
-
-                // Tính toán góc quay
-                // segment: 0(Trượt), 1(500k), 2(May mắn), 3(100đ), 4(Trượt), 5(50k)
-                // Mỗi ô 60 độ. Để mũi tên chỉ đúng giữa ô, ta tính góc lùi lại.
+                $('#currentPoints').text(res.remainingPoints);
                 const segmentAngle = 60;
-                const extraSpins = 5 * 360; // Quay 5 vòng cho hồi hộp
-
-                // Công thức: Tổng vòng quay + Góc bù để tới đúng ô
+                const extraSpins = 5 * 360;
                 const targetAngle = extraSpins + (360 - (res.segment * segmentAngle) - 30);
                 currentRotation += targetAngle;
-
                 const wheel = document.getElementById('wheel');
                 wheel.style.transform = `rotate(${currentRotation}deg)`;
 
-                // Đợi 4s (bằng thời gian CSS transition) để hiện kết quả
                 setTimeout(() => {
                     isSpinning = false;
                     $('#spinBtn').prop('disabled', false);
@@ -180,7 +172,15 @@
                     var prizeModal = new bootstrap.Modal(document.getElementById('prizeModal'));
                     prizeModal.show();
                 }, 4000);
-            });
-        }
-    </script>
-}
+            },
+            error: function(xhr) {
+                if(xhr.status === 401 || xhr.status === 404) {
+                    alert("Vui lòng đăng nhập lại để chơi Game!");
+                    window.location.href = '/Account/Login';
+                } else {
+                    alert("Lỗi kết nối máy chủ.");
+                }
+            }
+        });
+    }
+</script>

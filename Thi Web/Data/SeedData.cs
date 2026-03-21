@@ -19,7 +19,7 @@ namespace TechShop.Data
                     await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            var adminEmail = "admin@techshop.vn";
+            var adminEmail = "admin@techshop";
             if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
                 var admin = new ApplicationUser
@@ -29,7 +29,7 @@ namespace TechShop.Data
                     FullName = "Quản trị viên",
                     EmailConfirmed = true
                 };
-                var result = await userManager.CreateAsync(admin, "Admin@123");
+                var result = await userManager.CreateAsync(admin, "Ad@123");
                 if (result.Succeeded)
                     await userManager.AddToRoleAsync(admin, "Admin");
             }

@@ -3,70 +3,587 @@
     ViewData["Title"] = "Đặt lịch sửa chữa & Vệ sinh";
 }
 
-<div class="container py-5" style="margin-top:70px">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow border-0 rounded-4">
-                <div class="card-header bg-primary text-white p-4 rounded-top-4">
-                    <h3 class="mb-0"><i class="bi bi-tools me-2"></i>Đặt lịch Dịch vụ</h3>
-                    <p class="mb-0 mt-1 opacity-75">Vệ sinh PC/Laptop, sửa chữa phần cứng chuyên nghiệp</p>
-                </div>
-                <div class="card-body p-4 p-md-5">
-                    <form asp-action="Booking" method="post">
-                        <input type="hidden" asp-for="UserId" />
+<style>
+    /* =============================================
+       PAGE HEADER
+    ============================================= */
+    .booking-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
+        border-bottom: 1px solid rgba(99,102,241,.2);
+        padding: 36px 0 28px;
+        margin-top: 70px;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
 
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <label asp-for="CustomerName" class="form-label fw-bold">Họ và tên *</label>
-                                <input asp-for="CustomerName" class="form-control" placeholder="Nhập tên của bạn" required />
-                                <span asp-validation-for="CustomerName" class="text-danger small"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="PhoneNumber" class="form-label fw-bold">Số điện thoại *</label>
-                                <input asp-for="PhoneNumber" class="form-control" placeholder="Để nhân viên liên hệ" required />
-                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
-                            </div>
+    .booking-header::before {
+        content: '';
+        position: absolute; inset: 0;
+        background:
+            radial-gradient(ellipse 60% 80% at 10% 50%, rgba(99,102,241,.12) 0%, transparent 70%),
+            radial-gradient(ellipse 40% 60% at 90% 30%, rgba(168,85,247,.09) 0%, transparent 70%);
+        pointer-events: none;
+    }
 
-                            <div class="col-md-6">
-                                <label asp-for="DeviceModel" class="form-label fw-bold">Tên thiết bị / Model *</label>
-                                <input asp-for="DeviceModel" class="form-control" placeholder="VD: Lenovo Legion Slim 2024" required />
-                                <span asp-validation-for="DeviceModel" class="text-danger small"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="ServiceType" class="form-label fw-bold">Loại dịch vụ *</label>
-                                <select asp-for="ServiceType" class="form-select">
-                                    <option value="Vệ sinh máy - Tra keo tản nhiệt">Vệ sinh máy - Tra keo tản nhiệt</option>
-                                    <option value="Nâng cấp RAM / Ổ cứng">Nâng cấp RAM / Ổ cứng</option>
-                                    <option value="Sửa chữa phần cứng">Sửa chữa phần cứng</option>
-                                    <option value="Cài đặt phần mềm / Windows">Cài đặt phần mềm / Windows</option>
-                                    <option value="Kiểm tra lỗi tổng quát">Kiểm tra lỗi tổng quát</option>
-                                </select>
-                            </div>
+    .booking-header .container { position: relative; text-align: center; }
 
-                            <div class="col-md-12">
-                                <label asp-for="BookingDate" class="form-label fw-bold">Ngày giờ mang máy đến *</label>
-                                <input asp-for="BookingDate" type="datetime-local" class="form-control" required />
-                                <span asp-validation-for="BookingDate" class="text-danger small"></span>
-                            </div>
+    .booking-header-label {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: .72rem; font-weight: 700; letter-spacing: .12em;
+        text-transform: uppercase; color: #818cf8;
+        background: rgba(99,102,241,.12);
+        border: 1px solid rgba(99,102,241,.25);
+        border-radius: 100px; padding: 4px 14px; margin-bottom: 14px;
+    }
 
-                            <div class="col-md-12">
-                                <label asp-for="Description" class="form-label fw-bold">Mô tả tình trạng lỗi (Nếu có)</label>
-                                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Máy bị nóng, quạt kêu to, bật không lên..."></textarea>
-                            </div>
+    .booking-header h1 {
+        font-size: clamp(1.5rem, 3vw, 2.2rem);
+        font-weight: 800; color: #f1f5f9;
+        margin: 0 0 8px; letter-spacing: -.02em;
+    }
 
-                            <div class="col-12 mt-4 text-center">
-                                <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
-                                    Xác nhận đặt lịch
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+    .booking-header h1 .accent {
+        background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .booking-header p {
+        color: #64748b; font-size: .92rem; margin: 0;
+    }
+
+    /* =============================================
+       SERVICE BADGES
+    ============================================= */
+    .service-features {
+        display: flex; justify-content: center;
+        flex-wrap: wrap; gap: 10px;
+        margin-bottom: 36px;
+    }
+
+    .sf-badge {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 7px 14px; border-radius: 100px;
+        font-size: .78rem; font-weight: 600;
+        background: #0f172a;
+        border: 1px solid rgba(255,255,255,.08);
+        color: #94a3b8;
+    }
+
+    .sf-badge i { color: #6366f1; }
+
+    /* =============================================
+       FORM CARD
+    ============================================= */
+    .booking-card {
+        max-width: 720px;
+        margin: 0 auto;
+        background: #0f172a;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 24px;
+        overflow: hidden;
+        margin-bottom: 60px;
+    }
+
+    .booking-card-head {
+        padding: 26px 32px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        display: flex; align-items: center; gap: 14px;
+        background: rgba(99,102,241,.05);
+    }
+
+    .booking-card-head-icon {
+        width: 44px; height: 44px; border-radius: 13px;
+        background: rgba(99,102,241,.15);
+        border: 1px solid rgba(99,102,241,.25);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; color: #818cf8; flex-shrink: 0;
+    }
+
+    .booking-card-head h5 {
+        margin: 0 0 3px; font-size: 1rem; font-weight: 800;
+        color: #f1f5f9; letter-spacing: -.01em;
+    }
+
+    .booking-card-head p {
+        margin: 0; font-size: .8rem; color: #64748b;
+    }
+
+    .booking-card-body { padding: 30px 32px; }
+
+    /* =============================================
+       FORM GRID
+    ============================================= */
+    .bk-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .bk-col-full { grid-column: 1 / -1; }
+
+    @media (max-width: 600px) {
+        .bk-grid { grid-template-columns: 1fr; }
+        .bk-col-full { grid-column: 1; }
+        .booking-card-body { padding: 22px 18px; }
+        .booking-card-head { padding: 20px 18px; }
+    }
+
+    /* =============================================
+       FIELD
+    ============================================= */
+    .bk-field { display: flex; flex-direction: column; gap: 7px; }
+
+    .bk-label {
+        font-size: .75rem; font-weight: 700;
+        letter-spacing: .08em; text-transform: uppercase;
+        color: #64748b;
+    }
+
+    .bk-label .req { color: #818cf8; margin-left: 2px; }
+
+    .bk-input,
+    .bk-select,
+    .bk-textarea {
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 11px;
+        color: #f1f5f9;
+        font-size: .88rem;
+        padding: 11px 14px;
+        outline: none;
+        transition: border-color .2s, background .2s, box-shadow .2s;
+        width: 100%;
+        -webkit-appearance: none;
+    }
+
+    .bk-input::placeholder,
+    .bk-textarea::placeholder { color: #334155; }
+
+    .bk-input:focus,
+    .bk-select:focus,
+    .bk-textarea:focus {
+        border-color: #6366f1;
+        background: rgba(99,102,241,.06);
+        box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+    }
+
+    /* Date input color fix */
+    .bk-input[type="datetime-local"] { color-scheme: dark; }
+
+    /* Select arrow */
+    .bk-select-wrap { position: relative; }
+
+    .bk-select-wrap::after {
+        content: '';
+        position: absolute; right: 13px; top: 50%;
+        transform: translateY(-50%);
+        width: 0; height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #475569;
+        pointer-events: none;
+    }
+
+    .bk-select { cursor: pointer; padding-right: 34px; }
+    .bk-select option { background: #1e293b; }
+
+    /* Textarea */
+    .bk-textarea { resize: vertical; min-height: 100px; }
+
+    /* Error */
+    .bk-error { font-size: .78rem; color: #f87171; }
+
+    /* =============================================
+       FLATPICKR CUSTOM THEME
+    ============================================= */
+    .flatpickr-calendar {
+        background: #1e293b !important;
+        border: 1px solid rgba(99,102,241,.3) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 20px 50px rgba(0,0,0,.5), 0 0 0 1px rgba(99,102,241,.1) !important;
+        font-family: inherit !important;
+        padding: 6px !important;
+        width: 300px !important;
+    }
+
+    .flatpickr-months {
+        padding: 6px 4px 4px !important;
+        align-items: center !important;
+    }
+
+    .flatpickr-month {
+        height: 36px !important;
+        color: #f1f5f9 !important;
+        fill: #f1f5f9 !important;
+    }
+
+    .flatpickr-current-month {
+        font-size: .95rem !important;
+        font-weight: 700 !important;
+        color: #f1f5f9 !important;
+        padding-top: 6px !important;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
+        background: #1e293b !important;
+        color: #f1f5f9 !important;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+    }
+
+    .flatpickr-current-month input.cur-year {
+        color: #f1f5f9 !important;
+        font-weight: 700 !important;
+    }
+
+    .flatpickr-prev-month,
+    .flatpickr-next-month {
+        color: #64748b !important;
+        fill: #64748b !important;
+        padding: 6px !important;
+        border-radius: 8px !important;
+        transition: background .2s, fill .2s !important;
+    }
+
+    .flatpickr-prev-month:hover,
+    .flatpickr-next-month:hover {
+        background: rgba(99,102,241,.15) !important;
+        color: #818cf8 !important;
+        fill: #818cf8 !important;
+    }
+
+    .flatpickr-weekdays {
+        background: transparent !important;
+        margin-top: 4px !important;
+    }
+
+    span.flatpickr-weekday {
+        background: transparent !important;
+        color: #475569 !important;
+        font-size: .72rem !important;
+        font-weight: 700 !important;
+        letter-spacing: .06em !important;
+    }
+
+    .flatpickr-days { border: none !important; width: 288px !important; }
+    .dayContainer { width: 288px !important; min-width: 288px !important; max-width: 288px !important; }
+
+    .flatpickr-day {
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        border-radius: 9px !important;
+        color: #94a3b8 !important;
+        font-size: .84rem !important;
+        height: 36px !important;
+        line-height: 34px !important;
+        max-width: 36px !important;
+        transition: background .15s, color .15s !important;
+    }
+
+    .flatpickr-day:hover {
+        background: rgba(99,102,241,.15) !important;
+        border-color: rgba(99,102,241,.25) !important;
+        color: #a5b4fc !important;
+    }
+
+    .flatpickr-day.today {
+        border-color: rgba(99,102,241,.4) !important;
+        color: #818cf8 !important;
+        font-weight: 700 !important;
+    }
+
+    .flatpickr-day.today:hover {
+        background: rgba(99,102,241,.2) !important;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.selected:hover {
+        background: #6366f1 !important;
+        border-color: #6366f1 !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 12px rgba(99,102,241,.4) !important;
+    }
+
+    .flatpickr-day.flatpickr-disabled,
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay {
+        color: #1e293b !important;
+    }
+
+    /* Time picker */
+    .flatpickr-time {
+        background: rgba(99,102,241,.06) !important;
+        border-top: 1px solid rgba(255,255,255,.06) !important;
+        border-radius: 0 0 12px 12px !important;
+        height: 44px !important;
+        margin-top: 6px !important;
+    }
+
+    .flatpickr-time input {
+        background: transparent !important;
+        border: none !important;
+        color: #f1f5f9 !important;
+        font-size: .95rem !important;
+        font-weight: 700 !important;
+    }
+
+    .flatpickr-time input:hover,
+    .flatpickr-time input:focus {
+        background: rgba(99,102,241,.1) !important;
+        border-radius: 8px !important;
+    }
+
+    .flatpickr-time .flatpickr-time-separator,
+    .flatpickr-time .flatpickr-am-pm {
+        color: #475569 !important;
+        font-weight: 700 !important;
+    }
+
+    .flatpickr-time .numInputWrapper span.arrowUp,
+    .flatpickr-time .numInputWrapper span.arrowDown {
+        border-color: rgba(255,255,255,.06) !important;
+    }
+
+    .flatpickr-time .numInputWrapper span.arrowUp:after  { border-bottom-color: #64748b !important; }
+    .flatpickr-time .numInputWrapper span.arrowDown:after { border-top-color: #64748b !important; }
+
+    /* Input wrapper with calendar icon */
+    .bk-date-wrap { position: relative; }
+    .bk-date-wrap .bk-input { padding-right: 40px; cursor: pointer; }
+    .bk-date-icon {
+        position: absolute; right: 13px; top: 50%;
+        transform: translateY(-50%);
+        color: #6366f1; font-size: .95rem;
+        pointer-events: none;
+    }
+
+    /* =============================================
+       DIVIDER
+    ============================================= */
+    .bk-divider {
+        grid-column: 1 / -1;
+        display: flex; align-items: center; gap: 12px;
+        color: #1e293b;
+        font-size: .72rem; font-weight: 700;
+        letter-spacing: .1em; text-transform: uppercase;
+        color: #334155;
+    }
+
+    .bk-divider::before,
+    .bk-divider::after {
+        content: ''; flex: 1;
+        height: 1px; background: rgba(255,255,255,.06);
+    }
+
+    /* =============================================
+       SUBMIT BUTTON
+    ============================================= */
+    .bk-submit-wrap {
+        grid-column: 1 / -1;
+        display: flex; flex-direction: column;
+        align-items: center; gap: 10px;
+        padding-top: 6px;
+    }
+
+    .btn-bk-submit {
+        display: inline-flex; align-items: center; gap: 9px;
+        background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+        color: #fff; border: none; border-radius: 100px;
+        padding: 13px 40px;
+        font-size: .95rem; font-weight: 700;
+        cursor: pointer; letter-spacing: .01em;
+        box-shadow: 0 6px 22px rgba(99,102,241,.35);
+        transition: transform .18s, box-shadow .2s;
+    }
+
+    .btn-bk-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(99,102,241,.5);
+    }
+
+    .btn-bk-submit:active { transform: translateY(0); }
+
+    .bk-note {
+        font-size: .78rem; color: #475569;
+        display: flex; align-items: center; gap: 5px;
+    }
+
+    .bk-note i { color: #6366f1; }
+</style>
+
+<!-- PAGE HEADER -->
+<div class="booking-header">
+    <div class="container">
+        <div class="booking-header-label">
+            <i class="bi bi-tools"></i> Dịch vụ kỹ thuật
+        </div>
+        <h1>Đặt lịch <span class="accent">Sửa chữa & Vệ sinh</span></h1>
+        <p>Đội ngũ kỹ thuật viên chuyên nghiệp — Xử lý nhanh — Bảo hành uy tín</p>
+    </div>
+</div>
+
+<!-- SERVICE FEATURES -->
+<div class="container">
+    <div class="service-features">
+        <span class="sf-badge"><i class="bi bi-shield-check"></i> Bảo hành dịch vụ</span>
+        <span class="sf-badge"><i class="bi bi-clock-history"></i> Xử lý trong ngày</span>
+        <span class="sf-badge"><i class="bi bi-person-check"></i> Kỹ thuật viên có kinh nghiệm</span>
+        <span class="sf-badge"><i class="bi bi-telephone-inbound"></i> Báo giá trước khi sửa</span>
+    </div>
+</div>
+
+<!-- FORM CARD -->
+<div class="container">
+    <div class="booking-card">
+
+        <div class="booking-card-head">
+            <div class="booking-card-head-icon">
+                <i class="bi bi-calendar2-check"></i>
             </div>
+            <div>
+                <h5>Thông tin đặt lịch</h5>
+                <p>Vui lòng điền đầy đủ để nhân viên liên hệ xác nhận</p>
+            </div>
+        </div>
+
+        <div class="booking-card-body">
+            <form asp-action="Booking" method="post">
+                <input type="hidden" asp-for="UserId" />
+
+                <div class="bk-grid">
+
+                    <!-- Divider 1 -->
+                    <div class="bk-divider bk-col-full">Thông tin khách hàng</div>
+
+                    <!-- Họ tên -->
+                    <div class="bk-field">
+                        <label asp-for="CustomerName" class="bk-label">
+                            Họ và tên <span class="req">*</span>
+                        </label>
+                        <input asp-for="CustomerName" class="bk-input"
+                               placeholder="Nguyễn Văn A" required />
+                        <span asp-validation-for="CustomerName" class="bk-error"></span>
+                    </div>
+
+                    <!-- SĐT -->
+                    <div class="bk-field">
+                        <label asp-for="PhoneNumber" class="bk-label">
+                            Số điện thoại <span class="req">*</span>
+                        </label>
+                        <input asp-for="PhoneNumber" class="bk-input"
+                               placeholder="0901 234 567" required />
+                        <span asp-validation-for="PhoneNumber" class="bk-error"></span>
+                    </div>
+
+                    <!-- Divider 2 -->
+                    <div class="bk-divider bk-col-full">Thông tin thiết bị & dịch vụ</div>
+
+                    <!-- Thiết bị -->
+                    <div class="bk-field">
+                        <label asp-for="DeviceModel" class="bk-label">
+                            Tên thiết bị / Model <span class="req">*</span>
+                        </label>
+                        <input asp-for="DeviceModel" class="bk-input"
+                               placeholder="VD: Lenovo Legion Slim 2024" required />
+                        <span asp-validation-for="DeviceModel" class="bk-error"></span>
+                    </div>
+
+                    <!-- Loại dịch vụ -->
+                    <div class="bk-field">
+                        <label asp-for="ServiceType" class="bk-label">
+                            Loại dịch vụ <span class="req">*</span>
+                        </label>
+                        <div class="bk-select-wrap">
+                            <select asp-for="ServiceType" class="bk-select">
+                                <option value="Vệ sinh máy - Tra keo tản nhiệt">Vệ sinh máy - Tra keo tản nhiệt</option>
+                                <option value="Nâng cấp RAM / Ổ cứng">Nâng cấp RAM / Ổ cứng</option>
+                                <option value="Sửa chữa phần cứng">Sửa chữa phần cứng</option>
+                                <option value="Cài đặt phần mềm / Windows">Cài đặt phần mềm / Windows</option>
+                                <option value="Kiểm tra lỗi tổng quát">Kiểm tra lỗi tổng quát</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Ngày hẹn -->
+                    <div class="bk-field bk-col-full">
+                        <label asp-for="BookingDate" class="bk-label">
+                            Ngày & giờ mang máy đến <span class="req">*</span>
+                        </label>
+                        <div class="bk-date-wrap">
+                            <input id="bookingDatePicker"
+                                   type="text"
+                                   class="bk-input"
+                                   placeholder="Chọn ngày và giờ..."
+                                   autocomplete="off"
+                                   required readonly />
+                            <input type="hidden" id="bookingDateHidden" asp-for="BookingDate" />
+                            <i class="bi bi-calendar3 bk-date-icon"></i>
+                        </div>
+                        <span asp-validation-for="BookingDate" class="bk-error"></span>
+                    </div>
+
+                    <!-- Mô tả -->
+                    <div class="bk-field bk-col-full">
+                        <label asp-for="Description" class="bk-label">
+                            Mô tả tình trạng lỗi
+                        </label>
+                        <textarea asp-for="Description" class="bk-textarea"
+                                  placeholder="Máy bị nóng, quạt kêu to, bật không lên..."></textarea>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="bk-submit-wrap">
+                        <button type="submit" class="btn-bk-submit">
+                            <i class="bi bi-calendar2-check"></i>
+                            Xác nhận đặt lịch
+                        </button>
+                        <span class="bk-note">
+                            <i class="bi bi-info-circle"></i>
+                            Nhân viên sẽ gọi xác nhận trong vòng 30 phút
+                        </span>
+                    </div>
+
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
+    <script>
+        flatpickr("#bookingDatePicker", {
+            locale: "vn",
+            enableTime: true,
+            noCalendar: false,
+            dateFormat: "d/m/Y H:i",
+            altInput: false,
+            time_24hr: true,
+            minuteIncrement: 30,
+            minDate: "today",
+            disableMobile: true,
+            onChange: function(selectedDates, dateStr, instance) {
+                // Sync giá trị sang field hidden đúng định dạng ISO cho model binding
+                if (selectedDates.length > 0) {
+                    var d = selectedDates[0];
+                    var iso = d.getFullYear() + '-'
+                        + String(d.getMonth()+1).padStart(2,'0') + '-'
+                        + String(d.getDate()).padStart(2,'0') + 'T'
+                        + String(d.getHours()).padStart(2,'0') + ':'
+                        + String(d.getMinutes()).padStart(2,'0');
+                    document.getElementById('bookingDateHidden').value = iso;
+                }
+            }
+        });
+    </script>
 }

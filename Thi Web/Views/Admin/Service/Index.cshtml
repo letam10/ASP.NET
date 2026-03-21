@@ -1,0 +1,74 @@
+﻿@model List<TechShop.Models.ServiceTicket>
+@{
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý Dịch vụ";
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">Kiểm duyệt Phiếu Dịch vụ / Bảo hành</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Mã</th>
+                        <th>Khách hàng</th>
+                        <th>Số điện thoại</th>
+                        <th>Thiết bị</th>
+                        <th>Loại dịch vụ</th>
+                        <th>Ngày hẹn</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model)
+                    {
+                        <tr>
+                            <td>#@t.Id</td>
+                            <td>@t.CustomerName</td>
+                            <td>@t.PhoneNumber</td>
+                            <td>@t.DeviceModel</td>
+                            <td><span class="badge bg-info text-dark">@t.ServiceType</span></td>
+                            <td>@t.BookingDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                @if (t.Status == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                }
+                                else if (t.Status == "InProgress")
+                                {
+
+                                    <span class="badge bg-primary">Đang sửa chữa</span>
+                                }
+                                else if (t.Status == "Completed")
+                                {
+
+                                    <span class="badge bg-success">Hoàn thành</span>
+                                }
+                                else
+                                {
+
+                                    <span class="badge bg-danger">Đã hủy</span>
+                                }
+                            </td>
+                            <td>
+                                <form asp-action="UpdateStatus" method="post" class="d-flex gap-2">
+                                    <input type="hidden" name="id" value="@t.Id" />
+                                    <select name="status" class="form-select form-select-sm" style="width: 130px;" onchange="this.form.submit()">
+                                        <option value="">-- Cập nhật --</option>
+                                        <option value="Pending">Chờ xác nhận</option>
+                                        <option value="InProgress">Đang sửa chữa</option>
+                                        <option value="Completed">Hoàn thành</option>
+                                        <option value="Cancelled">Hủy</option>
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
