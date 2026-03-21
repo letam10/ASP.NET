@@ -305,17 +305,26 @@ a {
 .form-control, .form-select {
     background: rgba(255,255,255,0.05);
     border: 1px solid var(--border);
-    color: var(--text-primary);
-    border-radius: 10px;
-    padding: 10px 14px;
+    color: rgba(255,255,255,0.92);
     transition: var(--transition);
 }
 
+    .form-control:hover, .form-select:hover {
+        background: #fff;
+        color: #111;
+        border-color: #fff;
+    }
+
+        .form-control:hover::placeholder,
+        .form-select:hover::placeholder {
+            color: rgba(0,0,0,0.55);
+        }
+
     .form-control:focus, .form-select:focus {
-        background: rgba(255,255,255,0.08);
+        background: #fff;
+        color: #111;
         border-color: var(--primary);
         box-shadow: 0 0 0 3px var(--primary-glow);
-        color: var(--text-primary);
         outline: none;
     }
 
