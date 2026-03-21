@@ -191,6 +191,7 @@ namespace TechShop.Controllers
             return RedirectToAction(nameof(Detail), new { id });
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPOS(int orderId)
         {
             var order = await _context.Orders.FindAsync(orderId);

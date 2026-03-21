@@ -261,45 +261,59 @@ namespace TechShop.Controllers
                 return Redirect(returnUrl);
             return RedirectToAction("Index", "Home");
         }
-    }
 
-    // ===== VIEW MODELS =====
-    public class LoginViewModel
-    {
-        [Required(ErrorMessage = "Email là bắt buộc")]
-        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
-        [Display(Name = "Email")]
-        public string Email { get; set; } = string.Empty;
+        // ===== FORGOT & RESET PASSWORD =====
+        [HttpGet]
+        public IActionResult ForgotPassword() => View();
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
 
-        [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
-        [DataType(DataType.Password)]
-        [Display(Name = "Mật khẩu")]
-        public string Password { get; set; } = string.Empty;
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            // Không nói email có tồn tại hay không:
+            if (user == null)
+                return RedirectToAction(nameof(ForgotPasswordConfirmation));
 
-        [Display(Name = "Ghi nhớ đăng nhập")]
-        public bool RememberMe { get; set; }
-    }
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetLink = Url.Action(nameof(ResetPassword), "Account",
+                new { email = user.Email, token = token },
+                protocol: Request.Scheme);
 
-    public class RegisterViewModel
-    {
-        [Required(ErrorMessage = "Họ tên là bắt buộc")]
-        [Display(Name = "Họ và tên")]
-        public string FullName { get; set; } = string.Empty;
+            await _emailService.SendPasswordResetEmailAsync(user.Email!, resetLink!);
+            return RedirectToAction(nameof(ForgotPasswordConfirmation));
+        }
 
-        [Required(ErrorMessage = "Email là bắt buộc")]
-        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
-        [Display(Name = "Email")]
-        public string Email { get; set; } = string.Empty;
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation() => View();
 
-        [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]
-        [DataType(DataType.Password)]
-        [Display(Name = "Mật khẩu")]
-        public string Password { get; set; } = string.Empty;
+        [HttpGet]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            return View(new ResetPasswordViewModel { Email = email, Token = token });
+        }
 
-        [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
-        [Display(Name = "Xác nhận mật khẩu")]
-        public string ConfirmPassword { get; set; } = string.Empty;
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            // Không tiết lộ thông tin:
+            if (user == null)
+                return RedirectToAction(nameof(ResetPasswordConfirmation));
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+            if (result.Succeeded)
+                return RedirectToAction(nameof(ResetPasswordConfirmation));
+
+            foreach (var e in result.Errors) ModelState.AddModelError("", e.Description);
+            return View(model);
+        }
+        [HttpGet]
+        public IActionResult ResetPasswordConfirmation() => View();
+
     }
 }
