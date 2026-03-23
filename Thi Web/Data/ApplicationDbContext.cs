@@ -27,6 +27,7 @@ namespace TechShop.Data
         public DbSet<ProductVariantOption> ProductVariantOptions { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
         public DbSet<ProductVariantValue> ProductVariantValues { get; set; }
+        public DbSet<Coupon> Coupons { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

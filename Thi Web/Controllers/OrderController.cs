@@ -82,16 +82,25 @@ namespace TechShop.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Checkout()
+        private async Task<(decimal discount, string message)> ApplyCouponAsync(string? couponCode, decimal cartTotal)
         {
-            var cart = _cartService.GetCart(HttpContext.Session);
-            if (!cart.Any()) return RedirectToAction("Index", "Cart");
-
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Account");
-
-            SetCheckoutViewBags(cart, user);
-            return View(new Order());
+            if (string.IsNullOrWhiteSpace(couponCode))
+                return (0m, "");
+            couponCode = couponCode.Trim().ToUpperInvariant();
+            var coupon = await _context.Coupons.FirstOrDefaultAsync(x =>
+                x.Code == couponCode &&
+                x.IsActive &&
+                x.Quantity > 0 &&
+                (!x.ExpiredAt.HasValue || x.ExpiredAt > DateTime.Now));
+            if (coupon == null)
+                return (0m, "Mã giảm giá không hợp lệ.");
+            if (coupon.MinOrderAmount.HasValue && cartTotal < coupon.MinOrderAmount.Value)
+                return (0m, $"Đơn hàng phải từ {coupon.MinOrderAmount.Value:N0} ₫ để dùng mã.");
+            decimal rawDiscount = cartTotal * coupon.DiscountPercent / 100m;
+            decimal discount = coupon.MaxDiscountAmount.HasValue
+                ? Math.Min(rawDiscount, coupon.MaxDiscountAmount.Value)
+                : rawDiscount;
+            return (discount, "");
         }
 
         [HttpPost]

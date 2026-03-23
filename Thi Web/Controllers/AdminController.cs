@@ -396,5 +396,27 @@ namespace TechShop.Controllers
                 return View("~/Views/Admin/Support/Index.cshtml");
             }
         }
+
+        [Authorize(Roles = "Admin")]
+        public class AdminCouponController : Controller
+        {
+            private readonly ApplicationDbContext _context;
+            public AdminCouponController(ApplicationDbContext context) => _context = context;
+            public async Task<IActionResult> Index()
+                => View(await _context.Coupons.OrderByDescending(x => x.Id).ToListAsync());
+            [HttpGet]
+            public IActionResult Create() => View(new Coupon());
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Create(Coupon model)
+            {
+                if (!ModelState.IsValid) return View(model);
+                model.Code = model.Code.Trim().ToUpperInvariant();
+                _context.Coupons.Add(model);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã tạo mã giảm giá.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
     }
 }
