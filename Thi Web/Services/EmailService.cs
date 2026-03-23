@@ -62,6 +62,39 @@ namespace TechShop.Services
                 await client.DisconnectAsync(true);
             }
         }
+        public async Task<bool> SendAsync(string to, string subject, string htmlBody)
+        {
+            try
+            {
+                var host = _config["SmtpSettings:Host"];
+                var port = int.Parse(_config["SmtpSettings:Port"] ?? "587");
+                var enableSsl = bool.Parse(_config["SmtpSettings:EnableSsl"] ?? "true");
+                var user = _config["SmtpSettings:UserName"];
+                var pass = _config["SmtpSettings:Password"];
+                var fromEmail = _config["SmtpSettings:FromEmail"];
+                var fromName = _config["SmtpSettings:FromName"] ?? "TechShop";
+
+                var message = new MimeKit.MimeMessage();
+                message.From.Add(new MimeKit.MailboxAddress(fromName, fromEmail));
+                message.To.Add(MimeKit.MailboxAddress.Parse(to));
+                message.Subject = subject;
+                message.Body = new MimeKit.BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
+
+                using var client = new MailKit.Net.Smtp.SmtpClient();
+                await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.StartTls);
+                await client.AuthenticateAsync(user, pass);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+
+                _logger.LogInformation("Email sent to {Email} with subject {Subject}", to, subject);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Send email failed to {Email} with subject {Subject}", to, subject);
+                return false;
+            }
+        }
 
         public async Task SendWelcomeEmailAsync(string toEmail, string fullName)
         {

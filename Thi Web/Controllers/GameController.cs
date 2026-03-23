@@ -88,5 +88,6 @@ namespace TechShop.Controllers
 
             return weights.Length - 1;
         }
+
     }
 }
