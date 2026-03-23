@@ -1486,5 +1486,26 @@ a {
     .detail-price {
         font-size: 1.4rem;
     }
-
+}
+.order-success-page,
+.order-success-page .card,
+.order-success-page .summary-card {
+    color: #f4f7ff;
+}
+.order-success-page .text-muted,
+.order-success-page .small,
+.order-success-page .subtext {
+    color: rgba(255,255,255,.78) !important;
+}
+.order-success-page .summary-card {
+    background: #111827;
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+}
+.order-success-page .summary-label {
+    color: rgba(255,255,255,.72);
+}
+.order-success-page .summary-value {
+    color: #ffffff;
+    font-weight: 600;
 }
