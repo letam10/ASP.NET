@@ -3,227 +3,665 @@
     ViewData["Title"] = Model.Name;
     var related = ViewBag.Related as List<TechShop.Models.Product>;
 
-    // Tạo Rating giả lập vì Việt Anh không cần đánh giá thật cho sản phẩm
     var random = new Random(Model.Id);
     decimal rating = Math.Round((decimal)(random.NextDouble() * 1.0 + 4.0), 1);
     int reviewCount = random.Next(12, 345);
     int fullStars = (int)Math.Floor(rating);
     bool hasHalf = (rating - fullStars) >= 0.5m;
     int emptyStars = 5 - fullStars - (hasHalf ? 1 : 0);
+    decimal displayPrice = Model.DiscountPrice ?? Model.Price;
 }
 
-<div class="container py-5" style="margin-top:70px">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-            <li class="breadcrumb-item">
-                <a asp-controller="Product" asp-action="Index" asp-route-category="@Model.Category?.Name">
-                    @Model.Category?.Name
-                </a>
-            </li>
-            <li class="breadcrumb-item active">@Model.Name</li>
-        </ol>
-    </nav>
+<style>
+    /* === WRAPPER === */
+    .detail-wrapper { margin-top: 80px; padding-bottom: 80px; }
 
-    <div class="row g-5">
-        <div class="col-lg-5">
-            <div class="detail-img-wrap mb-3">
-                <img src="@(Model.ImageUrl ?? "https://via.placeholder.com/500")" alt="@Model.Name" class="detail-img" id="mainImg" />
-            </div>
-            @if (Model.Images != null && Model.Images.Any())
-            {
-                <div class="d-flex gap-2 flex-wrap">
-                    @foreach (var img in Model.Images.OrderBy(i => i.DisplayOrder).Take(5))
-                    {
-                        <img src="@img.ImageUrl" alt="thumb"
-                             onclick="document.getElementById('mainImg').src='@img.ImageUrl'"
-                             style="width:60px;height:60px;object-fit:cover;border-radius:8px; cursor:pointer;border:2px solid var(--bs-border-color);transition:all 0.2s"
-                             onmouseover="this.style.borderColor='var(--bs-primary)'"
-                             onmouseout="this.style.borderColor='var(--bs-border-color)'" />
-                    }
+    /* === BREADCRUMB === */
+    .detail-breadcrumb {
+        display: flex; align-items: center; gap: 8px;
+        font-size: .8rem; color: #475569; margin-bottom: 28px;
+        flex-wrap: wrap;
+    }
+
+    .detail-breadcrumb a { color: #64748b; text-decoration: none; transition: color .18s; }
+    .detail-breadcrumb a:hover { color: #818cf8; }
+    .detail-breadcrumb .sep { color: #334155; }
+    .detail-breadcrumb .current { color: #94a3b8; }
+
+    /* === MAIN GRID === */
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: start;
+        margin-bottom: 60px;
+    }
+
+    @@media (max-width: 900px) {
+        .detail-grid { grid-template-columns: 1fr; gap: 28px; }
+    }
+
+    /* === IMAGE PANEL === */
+    .detail-img-panel {
+        position: sticky;
+        top: 90px;
+    }
+
+    .detail-img-main {
+        background: #1e293b;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 20px;
+        overflow: hidden;
+        aspect-ratio: 1;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .detail-img-main img {
+        width: 100%; height: 100%;
+        object-fit: contain;
+        transition: transform .4s cubic-bezier(.25,.46,.45,.94);
+        padding: 20px;
+    }
+
+    .detail-img-main:hover img { transform: scale(1.04); }
+
+    .detail-thumbs {
+        display: flex; gap: 8px; flex-wrap: wrap;
+    }
+
+    .detail-thumb {
+        width: 64px; height: 64px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 2px solid rgba(255,255,255,.08);
+        cursor: pointer;
+        transition: border-color .2s, transform .15s;
+        background: #1e293b;
+    }
+
+    .detail-thumb:hover {
+        border-color: #6366f1;
+        transform: translateY(-2px);
+    }
+
+    /* === INFO PANEL === */
+    .detail-info-panel { display: flex; flex-direction: column; gap: 20px; }
+
+    /* Category tag */
+    .detail-cat-tag {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+        text-transform: uppercase; color: #818cf8;
+        background: rgba(99,102,241,.12);
+        border: 1px solid rgba(99,102,241,.25);
+        border-radius: 100px; padding: 4px 12px;
+        width: fit-content;
+    }
+
+    /* Title */
+    .detail-title {
+        font-size: clamp(1.3rem, 2.5vw, 1.85rem);
+        font-weight: 800; color: #f1f5f9;
+        line-height: 1.25; letter-spacing: -.02em;
+        margin: 0;
+    }
+
+    /* Rating row */
+    .detail-rating {
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+
+    .rating-stars { display: flex; gap: 2px; font-size: .85rem; color: #f59e0b; }
+
+    .rating-score { font-weight: 700; color: #fbbf24; font-size: .88rem; }
+
+    .rating-count { color: #475569; font-size: .82rem; }
+
+    .stock-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        font-size: .72rem; font-weight: 700; letter-spacing: .05em;
+        padding: 4px 11px; border-radius: 100px;
+    }
+
+    .stock-badge.high  { background: rgba(16,185,129,.12); color: #34d399; border: 1px solid rgba(16,185,129,.25); }
+    .stock-badge.low   { background: rgba(245,158,11,.12);  color: #fbbf24; border: 1px solid rgba(245,158,11,.25);  }
+    .stock-badge.empty { background: rgba(239,68,68,.12);   color: #f87171; border: 1px solid rgba(239,68,68,.25);  }
+
+    /* Price */
+    .detail-price-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+    .detail-price-main {
+        font-size: 2rem; font-weight: 800;
+        color: #f1f5f9; letter-spacing: -.03em;
+    }
+
+    .detail-price-old {
+        font-size: 1.05rem; color: #475569;
+        text-decoration: line-through;
+    }
+
+    .detail-discount-badge {
+        display: inline-flex; align-items: center;
+        background: rgba(239,68,68,.15);
+        color: #f87171;
+        border: 1px solid rgba(239,68,68,.25);
+        border-radius: 100px;
+        padding: 3px 10px;
+        font-size: .78rem; font-weight: 700;
+    }
+
+    /* Description */
+    .detail-desc {
+        font-size: .9rem; color: #64748b; line-height: 1.7;
+        border-left: 2px solid rgba(99,102,241,.3);
+        padding-left: 14px;
+        margin: 0;
+    }
+
+    /* === TRADE IN CARD === */
+    .tradein-card {
+        background: rgba(245,158,11,.06);
+        border: 1px solid rgba(245,158,11,.2);
+        border-radius: 14px;
+        padding: 14px 16px;
+    }
+
+    .tradein-card .form-check-label {
+        font-weight: 700; color: #e2e8f0; font-size: .9rem;
+        display: flex; align-items: center; gap: 7px;
+        cursor: pointer;
+    }
+
+    .tradein-card .form-check-input { cursor: pointer; }
+
+    .tradein-note { font-size: .78rem; color: #64748b; margin: 4px 0 0 24px; }
+    .tradein-note strong { color: #f87171; }
+
+    /* === WARRANTY === */
+    .warranty-title {
+        font-size: .78rem; font-weight: 700; letter-spacing: .08em;
+        text-transform: uppercase; color: #64748b; margin-bottom: 10px;
+    }
+
+    .warranty-options { display: flex; flex-direction: column; gap: 8px; }
+
+    .warranty-option {
+        display: flex; align-items: center; gap: 10px;
+        background: rgba(255,255,255,.03);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 11px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: border-color .2s, background .2s;
+    }
+
+    .warranty-option:has(input:checked) {
+        border-color: rgba(99,102,241,.4);
+        background: rgba(99,102,241,.08);
+    }
+
+    .warranty-option:hover { border-color: rgba(99,102,241,.3); }
+
+    .warranty-option input[type="radio"] { accent-color: #6366f1; flex-shrink: 0; }
+
+    .warranty-option-name { font-size: .85rem; color: #e2e8f0; flex: 1; }
+    .warranty-option-price { font-size: .82rem; font-weight: 700; }
+    .warranty-option-price.free { color: #34d399; }
+    .warranty-option-price.paid { color: #f87171; }
+
+    /* === ACTION AREA === */
+    .detail-actions { display: flex; flex-direction: column; gap: 12px; }
+
+    .qty-row { display: flex; align-items: center; gap: 12px; }
+
+    .qty-label { font-size: .78rem; font-weight: 700; letter-spacing: .08em;
+        text-transform: uppercase; color: #64748b; }
+
+    .qty-ctrl {
+        display: flex; align-items: center;
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 10px; overflow: hidden;
+    }
+
+    .qty-btn {
+        width: 36px; height: 36px; border: none;
+        background: transparent; color: #94a3b8;
+        font-size: 1.1rem; cursor: pointer;
+        transition: background .18s, color .18s;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    .qty-btn:hover { background: rgba(99,102,241,.15); color: #818cf8; }
+
+    .qty-input {
+        width: 48px; height: 36px; border: none;
+        background: transparent; color: #f1f5f9;
+        font-size: .9rem; font-weight: 700;
+        text-align: center; outline: none;
+    }
+
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .action-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn-addcart {
+        flex: 1; min-width: 160px;
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+        color: #fff; border: none; border-radius: 12px;
+        padding: 12px 24px; font-size: .9rem; font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(99,102,241,.3);
+        transition: transform .18s, box-shadow .2s;
+    }
+
+    .btn-addcart:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(99,102,241,.45); }
+    .btn-addcart:active { transform: translateY(0); }
+
+    .btn-wishlist,
+    .btn-compare {
+        display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 12px; padding: 12px 18px;
+        font-size: .85rem; font-weight: 600; color: #94a3b8;
+        cursor: pointer; transition: background .2s, border-color .2s, color .2s;
+    }
+
+    .btn-wishlist:hover { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); color: #f87171; }
+    .btn-compare:hover  { background: rgba(6,182,212,.1);  border-color: rgba(6,182,212,.3);  color: #67e8f9; }
+
+    .btn-disabled {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.06);
+        border-radius: 12px; padding: 12px 24px;
+        font-size: .9rem; font-weight: 600; color: #334155;
+        cursor: not-allowed;
+    }
+
+    /* Compare select */
+    .compare-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    .compare-select {
+        flex: 1; min-width: 180px;
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 10px;
+        color: #94a3b8; font-size: .83rem;
+        padding: 9px 12px; outline: none;
+        cursor: pointer;
+        transition: border-color .2s;
+    }
+
+    .compare-select:focus { border-color: #6366f1; }
+    .compare-select option { background: #1e293b; }
+
+    .btn-compare-quick {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: rgba(6,182,212,.1);
+        border: 1px solid rgba(6,182,212,.25);
+        border-radius: 10px; padding: 9px 16px;
+        font-size: .83rem; font-weight: 600; color: #67e8f9;
+        cursor: pointer; transition: background .2s;
+        white-space: nowrap;
+    }
+
+    .btn-compare-quick:hover { background: rgba(6,182,212,.18); }
+
+    /* Trust badges */
+    .trust-badges {
+        display: flex; gap: 18px; flex-wrap: wrap;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255,255,255,.06);
+        font-size: .8rem; color: #64748b;
+    }
+
+    .trust-badge { display: flex; align-items: center; gap: 6px; }
+    .trust-badge i { font-size: .9rem; }
+    .trust-badge .ti-green  { color: #34d399; }
+    .trust-badge .ti-blue   { color: #60a5fa; }
+    .trust-badge .ti-yellow { color: #fbbf24; }
+
+    /* === RELATED SECTION === */
+    .related-section { border-top: 1px solid rgba(255,255,255,.06); padding-top: 48px; }
+
+    .section-heading {
+        font-size: 1.2rem; font-weight: 800; color: #f1f5f9;
+        margin: 0 0 24px; letter-spacing: -.01em;
+    }
+
+    .section-heading .accent {
+        background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .related-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+
+    @@media (max-width: 768px) { .related-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .rel-card {
+        background: #0f172a;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 16px; overflow: hidden;
+        transition: transform .25s cubic-bezier(.34,1.56,.64,1), border-color .2s, box-shadow .2s;
+        display: flex; flex-direction: column;
+    }
+
+    .rel-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(99,102,241,.3);
+        box-shadow: 0 16px 40px rgba(0,0,0,.3);
+    }
+
+    .rel-card-img {
+        aspect-ratio: 1; background: #1e293b;
+        display: flex; align-items: center; justify-content: center;
+        padding: 16px; overflow: hidden;
+    }
+
+    .rel-card-img img {
+        width: 100%; height: 100%;
+        object-fit: contain;
+        transition: transform .3s;
+    }
+
+    .rel-card:hover .rel-card-img img { transform: scale(1.05); }
+
+    .rel-card-body { padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+    .rel-card-name {
+        font-size: .85rem; font-weight: 600; color: #e2e8f0;
+        display: -webkit-box; -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical; overflow: hidden;
+        line-height: 1.4;
+    }
+
+    .rel-card-price { font-size: .95rem; font-weight: 800; color: #f1f5f9; }
+
+    .rel-card-btn {
+        display: block; text-align: center; margin-top: auto;
+        padding: 9px; border-radius: 9px;
+        background: rgba(99,102,241,.1);
+        border: 1px solid rgba(99,102,241,.2);
+        color: #818cf8; font-size: .82rem; font-weight: 600;
+        text-decoration: none;
+        transition: background .2s, color .2s;
+    }
+
+    .rel-card-btn:hover { background: #6366f1; color: #fff; }
+
+    /* === MODAL === */
+    .modal-content.dark-modal {
+        background: #0f172a;
+        border: 1px solid rgba(99,102,241,.2);
+        border-radius: 20px;
+    }
+
+    .modal-header.dark-modal-head {
+        border-bottom: 1px solid rgba(255,255,255,.07);
+        padding: 20px 24px;
+    }
+
+    .modal-title { color: #f1f5f9; font-weight: 700; }
+    .btn-close-white { filter: invert(1) opacity(.5); }
+</style>
+
+<div class="detail-wrapper">
+    <div class="container">
+
+        <!-- Breadcrumb -->
+        <nav class="detail-breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <span class="sep">›</span>
+            <a asp-controller="Product" asp-action="Index" asp-route-category="@Model.Category?.Name">
+                @Model.Category?.Name
+            </a>
+            <span class="sep">›</span>
+            <span class="current">@Model.Name</span>
+        </nav>
+
+        <!-- Main detail grid -->
+        <div class="detail-grid">
+
+            <!-- IMAGE PANEL -->
+            <div class="detail-img-panel">
+                <div class="detail-img-main">
+                    <img src="@(Model.ImageUrl ?? "https://via.placeholder.com/500")"
+                         alt="@Model.Name" id="mainImg" />
                 </div>
-            }
-        </div>
-
-        <div class="col-lg-7">
-            <span class="badge bg-secondary mb-2">@Model.Category?.Name</span>
-            <h1 class="detail-title">@Model.Name</h1>
-
-            <div class="d-flex align-items-center gap-2 mb-3">
-                <div class="text-warning">
-                    @for (int i = 0; i < fullStars; i++)
-                    {
-                        <i class="bi bi-star-fill"></i>
-                    }
-                    @if (hasHalf)
-                    {
-                        <i class="bi bi-star-half"></i>
-                    }
-                    @for (int i = 0; i < emptyStars; i++)
-                    {
-                        <i class="bi bi-star text-muted"></i>
-                    }
-                </div>
-                <span class="text-muted fw-bold">@rating / 5</span>
-                <span class="text-muted">(@reviewCount đánh giá)</span>
-                <span class="badge @(Model.Stock > 10 ? "bg-success" : Model.Stock > 0 ? "bg-warning text-dark" : "bg-danger") ms-2">
-                    @(Model.Stock > 0 ? $"Còn {Model.Stock} sản phẩm" : "Hết hàng")
-                </span>
-            </div>
-
-            <div class="d-flex align-items-center gap-3 mb-4">
-                @{
-                    decimal displayPrice = Model.DiscountPrice ?? Model.Price;
-                }
-                <span class="detail-price text-danger fw-bold fs-2">@displayPrice.ToString("N0") ₫</span>
-                @if (Model.DiscountPrice.HasValue && Model.DiscountPrice < Model.Price)
+                @if (Model.Images != null && Model.Images.Any())
                 {
-                    <span class="text-muted text-decoration-line-through fs-5">@Model.Price.ToString("N0") ₫</span>
-                    var percent = Math.Round((1 - Model.DiscountPrice.Value / Model.Price) * 100);
-                    <span class="badge bg-danger fs-6">-@percent%</span>
-                }
-            </div>
-
-            <div class="detail-desc mb-4">
-                <p>@Model.Description</p>
-            </div>
-
-            @if (Model.IsTradeInEligible)
-            {
-                <div class="card bg-light border-warning mb-3">
-                    <div class="card-body py-2 px-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="isTradeIn" name="isTradeIn" value="true" form="addToCartForm">
-                            <label class="form-check-label fw-bold text-dark" for="isTradeIn">
-                                <i class="bi bi-arrow-repeat text-warning me-1"></i> Tham gia Thu cũ đổi mới
-                            </label>
-                            <p class="mb-0 text-muted small">Trợ giá lên đến <strong class="text-danger">@((Model.MaxTradeInValue ?? 0).ToString("N0")) ₫</strong>.</p>
-                        </div>
-                    </div>
-                </div>
-            }
-
-            @if (Model.WarrantyPackages != null && Model.WarrantyPackages.Any())
-            {
-                <div class="mb-4">
-                    <p class="fw-bold mb-2">Tùy chọn bảo hành mở rộng:</p>
-                    <div class="d-flex flex-column gap-2">
-                        <label class="btn btn-outline-secondary text-start p-2 w-100 position-relative">
-                            <input type="radio" name="warrantyId" value="0" checked class="me-2" form="addToCartForm" />
-                            @Model.WarrantyPolicy (Mặc định) - <span class="text-success fw-bold">Miễn phí</span>
-                        </label>
-                        @foreach (var wp in Model.WarrantyPackages)
+                    <div class="detail-thumbs">
+                        @foreach (var img in Model.Images.OrderBy(i => i.DisplayOrder).Take(5))
                         {
-                            <label class="btn btn-outline-warning text-start p-2 w-100 position-relative">
-                                <input type="radio" name="warrantyId" value="@wp.Id" class="me-2" form="addToCartForm" />
-                                @wp.PackageName - <span class="text-danger fw-bold">+@wp.AdditionalPrice.ToString("N0") ₫</span>
-                            </label>
+                            <img src="@img.ImageUrl" alt="thumb" class="detail-thumb"
+                                 onclick="switchImg('@img.ImageUrl', this)" />
                         }
                     </div>
+                }
+            </div>
+
+            <!-- INFO PANEL -->
+            <div class="detail-info-panel">
+
+                <!-- Category + Title -->
+                <div>
+                    <span class="detail-cat-tag">
+                        <i class="bi bi-tag"></i> @Model.Category?.Name
+                    </span>
+                    <h1 class="detail-title mt-2">@Model.Name</h1>
                 </div>
-            }
-            <div class="d-flex flex-wrap gap-3 align-items-center mt-3">
-                @if (Model.Stock > 0)
+
+                <!-- Rating -->
+                <div class="detail-rating">
+                    <div class="rating-stars">
+                        @for (int i = 0; i < fullStars; i++) { <i class="bi bi-star-fill"></i> }
+                        @if (hasHalf) { <i class="bi bi-star-half"></i> }
+                        @for (int i = 0; i < emptyStars; i++) { <i class="bi bi-star" style="opacity:.35"></i> }
+                    </div>
+                    <span class="rating-score">@rating / 5</span>
+                    <span class="rating-count">(@reviewCount đánh giá)</span>
+                    @if (Model.Stock > 10)
+                    {
+                        <span class="stock-badge high"><i class="bi bi-check-circle"></i> Còn @Model.Stock sp</span>
+                    }
+                    else if (Model.Stock > 0)
+                    {
+                        <span class="stock-badge low"><i class="bi bi-exclamation-circle"></i> Còn @Model.Stock sp</span>
+                    }
+                    else
+                    {
+                        <span class="stock-badge empty"><i class="bi bi-x-circle"></i> Hết hàng</span>
+                    }
+                </div>
+
+                <!-- Price -->
+                <div class="detail-price-row">
+                    <span class="detail-price-main">@displayPrice.ToString("N0") ₫</span>
+                    @if (Model.DiscountPrice.HasValue && Model.DiscountPrice < Model.Price)
+                    {
+                        <span class="detail-price-old">@Model.Price.ToString("N0") ₫</span>
+                        var percent = Math.Round((1 - Model.DiscountPrice.Value / Model.Price) * 100);
+                        <span class="detail-discount-badge">-@percent%</span>
+                    }
+                </div>
+
+                <!-- Description -->
+                @if (!string.IsNullOrEmpty(Model.Description))
                 {
-                    <form id="addToCartForm" asp-controller="Product" asp-action="AddToCart" method="post" class="d-flex gap-3 align-items-center mb-0">
-                        <input type="hidden" name="productId" value="@Model.Id" />
-                        <div class="qty-control d-flex border rounded">
-                            <button type="button" class="btn btn-light border-0" onclick="changeQty(-1)">-</button>
-                            <input type="number" name="quantity" id="qty" value="1" min="1" max="@Model.Stock" class="form-control border-0 text-center" style="width: 60px;" />
-                            <button type="button" class="btn btn-light border-0" onclick="changeQty(1)">+</button>
+                    <p class="detail-desc">@Model.Description</p>
+                }
+
+                <!-- Trade-in -->
+                @if (Model.IsTradeInEligible)
+                {
+                    <div class="tradein-card">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   id="isTradeIn" name="isTradeIn" value="true" form="addToCartForm" />
+                            <label class="form-check-label" for="isTradeIn">
+                                <i class="bi bi-arrow-repeat" style="color:#fbbf24"></i>
+                                Tham gia Thu cũ đổi mới
+                            </label>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
-                        </button>
-                        <button type="button"
-                                class="btn btn-outline-danger btn-lg"
-                                onclick="toggleWishlist(@Model.Id)"
-                                title="Yêu thích">
-                            <i class="bi bi-heart me-1" id="wishlist-icon-@Model.Id"></i> Yêu thích
-                        </button>
+                        <p class="tradein-note">
+                            Trợ giá lên đến <strong>@((Model.MaxTradeInValue ?? 0).ToString("N0")) ₫</strong>
+                        </p>
+                    </div>
+                }
 
-                        <select id="compareOtherId" class="form-select bg-dark text-light border-secondary">
-                            <option value="">Chọn sản phẩm để so sánh</option>
-                            @foreach (var p in (ViewBag.Related as List<TechShop.Models.Product>)!)
+                <!-- Warranty -->
+                @if (Model.WarrantyPackages != null && Model.WarrantyPackages.Any())
+                {
+                    <div>
+                        <p class="warranty-title">Tùy chọn bảo hành mở rộng</p>
+                        <div class="warranty-options">
+                            <label class="warranty-option">
+                                <input type="radio" name="warrantyId" value="0" checked form="addToCartForm" />
+                                <span class="warranty-option-name">@Model.WarrantyPolicy (Mặc định)</span>
+                                <span class="warranty-option-price free">Miễn phí</span>
+                            </label>
+                            @foreach (var wp in Model.WarrantyPackages)
                             {
-                                <option value="@p.Id">@p.Name</option>
+                                <label class="warranty-option">
+                                    <input type="radio" name="warrantyId" value="@wp.Id" form="addToCartForm" />
+                                    <span class="warranty-option-name">@wp.PackageName</span>
+                                    <span class="warranty-option-price paid">+@wp.AdditionalPrice.ToString("N0") ₫</span>
+                                </label>
                             }
-                        </select>
-                        <button type="button" class="btn btn-outline-info mt-2" id="btnCompareQuick">
-                            <i class="bi bi-bar-chart"></i> So sánh nhanh
-                        </button>
-
-                    </form>
-                }
-                else
-                {
-                    <button class="btn btn-secondary btn-lg" disabled>
-                        <i class="bi bi-x-circle me-2"></i>Hết hàng
-                    </button>
-                }
-                <button type="button" class="btn btn-outline-danger btn-lg" onclick="toggleWishlist(@Model.Id)">
-                    <i class="bi bi-heart me-1" id="wishlist-icon-@Model.Id"></i> Yêu thích
-                </button>
-                <button type="button" class="btn btn-outline-info btn-lg" onclick="addToCompare(@Model.Id)">
-                    <i class="bi bi-bar-chart me-1"></i> So sánh
-                </button>
-            </div>
-            <div class="detail-badges mt-4 pt-3 border-top">
-                <span class="me-3"><i class="bi bi-shield-check text-success"></i> Hàng chính hãng</span>
-                <span class="me-3"><i class="bi bi-truck text-primary"></i> Giao hàng toàn quốc</span>
-                <span><i class="bi bi-arrow-repeat text-warning"></i> Đổi trả 30 ngày</span>
-            </div>
-        </div>
-    </div>
-    @if (related != null && related.Any())
-    {
-        <div class="mt-5 pt-5 border-top">
-            <h4 class="section-title mb-4">Sản phẩm <span class="text-primary">cùng danh mục</span></h4>
-            <div class="row g-4">
-                @foreach (var p in related)
-                {
-                    <div class="col-6 col-md-3">
-                        <div class="card h-100 shadow-sm border-0 product-card">
-                            <img src="@(p.ImageUrl ?? "https://via.placeholder.com/300")" alt="@p.Name" class="card-img-top p-3" style="object-fit:contain; height:200px;" loading="lazy" />
-                            <div class="card-body">
-                                <h6 class="card-title text-truncate">@p.Name</h6>
-                                <p class="text-danger fw-bold mb-0">@((p.DiscountPrice ?? p.Price).ToString("N0")) ₫</p>
-                            </div>
-                            <div class="card-footer bg-transparent border-0 pb-3">
-                                <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id" class="btn btn-outline-primary w-100">Xem chi tiết</a>
-                            </div>
                         </div>
                     </div>
                 }
+
+                <!-- Actions -->
+                <div class="detail-actions">
+                    @if (Model.Stock > 0)
+                    {
+                        <form id="addToCartForm" asp-controller="Product" asp-action="AddToCart" method="post">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+
+                            <div class="qty-row mb-3">
+                                <span class="qty-label">Số lượng</span>
+                                <div class="qty-ctrl">
+                                    <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+                                    <input type="number" name="quantity" id="qty"
+                                           value="1" min="1" max="@Model.Stock" class="qty-input" />
+                                    <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                                </div>
+                            </div>
+
+                            <div class="action-btns">
+                                <button type="submit" class="btn-addcart">
+                                    <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                                </button>
+                                <button type="button" class="btn-wishlist" onclick="toggleWishlist(@Model.Id)">
+                                    <i class="bi bi-heart" id="wishlist-icon-@Model.Id"></i> Yêu thích
+                                </button>
+                                <button type="button" class="btn-compare" onclick="addToCompare(@Model.Id)">
+                                    <i class="bi bi-bar-chart"></i> So sánh
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Compare quick -->
+                        <div class="compare-row">
+                            <select id="compareOtherId" class="compare-select">
+                                <option value="">Chọn sản phẩm để so sánh nhanh...</option>
+                                @foreach (var p in (ViewBag.Related as List<TechShop.Models.Product>)!)
+                                {
+                                    <option value="@p.Id">@p.Name</option>
+                                }
+                            </select>
+                            <button type="button" class="btn-compare-quick" id="btnCompareQuick">
+                                <i class="bi bi-bar-chart-line"></i> So sánh nhanh
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="btn-disabled">
+                            <i class="bi bi-x-circle"></i> Hết hàng
+                        </div>
+                    }
+                </div>
+
+                <!-- Trust badges -->
+                <div class="trust-badges">
+                    <span class="trust-badge"><i class="bi bi-shield-check ti-green"></i> Hàng chính hãng</span>
+                    <span class="trust-badge"><i class="bi bi-truck ti-blue"></i> Giao toàn quốc</span>
+                    <span class="trust-badge"><i class="bi bi-arrow-repeat ti-yellow"></i> Đổi trả 30 ngày</span>
+                </div>
+
             </div>
         </div>
-    }
+
+        <!-- Related products -->
+        @if (related != null && related.Any())
+        {
+            <div class="related-section">
+                <h4 class="section-heading">
+                    Sản phẩm <span class="accent">cùng danh mục</span>
+                </h4>
+                <div class="related-grid">
+                    @foreach (var p in related)
+                    {
+                        <div class="rel-card">
+                            <div class="rel-card-img">
+                                <img src="@(p.ImageUrl ?? "https://via.placeholder.com/300")"
+                                     alt="@p.Name" loading="lazy" />
+                            </div>
+                            <div class="rel-card-body">
+                                <p class="rel-card-name">@p.Name</p>
+                                <p class="rel-card-price">@((p.DiscountPrice ?? p.Price).ToString("N0")) ₫</p>
+                                <a asp-controller="Product" asp-action="Detail"
+                                   asp-route-id="@p.Id" class="rel-card-btn">
+                                    Xem chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+    </div>
 </div>
 
+<!-- Compare Modal -->
 <div class="modal fade" id="compareModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content bg-dark text-light">
-            <div class="modal-header">
-                <h5 class="modal-title">So sánh nhanh</h5>
+        <div class="modal-content dark-modal">
+            <div class="modal-header dark-modal-head">
+                <h5 class="modal-title">So sánh sản phẩm</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="compareModalBody">
-                Đang tải...
-            </div>
+            <div class="modal-body" id="compareModalBody">Đang tải...</div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
+        function switchImg(src, thumb) {
+            document.getElementById('mainImg').src = src;
+            document.querySelectorAll('.detail-thumb').forEach(t => t.style.borderColor = '');
+            thumb.style.borderColor = '#6366f1';
+        }
+
         function changeQty(delta) {
             const input = document.getElementById('qty');
             let val = parseInt(input.value || '1') + delta;
-            const max = parseInt(input.max || '1');
-
             if (val < 1) val = 1;
-            if (val > max) val = max;
-
+            if (val > parseInt(input.max)) val = parseInt(input.max);
             input.value = val;
         }
 
@@ -231,24 +669,13 @@
             $.post('/Product/ToggleWishlist', { productId: id }, function (res) {
                 if (res.success) {
                     alert(res.message);
-
-                    let icon = $('#wishlist-icon-' + id);
-                    if (icon.length) {
-                        if (res.isAdded) {
-                            icon.removeClass('bi-heart').addClass('bi-heart-fill');
-                        } else {
-                            icon.removeClass('bi-heart-fill').addClass('bi-heart');
-                        }
-                    }
+                    const icon = $('#wishlist-icon-' + id);
+                    icon.toggleClass('bi-heart', !res.isAdded).toggleClass('bi-heart-fill', res.isAdded);
                 } else {
                     window.location.href = '/Account/Login';
                 }
             }).fail(function (xhr) {
-                if (xhr.status === 401) {
-                    window.location.href = '/Account/Login';
-                } else {
-                    alert('Có lỗi xảy ra khi thêm vào yêu thích.');
-                }
+                xhr.status === 401 ? window.location.href = '/Account/Login' : alert('Có lỗi xảy ra.');
             });
         }
 
@@ -256,38 +683,25 @@
             $.post('/Product/AddToCompare', { productId: id }, function (res) {
                 alert(res.message);
             }).fail(function (xhr) {
-                if (xhr.status === 401) {
-                    window.location.href = '/Account/Login';
-                } else {
-                    alert('Có lỗi xảy ra khi thêm sản phẩm so sánh.');
-                }
+                xhr.status === 401 ? window.location.href = '/Account/Login' : alert('Có lỗi xảy ra.');
             });
         }
 
         $(document).ready(function () {
-            $("#btnCompareQuick").on("click", function () {
-                const otherId = $("#compareOtherId").val();
+            $('#btnCompareQuick').on('click', function () {
+                const otherId = $('#compareOtherId').val();
+                if (!otherId) { alert('Vui lòng chọn 1 sản phẩm để so sánh.'); return; }
 
-                if (!otherId) {
-                    alert("Vui lòng chọn 1 sản phẩm để so sánh.");
-                    return;
-                }
-
-                $("#compareModalBody").html("Đang tải...");
-                const currentId = @Model.Id;
-
-                $.get("/Product/CompareQuick", { currentId: currentId, otherId: otherId })
+                $('#compareModalBody').html('Đang tải...');
+                $.get('/Product/CompareQuick', { currentId: @Model.Id, otherId: otherId })
                     .done(function (html) {
-                        $("#compareModalBody").html(html);
-                        const modal = new bootstrap.Modal(document.getElementById("compareModal"));
-                        modal.show();
+                        $('#compareModalBody').html(html);
+                        new bootstrap.Modal(document.getElementById('compareModal')).show();
                     })
                     .fail(function (xhr) {
-                        if (xhr.status === 401) {
-                            window.location.href = "/Account/Login";
-                        } else {
-                            $("#compareModalBody").html("<div class='alert alert-danger'>Không tải được dữ liệu so sánh.</div>");
-                        }
+                        xhr.status === 401
+                            ? window.location.href = '/Account/Login'
+                            : $('#compareModalBody').html("<div class='alert alert-danger'>Không tải được dữ liệu.</div>");
                     });
             });
         });

@@ -12,7 +12,7 @@ using TechShop.Data;
 namespace Thi_Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260321132538_Add_AvatarUrl_To_User")]
+    [Migration("20260321153720_Add_AvatarUrl_To_User")]
     partial class Add_AvatarUrl_To_User
     {
         /// <inheritdoc />
