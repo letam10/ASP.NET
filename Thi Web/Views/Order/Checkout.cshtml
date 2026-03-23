@@ -103,6 +103,15 @@
                             <span asp-validation-for="City" class="text-danger small mt-1"></span>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label">Mã giảm giá</label>
+                            <input name="CouponCode" value="@ViewBag.CouponCode" class="form-control bg-dark text-light border-secondary" placeholder="NHAP-MA-GIAM-GIA" />
+                            @if (ViewBag.CouponError != null)
+                            {
+                                <div class="text-danger small mt-1">@ViewBag.CouponError</div>
+                            }
+                        </div>
+
                         <div class="col-md-5">
                             <label asp-for="PostalCode" class="form-label text-muted fw-bold">
                                 Mã bưu điện
