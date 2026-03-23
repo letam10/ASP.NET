@@ -127,17 +127,35 @@ namespace TechShop.Controllers
             int productId,
             int quantity = 1,
             int warrantyId = 0,
-            bool isTradeIn = false)
+            bool isTradeIn = false,
+            int? productVariantId = null)
         {
             var product = await _context.Products
                 .Include(p => p.WarrantyPackages)
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.Values)
+                        .ThenInclude(vv => vv.ProductVariantOption)
                 .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null) return NotFound();
 
             decimal finalPrice = product.DiscountPrice ?? product.Price;
             string extraOptions = "";
+            ProductVariant? variant = null;
+            if (productVariantId.HasValue)
+            {
+                variant = product.Variants.FirstOrDefault(v => v.Id == productVariantId.Value && v.IsActive);
+                if (variant == null)
+                {
+                    TempData["Error"] = "Biến thể không hợp lệ.";
+                    return RedirectToAction(nameof(Detail), new { id = productId });
+                }
 
+                finalPrice = variant.Price;
+                extraOptions += " [" + string.Join(" / ", variant.Values
+                    .Select(x => x.ProductVariantOption?.Value)
+                    .Where(x => !string.IsNullOrWhiteSpace(x))) + "]";
+            }
             // Gói bảo hành
             if (warrantyId > 0)
             {
@@ -161,9 +179,10 @@ namespace TechShop.Controllers
             {
                 ProductId = product.Id,
                 ProductName = product.Name + extraOptions,
-                Price = finalPrice > 0 ? finalPrice : 0,
+                Price = Math.Max(finalPrice, 0),
                 Quantity = quantity,
-                ImageUrl = product.ImageUrl
+                ImageUrl = product.ImageUrl,
+                ProductVariantId = variant?.Id // thêm field này vào CartItem nếu chưa có
             });
 
             TempData["Success"] = $"Đã thêm \"{product.Name}\" vào giỏ hàng!";
@@ -231,11 +250,18 @@ namespace TechShop.Controllers
         // ===== WISHLIST =====
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleWishlist(int productId)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-                return Json(new { success = false, message = "Vui lòng đăng nhập!" });
+                return Json(new { success = false, message = "Vui lòng đăng nhập!", redirectUrl = Url.Action("Login", "Account") });
+
+            var productExists = await _context.Products
+                .AnyAsync(p => p.Id == productId && p.IsActive);
+
+            if (!productExists)
+                return Json(new { success = false, message = "Sản phẩm không tồn tại hoặc đã bị ẩn." });
 
             var existing = await _context.Wishlists
                 .FirstOrDefaultAsync(w => w.UserId == user.Id && w.ProductId == productId);
@@ -247,9 +273,21 @@ namespace TechShop.Controllers
                 return Json(new { success = true, isAdded = false, message = "Đã bỏ yêu thích." });
             }
 
-            _context.Wishlists.Add(new Wishlist { UserId = user.Id, ProductId = productId });
-            await _context.SaveChangesAsync();
-            return Json(new { success = true, isAdded = true, message = "Đã thêm vào mục yêu thích." });
+            _context.Wishlists.Add(new Wishlist
+            {
+                UserId = user.Id,
+                ProductId = productId
+            });
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, isAdded = true, message = "Đã thêm vào mục yêu thích." });
+            }
+            catch (DbUpdateException)
+            {
+                return Json(new { success = false, message = "Không thể thêm vào yêu thích. Dữ liệu sản phẩm không hợp lệ." });
+            }
         }
 
         [Authorize]
