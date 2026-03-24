@@ -605,13 +605,42 @@ a {
     height: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+.wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.15);
+    background: rgba(10, 20, 45, .92);
+    color: #dce5ff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    transition: all .2s ease;
 }
 
-    .product-card:hover {
-        border-color: var(--primary);
-        box-shadow: 0 12px 40px rgba(37,99,235,0.2);
-        transform: translateY(-6px);
-    }
+.wishlist-btn:hover {
+    transform: translateY(-1px);
+    background: #13203b;
+    color: #fff;
+}
+
+.wishlist-btn.active {
+    background: rgba(255, 77, 109, .12);
+    border-color: rgba(255, 77, 109, .45);
+    color: #ff4d6d;
+}
+
+.product-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 12px 40px rgba(37,99,235,0.2);
+    transform: translateY(-6px);
+}
 
 .product-img-wrap {
     position: relative;
@@ -1508,4 +1537,47 @@ a {
 .order-success-page .summary-value {
     color: #ffffff;
     font-weight: 600;
+}
+.order-success-page,
+.order-success-page .card,
+.order-success-page .summary-card {
+    color: #f4f7ff;
+}
+
+.order-success-page .text-muted,
+.order-success-page .small,
+.order-success-page .subtext {
+    color: rgba(255,255,255,.78) !important;
+}
+
+.order-success-page .summary-card {
+    background: #111827;
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+}
+
+.order-success-page .summary-label {
+    color: rgba(255,255,255,.72);
+}
+
+.order-success-page .summary-value {
+    color: #ffffff;
+    font-weight: 600;
+}
+.lucky-wheel-page .result-modal .modal-content {
+    background: linear-gradient(180deg, #0f172a, #111827);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 24px;
+}
+
+.lucky-wheel-page .result-title {
+    color: #60a5fa;
+    font-weight: 800;
+}
+
+.lucky-wheel-page .result-text {
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 700;
 }

@@ -107,6 +107,10 @@ namespace TechShop.Controllers
                 .Include(p => p.Images)
                 .Include(p => p.Specifications)
                 .Include(p => p.WarrantyPackages)
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.Values)
+                        .ThenInclude(vv => vv.ProductVariantOption)
+                            .ThenInclude(o => o!.ProductVariantGroup)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null) return NotFound();

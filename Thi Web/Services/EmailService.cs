@@ -12,6 +12,7 @@ namespace TechShop.Services
         Task SendWelcomeEmailAsync(string toEmail, string fullName);
         Task SendPasswordResetEmailAsync(string toEmail, string resetLink);
         Task SendMembershipUpgradeEmailAsync(string toEmail, string fullName, string oldTier, string newTier, int currentPoints);
+        Task<bool> SendAsync(string to, string subject, string htmlBody);
     }
 
     public class EmailService : IEmailService

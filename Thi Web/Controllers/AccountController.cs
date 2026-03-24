@@ -73,11 +73,22 @@ namespace TechShop.Controllers
             {
                 await _userManager.AddToRoleAsync(user, "Customer");
                 await _signInManager.SignInAsync(user, false);
-                await _emailService.SendWelcomeEmailAsync(user.Email, user.FullName);
+
+                try
+                {
+                    await _emailService.SendAsync(
+                        model.Email,
+                        "Chào mừng đến với TechShop",
+                        $"<h2>Xin chào {System.Net.WebUtility.HtmlEncode(model.FullName)}</h2><p>Tài khoản của bạn đã được tạo thành công.</p>");
+                }
+                catch
+                {
+                    // không chặn đăng ký nếu email lỗi
+                }
+
                 TempData["Success"] = "Đăng ký thành công! Chào mừng bạn đến với TechShop.";
                 return RedirectToAction("Index", "Home");
             }
-
             foreach (var error in result.Errors)
                 ModelState.AddModelError("", error.Description);
 
@@ -138,7 +149,6 @@ namespace TechShop.Controllers
 
             if (user == null)
             {
-                // Tạo tài khoản mới
                 user = new ApplicationUser
                 {
                     UserName = email,
@@ -152,12 +162,25 @@ namespace TechShop.Controllers
                 {
                     foreach (var error in createResult.Errors)
                         ModelState.AddModelError("", error.Description);
+
                     TempData["Error"] = "Không thể tạo tài khoản: " +
                         string.Join(", ", createResult.Errors.Select(e => e.Description));
                     return RedirectToAction(nameof(Login));
                 }
 
                 await _userManager.AddToRoleAsync(user, "Customer");
+
+                try
+                {
+                    await _emailService.SendAsync(
+                        user.Email!,
+                        "Đăng ký bằng Google thành công",
+                        $"<p>Xin chào {System.Net.WebUtility.HtmlEncode(user.FullName ?? user.Email!)}, tài khoản Google của bạn đã liên kết thành công với TechShop.</p>");
+                }
+                catch
+                {
+                    // không chặn luồng login
+                }
             }
 
             // Gắn external login vào tài khoản
