@@ -778,6 +778,12 @@
                         int es = 5 - fs - (hh ? 1 : 0);
 
                         <div class="pcard">
+                            <button type="button"
+                                    class="wishlist-btn wishlist-btn-shop"
+                                    onclick="toggleWishlist(@item, this)"
+                                    title="Yêu thích">
+                                <i class="bi bi-heart"></i>
+                            </button>
                             <div class="pcard-img-wrap">
                                 <img src="@(item.ImageUrl ?? "https://via.placeholder.com/300")" alt="@item.Name" class="pcard-img" loading="lazy" />
                                 <div class="pcard-overlay">

@@ -138,48 +138,67 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
     <script>
+        const wheelLabels = [
+            "Trượt rồi",
+            "Voucher 500k",
+            "Chúc may mắn lần sau",
+            "Voucher 100K",
+            "Trượt rồi",
+            "Voucher 50K"
+        ];
+
         let currentRotation = 0;
         let isSpinning = false;
 
         function spinWheel() {
             if (isSpinning) return;
 
-            $.ajax({
-                url: '/Game/SpinWheel',
-                type: 'POST',
-                success: function(res) {
-                    if (!res.success) {
-                        alert(res.message);
-                        return;
-                    }
-                    isSpinning = true;
-                    $('#spinBtn').prop('disabled', true);
-                    $('#currentPoints').text(res.remainingPoints);
-                    const segmentAngle = 60;
-                    const extraSpins = 5 * 360;
-                    const targetAngle = extraSpins + (360 - (res.segment * segmentAngle) - 30);
-                    currentRotation += targetAngle;
-                    const wheel = document.getElementById('wheel');
-                    wheel.style.transform = `rotate(${currentRotation}deg)`;
+            const spinBtn = document.getElementById('spinBtn');
+            const wheel = document.getElementById('wheel');
 
-                    setTimeout(() => {
-                        isSpinning = false;
-                        $('#spinBtn').prop('disabled', false);
-                        $('#prizeText').text(res.prize);
-                        var prizeModal = new bootstrap.Modal(document.getElementById('prizeModal'));
-                        prizeModal.show();
-                    }, 4000);
-                },
-                error: function(xhr) {
-                    if(xhr.status === 401 || xhr.status === 404) {
-                        alert("Vui lòng đăng nhập lại để chơi Game!");
-                        window.location.href = '/Account/Login';
-                    } else {
-                        alert("Lỗi kết nối máy chủ.");
-                    }
+            if (!spinBtn || !wheel) return;
+
+            isSpinning = true;
+            spinBtn.disabled = true;
+
+            $.post('/Game/SpinWheel', function (res) {
+                if (!res.success) {
+                    alert(res.message);
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                    return;
                 }
+                const totalSegments = wheelLabels.length;
+                const segmentAngle = 360 / totalSegments;
+
+                // Mũi tên đang ở phía trên.
+                // Muốn ô trúng nằm đúng dưới mũi tên thì quay tới tâm ô đó.
+                const targetAngle = 360 - (res.winningIndex * segmentAngle) - (segmentAngle / 2);
+
+                const extraSpins = 360 * 6;
+                currentRotation += extraSpins + targetAngle;
+
+                wheel.style.transition = 'transform 4.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+                setTimeout(function () {
+                    document.getElementById('prizeText').textContent = res.winningLabel;
+                    document.getElementById('currentPoints').textContent = res.currentPoints;
+
+                    const modalEl = document.getElementById('prizeModal');
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                }, 4700);
+            }).fail(function () {
+                alert('Không thể quay lúc này.');
+                isSpinning = false;
+                spinBtn.disabled = false;
             });
         }
     </script>

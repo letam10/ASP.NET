@@ -255,6 +255,8 @@ namespace TechShop.Models
         public int Quantity { get; set; }
         public string? ImageUrl { get; set; }
         public decimal Subtotal => Price * Quantity;
+        public decimal Total { get; set; }
+        public int? ProductVariantId { get; set; }
     }
     // Ghi chép lịch sử nhận/tiêu hoa hồng
     public class CommissionLog
