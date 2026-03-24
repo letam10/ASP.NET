@@ -1,9 +1,10 @@
-﻿@model TechShop.Models.ProductVariant
+@model TechShop.Models.ProductVariant
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Thêm biến thể";
     var products = ViewBag.Products as List<TechShop.Models.Product>;
     var options = ViewBag.Options as List<TechShop.Models.ProductVariantOption>;
+    var optionCategoryMap = ViewBag.OptionCategoryMap as Dictionary<int, List<int>> ?? new();
 }
 
 <div class="container-fluid py-4">
@@ -17,7 +18,7 @@
                     <option value="">-- Chọn sản phẩm --</option>
                     @foreach (var p in products ?? new())
                     {
-                        <option value="@p.Id">@p.Name</option>
+                        <option value="@p.Id" data-category-id="@p.CategoryId">@p.Name</option>
                     }
                 </select>
             </div>
@@ -42,8 +43,9 @@
                 <div class="row">
                     @foreach (var o in options ?? new())
                     {
+                        var categoryIds = optionCategoryMap.TryGetValue(o.Id, out var ids) ? ids : new List<int>();
                         <div class="col-md-4 mb-2">
-                            <label class="form-check">
+                            <label class="form-check option-item" data-category-ids="@string.Join(",", categoryIds)">
                                 <input type="checkbox" name="selectedOptionIds" value="@o.Id" class="form-check-input" />
                                 <span class="form-check-label">
                                     @o.ProductVariantGroup?.Name: @o.Value
@@ -58,3 +60,33 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const productSelect = document.querySelector('select[name="ProductId"]');
+            if (!productSelect) return;
+
+            function filterOptionsByCategory() {
+                const selected = productSelect.options[productSelect.selectedIndex];
+                const categoryId = selected?.dataset?.categoryId;
+                const optionItems = document.querySelectorAll('.option-item');
+
+                optionItems.forEach(item => {
+                    const allowedIds = (item.getAttribute('data-category-ids') || '')
+                        .split(',')
+                        .map(x => x.trim())
+                        .filter(Boolean);
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    const isAllowed = !categoryId || allowedIds.length === 0 || allowedIds.includes(categoryId);
+
+                    item.style.display = isAllowed ? '' : 'none';
+                    if (!isAllowed && checkbox) checkbox.checked = false;
+                });
+            }
+
+            productSelect.addEventListener('change', filterOptionsByCategory);
+            filterOptionsByCategory();
+        })();
+    </script>
+}

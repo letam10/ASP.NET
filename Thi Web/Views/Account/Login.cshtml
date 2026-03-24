@@ -1,4 +1,4 @@
-﻿@model TechShop.Models.LoginViewModel
+@model TechShop.Models.LoginViewModel
 @{
     ViewData["Title"] = "Đăng nhập";
     Layout = null;
@@ -454,6 +454,10 @@
             <form asp-action="Login" method="post" asp-route-returnUrl="@ViewBag.ReturnUrl">
                 @Html.AntiForgeryToken()
 
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert-form">@TempData["Error"]</div>
+                }
                 <div asp-validation-summary="ModelOnly" class="alert-form"></div>
 
                 <div class="field-group">

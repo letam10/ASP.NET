@@ -1,4 +1,4 @@
-﻿@model TechShop.Models.Product
+@model TechShop.Models.Product
 @{
     ViewData["Title"] = Model.Name;
     var related = ViewBag.Related as List<TechShop.Models.Product>;
@@ -547,6 +547,7 @@
                     @if (Model.Stock > 0)
                     {
                         <form id="addToCartForm" asp-controller="Product" asp-action="AddToCart" method="post">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" name="productId" value="@Model.Id" />
 
                             <div class="qty-row mb-3">
@@ -578,7 +579,7 @@
                                 <button type="submit" class="btn-addcart">
                                     <i class="bi bi-cart-plus"></i> Thêm vào giỏ
                                 </button>
-                                <button type="button" class="btn-wishlist" onclick="toggleWishlist(@Model.Id)">
+                                <button type="button" class="btn-wishlist" onclick="toggleWishlist(@Model.Id, this)">
                                     <i class="bi bi-heart" id="wishlist-icon-@Model.Id"></i> Yêu thích
                                 </button>
                                 <button type="button" class="btn-compare" onclick="addToCompare(@Model.Id)">
@@ -678,20 +679,6 @@
             if (val < 1) val = 1;
             if (val > parseInt(input.max)) val = parseInt(input.max);
             input.value = val;
-        }
-
-        function toggleWishlist(id) {
-            $.post('/Product/ToggleWishlist', { productId: id }, function (res) {
-                if (res.success) {
-                    alert(res.message);
-                    const icon = $('#wishlist-icon-' + id);
-                    icon.toggleClass('bi-heart', !res.isAdded).toggleClass('bi-heart-fill', res.isAdded);
-                } else {
-                    window.location.href = '/Account/Login';
-                }
-            }).fail(function (xhr) {
-                xhr.status === 401 ? window.location.href = '/Account/Login' : alert('Có lỗi xảy ra.');
-            });
         }
 
         function addToCompare(id) {

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +15,6 @@ namespace TechShop.Controllers
     public class AdminProductController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
         public AdminProductController(ApplicationDbContext context) => _context = context;
 
         public async Task<IActionResult> Index(int? categoryId)
@@ -384,41 +383,6 @@ namespace TechShop.Controllers
             TempData["Success"] = "Đã xóa role.";
             return RedirectToAction(nameof(Index));
         }
-        // ================================================================
-        // ADMIN SUPPORT CONTROLLER
-        // ================================================================
-        [Authorize(Roles = "Admin,Staff")]
-        public class AdminSupportController : Controller
-        {
-            public IActionResult Index()
-            {
-                ViewBag.TawkDirectChatUrl = "https://tawk.to/chat/69bac14ebb7f0b1c337b2b54/1jk0o67bd";
-                ViewBag.TawkDashboardUrl = "https://dashboard.tawk.to/";
-                return View("~/Views/Admin/Support/Index.cshtml");
-            }
-        }
-
-        [Authorize(Roles = "Admin")]
-        public class AdminCouponController : Controller
-        {
-            private readonly ApplicationDbContext _context;
-            public AdminCouponController(ApplicationDbContext context) => _context = context;
-            public async Task<IActionResult> Index()
-                => View(await _context.Coupons.OrderByDescending(x => x.Id).ToListAsync());
-            [HttpGet]
-            public IActionResult Create() => View(new Coupon());
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Create(Coupon model)
-            {
-                if (!ModelState.IsValid) return View(model);
-                model.Code = model.Code.Trim().ToUpperInvariant();
-                _context.Coupons.Add(model);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã tạo mã giảm giá.";
-                return RedirectToAction(nameof(Index));
-            }
-        }
     }
     // ================================================================
     // ADMIN DASHBOARD CONTROLLER
@@ -501,12 +465,15 @@ namespace TechShop.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            await EnsureVariantCatalogSeededAsync();
             ViewBag.Products = await _context.Products.Where(p => p.IsActive).OrderBy(p => p.Name).ToListAsync();
             ViewBag.Options = await _context.ProductVariantOptions
                 .Include(o => o.ProductVariantGroup)
                 .OrderBy(o => o.ProductVariantGroup!.Name)
                 .ThenBy(o => o.Value)
                 .ToListAsync();
+
+            ViewBag.OptionCategoryMap = await BuildOptionCategoryMapAsync();
 
             return View("~/Views/Admin/Variant/Create.cshtml", new ProductVariant());
         }
@@ -518,10 +485,32 @@ namespace TechShop.Controllers
             ModelState.Remove("Product");
             ModelState.Remove("Values");
 
+            selectedOptionIds = selectedOptionIds?.Distinct().ToList() ?? new List<int>();
+            if (!selectedOptionIds.Any())
+                ModelState.AddModelError("", "Vui lòng chọn ít nhất 1 thuộc tính biến thể.");
+
             if (!ModelState.IsValid)
             {
+                await EnsureVariantCatalogSeededAsync();
                 ViewBag.Products = await _context.Products.Where(p => p.IsActive).OrderBy(p => p.Name).ToListAsync();
                 ViewBag.Options = await _context.ProductVariantOptions.Include(o => o.ProductVariantGroup).ToListAsync();
+                ViewBag.OptionCategoryMap = await BuildOptionCategoryMapAsync();
+                return View("~/Views/Admin/Variant/Create.cshtml", model);
+            }
+
+            var duplicateGroupIds = await _context.ProductVariantOptions
+                .Where(o => selectedOptionIds.Contains(o.Id))
+                .GroupBy(o => o.ProductVariantGroupId)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToListAsync();
+            if (duplicateGroupIds.Any())
+            {
+                ModelState.AddModelError("", "Mỗi nhóm thuộc tính chỉ được chọn 1 giá trị.");
+                await EnsureVariantCatalogSeededAsync();
+                ViewBag.Products = await _context.Products.Where(p => p.IsActive).OrderBy(p => p.Name).ToListAsync();
+                ViewBag.Options = await _context.ProductVariantOptions.Include(o => o.ProductVariantGroup).ToListAsync();
+                ViewBag.OptionCategoryMap = await BuildOptionCategoryMapAsync();
                 return View("~/Views/Admin/Variant/Create.cshtml", model);
             }
 
@@ -537,5 +526,93 @@ namespace TechShop.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        private async Task EnsureVariantCatalogSeededAsync()
+        {
+            var blueprints = new Dictionary<string, string[]>
+            {
+                ["Màu sắc"] = new[] { "Đen", "Trắng", "Bạc", "Xanh", "Đỏ" },
+                ["RAM"] = new[] { "8GB", "16GB", "32GB", "64GB" },
+                ["SSD"] = new[] { "512GB", "1TB", "2TB", "4TB" },
+                ["Phiên bản"] = new[] { "Standard", "Plus", "Pro", "Pro Max" },
+                ["Hiệu năng"] = new[] { "Cơ bản", "Nâng cao", "Cao cấp" },
+                ["Kết nối"] = new[] { "Wired", "Wireless", "Bluetooth" }
+            };
+
+            foreach (var entry in blueprints)
+            {
+                var group = await _context.ProductVariantGroups
+                    .Include(g => g.Options)
+                    .FirstOrDefaultAsync(g => g.Name == entry.Key);
+
+                if (group == null)
+                {
+                    group = new ProductVariantGroup { Name = entry.Key };
+                    _context.ProductVariantGroups.Add(group);
+                    await _context.SaveChangesAsync();
+                }
+
+                var existingValues = group.Options.Select(x => x.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var missingValues = entry.Value
+                    .Where(v => !existingValues.Contains(v))
+                    .Select(v => new ProductVariantOption
+                    {
+                        ProductVariantGroupId = group.Id,
+                        Value = v
+                    })
+                    .ToList();
+
+                if (missingValues.Any())
+                {
+                    _context.ProductVariantOptions.AddRange(missingValues);
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+
+        private async Task<Dictionary<int, List<int>>> BuildOptionCategoryMapAsync()
+        {
+            var products = await _context.Products.Include(p => p.Category).AsNoTracking().ToListAsync();
+            var categories = products
+                .Select(p => p.Category)
+                .Where(c => c != null)
+                .DistinctBy(c => c!.Id)
+                .Select(c => c!)
+                .ToList();
+
+            var allCategoryIds = categories.Select(c => c.Id).ToList();
+            var laptopIds = categories.Where(c => c.Name.Contains("Laptop", StringComparison.OrdinalIgnoreCase)).Select(c => c.Id).ToList();
+            var pcPartIds = categories.Where(c => c.Name.Contains("Linh kiện", StringComparison.OrdinalIgnoreCase) || c.Name.Contains("Ổ cứng", StringComparison.OrdinalIgnoreCase)).Select(c => c.Id).ToList();
+            var peripheralIds = categories.Where(c =>
+                    c.Name.Contains("Màn hình", StringComparison.OrdinalIgnoreCase) ||
+                    c.Name.Contains("Chuột", StringComparison.OrdinalIgnoreCase) ||
+                    c.Name.Contains("Bàn phím", StringComparison.OrdinalIgnoreCase) ||
+                    c.Name.Contains("Ghế", StringComparison.OrdinalIgnoreCase) ||
+                    c.Name.Contains("Tai nghe", StringComparison.OrdinalIgnoreCase) ||
+                    c.Name.Contains("Điện thoại", StringComparison.OrdinalIgnoreCase))
+                .Select(c => c.Id)
+                .ToList();
+
+            var groupMap = new Dictionary<string, List<int>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Màu sắc"] = allCategoryIds,
+                ["RAM"] = laptopIds,
+                ["SSD"] = laptopIds.Concat(pcPartIds).Distinct().ToList(),
+                ["Phiên bản"] = peripheralIds,
+                ["Hiệu năng"] = pcPartIds,
+                ["Kết nối"] = peripheralIds
+            };
+
+            var options = await _context.ProductVariantOptions.Include(o => o.ProductVariantGroup).ToListAsync();
+            var result = new Dictionary<int, List<int>>();
+            foreach (var option in options)
+            {
+                var groupName = option.ProductVariantGroup?.Name ?? "";
+                result[option.Id] = groupMap.TryGetValue(groupName, out var ids) && ids.Any()
+                    ? ids
+                    : allCategoryIds;
+            }
+
+            return result;
+        }
     }
 }

@@ -1,0 +1,56 @@
+@model TechShop.Models.Coupon
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Tạo mã giảm giá";
+}
+
+<div class="container-fluid py-4">
+    <h2 class="mb-3">Tạo mã giảm giá</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Code" class="form-label">Mã</label>
+                        <input asp-for="Code" class="form-control" placeholder="VD: TECH10" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="DiscountPercent" class="form-label">Giảm phần trăm</label>
+                        <input asp-for="DiscountPercent" class="form-control" type="number" min="1" max="100" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="MaxDiscountAmount" class="form-label">Giảm tối đa</label>
+                        <input asp-for="MaxDiscountAmount" class="form-control" type="number" min="0" step="1000" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="MinOrderAmount" class="form-label">Đơn tối thiểu</label>
+                        <input asp-for="MinOrderAmount" class="form-control" type="number" min="0" step="1000" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ExpiredAt" class="form-label">Hết hạn</label>
+                        <input asp-for="ExpiredAt" class="form-control" type="datetime-local" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Quantity" class="form-label">Số lượng</label>
+                        <input asp-for="Quantity" class="form-control" type="number" min="1" />
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label">Kích hoạt ngay</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 d-flex gap-2">
+                    <button class="btn btn-primary" type="submit">Lưu mã</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

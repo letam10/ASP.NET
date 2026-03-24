@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -51,6 +51,11 @@
                     <a href="/Admin/AdminSupport/Index"
                        class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/AdminSupport") ? "active" : "")">
                         <i class="bi bi-chat-dots"></i><span>Chat hỗ trợ</span>
+                    </a>
+
+                    <a asp-controller="AdminCoupon" asp-action="Index"
+                       class="sidebar-link @(Context.Request.Path.Value != null && Context.Request.Path.Value.Contains("AdminCoupon") ? "active" : "")">
+                        <i class="bi bi-ticket-perforated"></i><span>Mã giảm giá</span>
                     </a>
 
                     <a href="/Admin/AdminUser/Index"

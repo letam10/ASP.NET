@@ -1,4 +1,4 @@
-﻿using MailKit.Net.Smtp;
+using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 using System.Net;
@@ -26,18 +26,20 @@ namespace TechShop.Services
             _logger = logger;
         }
 
-        private (string Server, int Port, string Username, string Password, string SenderEmail, string SenderName) GetSmtp()
+        private (string Host, int Port, bool EnableSsl, string Username, string Password, string SenderEmail, string SenderName) GetSmtp()
         {
-            string server = _config["SmtpSettings:Server"] ?? "";
+            string host = _config["SmtpSettings:Host"] ?? "";
             string portStr = _config["SmtpSettings:Port"] ?? "587";
-            string username = _config["SmtpSettings:Username"] ?? "";
+            string enableSslStr = _config["SmtpSettings:EnableSsl"] ?? "true";
+            string username = _config["SmtpSettings:UserName"] ?? "";
             string password = _config["SmtpSettings:Password"] ?? "";
-            string senderEmail = _config["SmtpSettings:SenderEmail"] ?? "";
-            string senderName = _config["SmtpSettings:SenderName"] ?? "TechShop";
+            string senderEmail = _config["SmtpSettings:FromEmail"] ?? "";
+            string senderName = _config["SmtpSettings:FromName"] ?? "TechShop";
 
             if (!int.TryParse(portStr, out int port)) port = 587;
+            if (!bool.TryParse(enableSslStr, out bool enableSsl)) enableSsl = true;
 
-            return (server, port, username, password, senderEmail, senderName);
+            return (host, port, enableSsl, username, password, senderEmail, senderName);
         }
 
         private async Task SendEmailAsync(MimeMessage message)
@@ -47,7 +49,8 @@ namespace TechShop.Services
 
             try
             {
-                await client.ConnectAsync(smtp.Server, smtp.Port, SecureSocketOptions.StartTls);
+                var socketOpt = smtp.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None;
+                await client.ConnectAsync(smtp.Host, smtp.Port, socketOpt);
                 await client.AuthenticateAsync(smtp.Username, smtp.Password);
                 await client.SendAsync(message);
 
@@ -67,23 +70,18 @@ namespace TechShop.Services
         {
             try
             {
-                var host = _config["SmtpSettings:Host"];
-                var port = int.Parse(_config["SmtpSettings:Port"] ?? "587");
-                var enableSsl = bool.Parse(_config["SmtpSettings:EnableSsl"] ?? "true");
-                var user = _config["SmtpSettings:UserName"];
-                var pass = _config["SmtpSettings:Password"];
-                var fromEmail = _config["SmtpSettings:FromEmail"];
-                var fromName = _config["SmtpSettings:FromName"] ?? "TechShop";
+                var smtp = GetSmtp();
 
                 var message = new MimeKit.MimeMessage();
-                message.From.Add(new MimeKit.MailboxAddress(fromName, fromEmail));
+                message.From.Add(new MimeKit.MailboxAddress(smtp.SenderName, smtp.SenderEmail));
                 message.To.Add(MimeKit.MailboxAddress.Parse(to));
                 message.Subject = subject;
                 message.Body = new MimeKit.BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
 
                 using var client = new MailKit.Net.Smtp.SmtpClient();
-                await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(user, pass);
+                var socketOpt = smtp.EnableSsl ? MailKit.Security.SecureSocketOptions.StartTls : MailKit.Security.SecureSocketOptions.None;
+                await client.ConnectAsync(smtp.Host, smtp.Port, socketOpt);
+                await client.AuthenticateAsync(smtp.Username, smtp.Password);
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
 

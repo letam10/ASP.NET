@@ -26,6 +26,28 @@
     }
 })();
 
+(function () {
+    document.addEventListener("DOMContentLoaded", function () {
+        const avatarTrigger = document.getElementById("navAvatarTrigger");
+        const avatarInput = document.getElementById("navAvatarInput");
+        const avatarForm = document.getElementById("nav-avatar-upload-form");
+
+        if (!avatarTrigger || !avatarInput || !avatarForm) return;
+
+        avatarTrigger.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            avatarInput.click();
+        });
+
+        avatarInput.addEventListener("change", function () {
+            if (avatarInput.files && avatarInput.files.length > 0) {
+                avatarForm.submit();
+            }
+        });
+    });
+})();
+
 // Global handler: nếu AJAX gặp 401 thì đưa về Login có returnUrl
 (function () {
     if (window.jQuery) {

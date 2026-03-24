@@ -96,6 +96,11 @@
                                         <i class="bi bi-tools me-2"></i>Phiếu dịch vụ
                                     </a>
                                 </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="AdminCoupon" asp-action="Index">
+                                            <i class="bi bi-ticket-perforated me-2"></i>Mã giảm giá
+                                        </a>
+                                    </li>
                                 @if (User.IsInRole("Admin"))
                                 {
                                     <li><hr class="dropdown-divider"></li>
@@ -150,9 +155,20 @@
                     @if (User.Identity!.IsAuthenticated)
                     {
                         var user = await UserManager.GetUserAsync(User);
+                        var avatarInitial = (user?.FullName ?? User.Identity.Name ?? "U").Trim()[0].ToString().ToUpper();
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle me-1"></i>@User.Identity.Name?.Split('@')[0]
+                                <span class="nav-avatar me-2">
+                                    @if (!string.IsNullOrWhiteSpace(user?.AvatarUrl))
+                                    {
+                                        <img src="@user.AvatarUrl" alt="Avatar" class="nav-avatar-img" />
+                                    }
+                                    else
+                                    {
+                                        @avatarInitial
+                                    }
+                                </span>
+                                @User.Identity.Name?.Split('@')[0]
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
                                 <li>
@@ -231,10 +247,10 @@
                     <h5><i class="bi bi-cpu-fill me-2"></i>TechShop</h5>
                     <p class="text-muted">Cửa hàng công nghệ uy tín hàng đầu Việt Nam. Chất lượng cao, giá tốt nhất.</p>
                     <div class="social-links">
-                        <a href="#"><i class="bi bi-facebook"></i></a>
-                        <a href="#"><i class="bi bi-youtube"></i></a>
-                        <a href="#"><i class="bi bi-instagram"></i></a>
-                        <a href="#"><i class="bi bi-tiktok"></i></a>
+                        <a href="https://facebook.com" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
+                        <a href="https://youtube.com" target="_blank" rel="noopener"><i class="bi bi-youtube"></i></a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
+                        <a href="https://tiktok.com" target="_blank" rel="noopener"><i class="bi bi-tiktok"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-2 col-6 mb-4">
@@ -249,17 +265,17 @@
                 <div class="col-lg-2 col-6 mb-4">
                     <h6>Hỗ trợ</h6>
                     <ul class="list-unstyled footer-links">
-                        <li><a href="#">Chính sách đổi trả</a></li>
-                        <li><a href="#">Bảo hành</a></li>
-                        <li><a href="#">Vận chuyển</a></li>
-                        <li><a href="#">Liên hệ</a></li>
+                        <li><a asp-controller="Home" asp-action="ChinhSach">Chính sách đổi trả</a></li>
+                        <li><a asp-controller="Home" asp-action="ChinhSach">Bảo hành</a></li>
+                        <li><a asp-controller="Home" asp-action="ChinhSach">Vận chuyển</a></li>
+                        <li><a asp-controller="Home" asp-action="GioiThieu">Liên hệ</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-4 mb-4">
                     <h6>Liên hệ</h6>
-                    <p class="text-muted"><i class="bi bi-geo-alt me-2"></i>123 Nguyễn Huệ, Q.1, TP.HCM</p>
-                    <p class="text-muted"><i class="bi bi-telephone me-2"></i>1800 6789</p>
-                    <p class="text-muted"><i class="bi bi-envelope me-2"></i>support@techshop.vn</p>
+                    <p class="text-muted"><a asp-controller="Home" asp-action="GioiThieu"><i class="bi bi-geo-alt me-2"></i>123 Nguyễn Huệ, Q.1, TP.HCM</a></p>
+                    <p class="text-muted"><a asp-controller="Home" asp-action="GioiThieu"><i class="bi bi-telephone me-2"></i>1800 6789</a></p>
+                    <p class="text-muted"><a asp-controller="Home" asp-action="GioiThieu"><i class="bi bi-envelope me-2"></i>support@techshop.vn</a></p>
                 </div>
             </div>
             <hr class="border-secondary">

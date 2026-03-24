@@ -1,4 +1,4 @@
-﻿@model TechShop.Models.Order
+@model TechShop.Models.Order
 @{
     ViewData["Title"] = "Thanh toán";
 
@@ -26,7 +26,7 @@
                 </h5>
 
                 <form asp-action="Checkout" method="post">
-                    @@Html.AntiForgeryToken()
+                    @Html.AntiForgeryToken()
 
                     <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
@@ -105,7 +105,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Mã giảm giá</label>
-                            <input name="CouponCode" value="@ViewBag.CouponCode" class="form-control bg-dark text-light border-secondary" placeholder="NHAP-MA-GIAM-GIA" />
+                            <input name="couponCode" value="@ViewBag.CouponCode" class="form-control bg-dark text-light border-secondary" placeholder="NHAP-MA-GIAM-GIA" />
                             @if (ViewBag.CouponError != null)
                             {
                                 <div class="text-danger small mt-1">@ViewBag.CouponError</div>
@@ -129,13 +129,13 @@
 
                         <div class="d-flex gap-3 align-items-center flex-wrap">
                             <label class="pay-option active">
-                                <input type="radio" name="payment" value="cod" id="payCOD" checked />
+                                <input type="radio" name="paymentMethod" value="cod" id="payCOD" checked />
                                 <i class="bi bi-cash-coin"></i>
                                 <span>Thanh toán khi nhận hàng (COD)</span>
                             </label>
 
                             <label class="pay-option">
-                                <input type="radio" name="payment" value="bank" id="payBank" />
+                                <input type="radio" name="paymentMethod" value="bank" id="payBank" />
                                 <i class="bi bi-bank"></i>
                                 <span>Chuyển khoản ngân hàng</span>
                             </label>
@@ -160,7 +160,7 @@
                             class="btn btn-primary btn-lg w-100 fw-bold shadow"
                             style="background-color: var(--brand-coral); border-color: var(--brand-coral); letter-spacing: 0.5px;">
                         <i class="bi bi-bag-check-fill me-2"></i>
-                        XÁC NHẬN ĐẶT HÀNG - @@finalTotal.ToString("N0") ₫
+                        XÁC NHẬN ĐẶT HÀNG - @finalTotal.ToString("N0") ₫
                     </button>
 
                     <div class="trust-signals-container d-flex flex-column align-items-center mt-4 pt-3 border-top border-secondary">
@@ -182,17 +182,17 @@
         <!-- SUMMARY -->
         <div class="col-lg-5">
             <div class="order-summary">
-                <h5 class="mb-4">Đơn hàng của bạn (@@itemCount sản phẩm)</h5>
+                <h5 class="mb-4">Đơn hàng của bạn (@itemCount sản phẩm)</h5>
 
                 @foreach (var item in cart)
                 {
                     <div class="checkout-item">
-                        <img src="@@(item.ImageUrl ?? "https://via.placeholder.com/60")" alt="@@item.ProductName" />
+                        <img src="@(item.ImageUrl ?? "https://via.placeholder.com/60")" alt="@item.ProductName" />
                         <div class="checkout-item-info">
-                            <p>@@item.ProductName</p>
+                            <p>@item.ProductName</p>
                             <small>x@item.Quantity</small>
                         </div>
-                        <span>@@item.Subtotal.ToString("N0") ₫</span>
+                        <span>@item.Subtotal.ToString("N0") ₫</span>
                     </div>
                 }
 
@@ -204,18 +204,26 @@
                 </div>
 
                 <div class="summary-row">
-                    <span>Giảm giá thẻ (@@membershipTier)</span>
-                    <span class="text-success">-@@memberDiscount.ToString("N0") ₫</span>
+                    <span>Giảm giá thẻ (@membershipTier)</span>
+                    <span class="text-success">-@memberDiscount.ToString("N0") ₫</span>
                 </div>
+
+                @if ((ViewBag.CouponDiscount as decimal?) > 0)
+                {
+                    <div class="summary-row">
+                        <span>Giảm giá mã (@ViewBag.CouponCode)</span>
+                        <span class="text-success">-@(((decimal)ViewBag.CouponDiscount).ToString("N0")) ₫</span>
+                    </div>
+                }
 
                 <div class="summary-row">
                     <span>Vận chuyển</span>
-                    <span>@@(shippingFee == 0 ? "Miễn phí" : shippingFee.ToString("N0") + " ₫")</span>
+                    <span>@(shippingFee == 0 ? "Miễn phí" : shippingFee.ToString("N0") + " ₫")</span>
                 </div>
 
                 <div class="summary-total mt-3">
                     <span>Tổng cộng</span>
-                    <span class="text-gradient">@@finalTotal.ToString("N0") ₫</span>
+                    <span class="text-gradient">@finalTotal.ToString("N0") ₫</span>
                 </div>
             </div>
         </div>
@@ -259,6 +267,12 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             refreshPayOptions();
+            document.querySelectorAll('.pay-option').forEach(l => l.classList.remove('active'));
+            var checked = document.querySelector('.pay-option input:checked');
+            if (checked) {
+                var checkedParent = checked.closest('.pay-option');
+                if (checkedParent) checkedParent.classList.add('active');
+            }
             toggleQR();
 
             var phoneInput = document.querySelector('input[name="Phone"]');

@@ -1,0 +1,53 @@
+@model List<TechShop.Models.Coupon>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Mã giảm giá";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Mã giảm giá</h2>
+        <a asp-action="Create" class="btn btn-primary">+ Tạo mã mới</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Mã</th>
+                        <th>Giảm (%)</th>
+                        <th>Giảm tối đa</th>
+                        <th>Đơn tối thiểu</th>
+                        <th>Hết hạn</th>
+                        <th>Số lượng</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model)
+                    {
+                        <tr>
+                            <td><strong>@c.Code</strong></td>
+                            <td>@c.DiscountPercent%</td>
+                            <td>@(c.MaxDiscountAmount?.ToString("N0") ?? "-")</td>
+                            <td>@(c.MinOrderAmount?.ToString("N0") ?? "-")</td>
+                            <td>@(c.ExpiredAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                            <td>@c.Quantity</td>
+                            <td>
+                                @if (c.IsActive)
+                                {
+                                    <span class="badge bg-success">Đang bật</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Đã tắt</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

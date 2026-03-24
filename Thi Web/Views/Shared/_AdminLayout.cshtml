@@ -1,4 +1,4 @@
-﻿@{
+@{
     var path = Context.Request.Path.Value ?? string.Empty;
 
     bool IsActive(params string[] prefixes)
@@ -92,6 +92,11 @@
 
                     @if (isAdmin)
                     {
+                        <a asp-controller="AdminCoupon" asp-action="Index"
+                           class="sidebar-link @(IsActive("/AdminCoupon", "/Admin/AdminCoupon") ? "active" : "")">
+                            <i class="bi bi-ticket-perforated"></i><span>Mã giảm giá</span>
+                        </a>
+
                         <a asp-controller="AdminUser" asp-action="Index"
                            class="sidebar-link @(IsActive("/AdminUser", "/Admin/AdminUser") ? "active" : "")">
                             <i class="bi bi-people"></i><span>Người dùng</span>

@@ -1,4 +1,4 @@
-﻿@model TechShop.Controllers.ProfileViewModel
+@model TechShop.Controllers.ProfileViewModel
 @inject UserManager<TechShop.Models.ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Hồ sơ cá nhân";
@@ -323,9 +323,11 @@
                 <div class="pf-card-body">
                     <form asp-controller="Profile" asp-action="Index" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
-                        <label class="pf-label">Avatar</label>
-                        <input asp-for="AvatarFile" type="file" class="pf-input" accept="image/*" />
-                        <span class="pf-hint">Tối đa 2MB. Định dạng: jpg, jpeg, png, webp.</span>
+                        <div class="pf-field">
+                            <label class="pf-label">Avatar</label>
+                            <input asp-for="AvatarFile" type="file" class="pf-input" accept="image/*" />
+                            <span class="pf-hint">Tối đa 2MB. Định dạng: jpg, jpeg, png, webp.</span>
+                        </div>
 
                         <div class="pf-field">
                             <label asp-for="FullName" class="pf-label"></label>
