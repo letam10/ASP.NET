@@ -311,11 +311,42 @@
                 easing: 'ease-out-cubic'
             });
 
-            // Page Preloader
-            $(window).on('load', function() {
-                setTimeout(function() {
-                    $('#preloader').fadeOut('slow');
-                }, 500);
+            // Page Preloader Optimization
+            const $preloader = $('#preloader');
+            
+            function hidePreloader() {
+                if ($preloader.is(':visible')) {
+                    $preloader.fadeOut(600);
+                }
+            }
+
+            // Hide on DOM Ready
+            hidePreloader();
+
+            // Safety Timeout
+            setTimeout(hidePreloader, 3000);
+
+            // Show preloader on internal link clicks for smooth transition
+            $(document).on('click', 'a', function(e) {
+                const href = $(this).attr('href');
+                const target = $(this).attr('target');
+                
+                if (e.isDefaultPrevented()) return;
+
+                // Only trigger for internal links, not hashes, not target="_blank", and not special protocols
+                if (href && 
+                    href !== '#' && 
+                    !href.startsWith('#') && 
+                    !href.startsWith('javascript:') && 
+                    !href.startsWith('mailto:') && 
+                    !href.startsWith('tel:') &&
+                    (!target || target === '_self')) {
+                    
+                    // Don't trigger for bootstrap toggles/dropdowns
+                    if ($(this).data('bs-toggle') || $(this).hasClass('dropdown-toggle')) return;
+
+                    $preloader.fadeIn(400);
+                }
             });
 
             // Ripple Effect for Buttons

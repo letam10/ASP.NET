@@ -23,6 +23,14 @@
     <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
 </head>
 <body class="admin-body">
+    <div id="preloader">
+        <div class="loader-content">
+            <div class="loader-logo"><i class="bi bi-cpu-fill"></i></div>
+            <div class="loader-line"></div>
+            <div class="loader-text">TECHSHOP</div>
+        </div>
+    </div>
+
     <div class="admin-layout">
         <!-- Sidebar -->
         <aside class="admin-sidebar shadow-lg">
@@ -132,9 +140,47 @@
         </div>
     </div>
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
+        $(document).ready(function() {
+            // Page Preloader Optimization
+            const $preloader = $('#preloader');
+            
+            function hidePreloader() {
+                if ($preloader.is(':visible')) {
+                    $preloader.fadeOut(600);
+                }
+            }
+
+            // Hide on DOM Ready
+            hidePreloader();
+
+            // Safety Timeout
+            setTimeout(hidePreloader, 3000);
+
+            // Show preloader on internal link clicks
+            $(document).on('click', 'a', function(e) {
+                const href = $(this).attr('href');
+                const target = $(this).attr('target');
+                
+                if (e.isDefaultPrevented()) return;
+
+                if (href && 
+                    href !== '#' && 
+                    !href.startsWith('#') && 
+                    !href.startsWith('javascript:') && 
+                    !href.startsWith('mailto:') && 
+                    !href.startsWith('tel:') &&
+                    (!target || target === '_self')) {
+                    
+                    if ($(this).data('bs-toggle') || $(this).hasClass('dropdown-toggle')) return;
+
+                    $preloader.fadeIn(400);
+                }
+            });
+        });
         function toggleSidebar() {
             document.querySelector('.admin-sidebar').classList.toggle('collapsed');
         }

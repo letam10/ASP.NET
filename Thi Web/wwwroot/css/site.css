@@ -182,7 +182,7 @@ body {
     font-size: 3rem;
     color: var(--primary-light);
     margin-bottom: 20px;
-    animation: pulseLogo 1.5s infinite ease-in-out;
+    animation: pulseLogo 1.2s infinite ease-in-out;
 }
 
 .loader-line {

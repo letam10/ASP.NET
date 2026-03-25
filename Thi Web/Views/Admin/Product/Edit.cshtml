@@ -55,7 +55,28 @@
             <div class="col-md-6"><label asp-for="Price" class="form-label"></label><input asp-for="Price" class="form-control" /></div>
             <div class="col-md-3"><label asp-for="Stock" class="form-label"></label><input asp-for="Stock" class="form-control" /></div>
             <div class="col-md-3"><label class="form-label">Trạng thái</label><div class="form-check mt-2"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Hiển thị</label></div></div>
-            <div class="col-12"><label asp-for="ImageUrl" class="form-label"></label><input asp-for="ImageUrl" class="form-control" /></div>
+            <div class="col-12">
+                <label asp-for="ImageUrl" class="form-label fw-bold"></label>
+                <div class="input-group">
+                    <input asp-for="ImageUrl" class="form-control" id="product-image-url" placeholder="Dán link hình ảnh vào đây..." />
+                    <span class="input-group-text bg-success text-white d-none" id="save-indicator" style="transition: all 0.3s ease;">
+                        <i class="bi bi-check-all me-1"></i>Đã lưu
+                    </span>
+                </div>
+                <div class="mt-3 p-3 border rounded text-center bg-dark-subtle" style="min-height: 120px; position: relative; border-style: dashed !important;">
+                    <img id="product-image-preview" src="@Model.ImageUrl" alt="Preview" 
+                         class="img-fluid rounded shadow-sm"
+                         style="max-height: 250px; @(string.IsNullOrEmpty(Model.ImageUrl) ? "display:none;" : "")" 
+                         onerror="this.style.display='none'; document.getElementById('image-placeholder').style.display='block';" />
+                    <div id="image-placeholder" class="py-4" style="@(string.IsNullOrEmpty(Model.ImageUrl) ? "" : "display:none;")">
+                        <i class="bi bi-card-image text-secondary opacity-50" style="font-size: 3rem;"></i>
+                        <p class="text-secondary mb-0">Chưa có ảnh hoặc link lỗi</p>
+                    </div>
+                    <div id="sync-spinner" class="position-absolute top-50 start-50 translate-middle d-none text-primary">
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                    </div>
+                </div>
+            </div>
             <div class="col-12"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="3"></textarea></div>
         </div>
         <div class="mt-4"><button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>Lưu thay đổi</button></div>
@@ -90,6 +111,63 @@
 
             categorySelect.addEventListener('change', filterBlocks);
             filterBlocks();
+
+            // Real-time Image Sync Logic
+            const imgInput = document.getElementById('product-image-url');
+            const imgPreview = document.getElementById('product-image-preview');
+            const imgPlaceholder = document.getElementById('image-placeholder');
+            const saveIndicator = document.getElementById('save-indicator');
+            const syncSpinner = document.getElementById('sync-spinner');
+            const productId = '@Model.Id';
+
+            function updateSync(url) {
+                if (!url) {
+                    imgPreview.style.display = 'none';
+                    imgPlaceholder.style.display = 'block';
+                } else {
+                    imgPreview.src = url;
+                    imgPreview.style.display = 'block';
+                    imgPlaceholder.style.display = 'none';
+                }
+
+                // Call AJAX to update DB immediately
+                syncSpinner.classList.remove('d-none');
+                
+                const formData = new FormData();
+                formData.append('productId', productId);
+                formData.append('imageUrl', url);
+                formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+                fetch('/Admin/Product/UpdateImageUrl', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    syncSpinner.classList.add('d-none');
+                    if (data.success) {
+                        saveIndicator.classList.remove('d-none');
+                        setTimeout(() => {
+                            saveIndicator.classList.add('d-none');
+                        }, 2000);
+                    } else {
+                        console.error('Lỗi khi lưu ảnh:', data.message);
+                    }
+                })
+                .catch(error => {
+                    syncSpinner.classList.add('d-none');
+                    console.error('Network error:', error);
+                });
+            }
+
+            imgInput.addEventListener('change', function() {
+                updateSync(this.value.trim());
+            });
+
+            // Debounce paste event
+            imgInput.addEventListener('paste', function() {
+                setTimeout(() => updateSync(this.value.trim()), 50);
+            });
         })();
     </script>
 }

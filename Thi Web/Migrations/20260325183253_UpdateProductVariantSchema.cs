@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Thi_Web.Migrations
 {
     /// <inheritdoc />
-    public partial class AddProductVariants : Migration
+    public partial class UpdateProductVariantSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -92,19 +92,6 @@ namespace Thi_Web.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Coupons", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductVariantGroups",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductVariantGroups", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -348,21 +335,23 @@ namespace Thi_Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductVariantOptions",
+                name: "ProductVariantGroups",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductVariantGroupId = table.Column<int>(type: "int", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    SortOrder = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductVariantOptions", x => x.Id);
+                    table.PrimaryKey("PK_ProductVariantGroups", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProductVariantOptions_ProductVariantGroups_ProductVariantGroupId",
-                        column: x => x.ProductVariantGroupId,
-                        principalTable: "ProductVariantGroups",
+                        name: "FK_ProductVariantGroups_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -563,6 +552,55 @@ namespace Thi_Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProductVariantOptions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductVariantGroupId = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ColorHex = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SortOrder = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductVariantOptions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductVariantOptions_ProductVariantGroups_ProductVariantGroupId",
+                        column: x => x.ProductVariantGroupId,
+                        principalTable: "ProductVariantGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductVariantSelections",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    ProductVariantOptionId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductVariantSelections", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductVariantSelections_ProductVariantOptions_ProductVariantOptionId",
+                        column: x => x.ProductVariantOptionId,
+                        principalTable: "ProductVariantOptions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ProductVariantSelections_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductVariantValues",
                 columns: table => new
                 {
@@ -610,9 +648,9 @@ namespace Thi_Web.Migrations
                 columns: new[] { "Id", "CategoryId", "CreatedAt", "Description", "DiscountPrice", "ImageUrl", "IsActive", "IsTradeInEligible", "MaxTradeInValue", "Name", "Price", "Stock", "WarrantyPolicy" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Laptop gaming cao cấp Intel Core i9-14900HX, RTX 4070 8GB, RAM 16GB DDR5, SSD 1TB PCIe 4.0, màn hình 16 inch QHD 165Hz", 42990000m, "https://dlcdnwebimgs.asus.com/gain/9BCCE5B8-9B6F-4857-B1B9-04FF37DAD6E1/w1000/h732", true, false, null, "ASUS ROG Strix G16 2024", 45990000m, 10, "Bảo hành chính hãng 12 tháng" },
-                    { 2, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Laptop văn phòng cao cấp Intel Core i7-13700H, RTX 4060 8GB, màn hình OLED 3.5K 60Hz, RAM 16GB, SSD 512GB, pin 86Whr", null, "https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/xps-notebooks/xps-15-9530/media-gallery/black/notebook-xps-15-9530-nt-black-gallery-1.psd?fmt=png-alpha&pscan=auto&scl=1&hei=402&wid=402&qlt=100,1&resMode=sharp2&size=402,402&chrss=full", true, false, null, "Dell XPS 15 9530", 38990000m, 8, "Bảo hành chính hãng 12 tháng" },
-                    { 3, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Laptop Apple chip M3 Pro 11 nhân, màn hình Liquid Retina XDR 14.2 inch, RAM 18GB, SSD 512GB, pin 18 giờ, MagSafe 3", null, "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/mbp14-spaceblack-select-202310?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1697230830200", true, false, null, "MacBook Pro M3 Pro 14 inch", 52990000m, 6, "Bảo hành chính hãng 12 tháng" },
+                    { 1, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Laptop gaming cao cấp Intel Core i9-14900HX, RTX 4070 8GB, RAM 16GB DDR5, SSD 1TB PCIe 4.0, màn hình 16 inch QHD 165Hz", 42990000m, "https://d28jzcg6y4v9j1.cloudfront.net/media/core/products/2024/1/10/asus-rog-strix-scar-g16-2024-undefined.jpg", true, false, null, "ASUS ROG Strix G16 2024", 45990000m, 10, "Bảo hành chính hãng 12 tháng" },
+                    { 2, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Laptop văn phòng cao cấp Intel Core i7-13700H, RTX 4060 8GB, màn hình OLED 3.5K 60Hz, RAM 16GB, SSD 512GB, pin 86Whr", null, "", true, false, null, "Dell XPS 15 9530", 38990000m, 8, "Bảo hành chính hãng 12 tháng" },
+                    { 3, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Laptop Apple chip M3 Pro 11 nhân, màn hình Liquid Retina XDR 14.2 inch, RAM 18GB, SSD 512GB, pin 18 giờ, MagSafe 3", null, "https://nhatminhlaptop.com/upload/products/2023-03-23-13-45-56/9530-1.jpg", true, false, null, "MacBook Pro M3 Pro 14 inch", 52990000m, 6, "Bảo hành chính hãng 12 tháng" },
                     { 4, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Laptop mỏng nhẹ Apple chip M3 8 nhân, màn hình Liquid Retina 15.3 inch, RAM 8GB, SSD 256GB, pin 18 giờ, không quạt tản nhiệt", 30990000m, "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/mba15-midnight-select-202306?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1684518479433", true, false, null, "MacBook Air M3 15 inch", 32990000m, 10, "Bảo hành chính hãng 12 tháng" },
                     { 5, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Laptop doanh nhân siêu mỏng Intel Core Ultra 7 155U, RAM 32GB LPDDR5, SSD 1TB, màn hình 2.8K OLED, pin 15 giờ, cân nặng chỉ 1.12kg", null, "https://p1-ofp.static.pub/medias/bWFzdGVyfHJvb3R8MjQ2NjI5fGltYWdlL3BuZ3xoZTYvaGRkLzE0Mjc5NTM5MDYyNjE0LnBuZ3w0YjdiMzJjYmNhMzFkMGEzMGM0YzYxZDQ4OThhMzY5NGRhNjBhODA3YmFiMTBjODU1MzNhYzFiZDA3ZjY5YTAy/Lenovo-laptop-thinkpad-x1-carbon-gen-12-hero.png", true, false, null, "Lenovo ThinkPad X1 Carbon Gen 12", 42990000m, 5, "Bảo hành chính hãng 12 tháng" },
                     { 6, 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Laptop 2-in-1 cao cấp Intel Core Ultra 5 125H, màn hình OLED cảm ứng 2.8K 120Hz, RAM 16GB, SSD 512GB, bút HP Tilt Pen đi kèm", 32990000m, "https://ssl-product-images.www8-hp.com/digmedialib/prodimg/knowledgebase/c08586213.png", true, false, null, "HP Spectre x360 14", 35990000m, 7, "Bảo hành chính hãng 12 tháng" },
@@ -791,6 +829,11 @@ namespace Thi_Web.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductVariantGroups_CategoryId",
+                table: "ProductVariantGroups",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProductVariantOptions_ProductVariantGroupId",
                 table: "ProductVariantOptions",
                 column: "ProductVariantGroupId");
@@ -799,6 +842,16 @@ namespace Thi_Web.Migrations
                 name: "IX_ProductVariants_ProductId",
                 table: "ProductVariants",
                 column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariantSelections_ProductId",
+                table: "ProductVariantSelections",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariantSelections_ProductVariantOptionId",
+                table: "ProductVariantSelections",
+                column: "ProductVariantOptionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductVariantValues_ProductVariantId",
@@ -873,6 +926,9 @@ namespace Thi_Web.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductSpecifications");
+
+            migrationBuilder.DropTable(
+                name: "ProductVariantSelections");
 
             migrationBuilder.DropTable(
                 name: "ProductVariantValues");

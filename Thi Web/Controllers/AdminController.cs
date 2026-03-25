@@ -158,7 +158,60 @@ namespace TechShop.Controllers
             TempData["Success"] = "Đã xóa sản phẩm.";
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateImageUrl(int productId, string imageUrl)
+        {
+            // 1. Cập nhật Database
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null) return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
+
+            product.ImageUrl = imageUrl;
+            await _context.SaveChangesAsync();
+
+            // 2. Cập nhật trực tiếp vào mã nguồn ApplicationDbContext.cs (Seed Data)
+            try
+            {
+                // Đường dẫn tuyệt đối tới file context
+                string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "ApplicationDbContext.cs");
+                
+                if (System.IO.File.Exists(filePath))
+                {
+                    string[] lines = await System.IO.File.ReadAllLinesAsync(filePath);
+                    bool found = false;
+
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        // Tìm dòng chứa Product có Id tương ứng
+                        if (lines[i].Contains($"Id = {productId},") && lines[i].Contains("new Product"))
+                        {
+                            // Thay thế giá trị của ImageUrl = "..."
+                            lines[i] = System.Text.RegularExpressions.Regex.Replace(
+                                lines[i], 
+                                @"ImageUrl\s*=\s*""[^""]*""", 
+                                $@"ImageUrl = ""{imageUrl}"""
+                            );
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found)
+                    {
+                        await System.IO.File.WriteAllLinesAsync(filePath, lines);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Nếu lỗi cập nhật code thì vẫn báo thành công ở DB nhưng kèm cảnh báo lỗi file
+                return Json(new { success = true, message = "Đã lưu DB nhưng lỗi cập nhật file code: " + ex.Message });
+            }
+
+            return Json(new { success = true, message = "Đã cập nhật hình ảnh vào cả Database và Source Code!" });
+        }
     }
+
 
     // ================================================================
     // ADMIN CATEGORY CONTROLLER
