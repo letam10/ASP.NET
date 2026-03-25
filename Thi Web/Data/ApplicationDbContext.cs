@@ -25,6 +25,7 @@ namespace TechShop.Data
         public DbSet<StoreInventory> StoreInventories { get; set; }
         public DbSet<ProductVariantGroup> ProductVariantGroups { get; set; }
         public DbSet<ProductVariantOption> ProductVariantOptions { get; set; }
+        public DbSet<ProductVariantSelection> ProductVariantSelections { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
         public DbSet<ProductVariantValue> ProductVariantValues { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
@@ -54,6 +55,24 @@ namespace TechShop.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<ProductVariantValue>()
+                .HasOne(x => x.ProductVariantOption)
+                .WithMany()
+                .HasForeignKey(x => x.ProductVariantOptionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<ProductVariantGroup>()
+                .HasOne(x => x.Category)
+                .WithMany()
+                .HasForeignKey(x => x.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ProductVariantSelection>()
+                .HasOne(x => x.Product)
+                .WithMany(x => x.SelectedVariantOptions)
+                .HasForeignKey(x => x.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ProductVariantSelection>()
                 .HasOne(x => x.ProductVariantOption)
                 .WithMany()
                 .HasForeignKey(x => x.ProductVariantOptionId)

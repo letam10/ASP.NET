@@ -1,4 +1,53 @@
-@model TechShop.Models.ProductVariant
+@model TechShop.ViewModels.Admin.AdminVariantCatalogViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Thiết lập biến thể";
+    var categories = ViewBag.Categories as List<TechShop.Models.Category>;
+}
+
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Thiết lập bộ biến thể theo danh mục</h2>
+
+    <form asp-action="Create" method="post" class="card shadow-sm">
+        <div class="card-body">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-4">
+                <label asp-for="CategoryId" class="form-label fw-bold"></label>
+                <select asp-for="CategoryId" class="form-select">
+                    <option value="">-- Chọn danh mục --</option>
+                    @foreach (var c in categories ?? new())
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Colors" class="form-label fw-bold"></label>
+                <input asp-for="Colors" class="form-control" placeholder="Xanh/Đỏ/Vàng/Đen" />
+                <div class="form-text">Nhập các giá trị cách nhau bằng dấu /</div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Capacities" class="form-label fw-bold"></label>
+                <input asp-for="Capacities" class="form-control" placeholder="256GB/512GB/1TB/2TB" />
+                <div class="form-text">Nhập các giá trị cách nhau bằng dấu /</div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Upgrades" class="form-label fw-bold"></label>
+                <input asp-for="Upgrades" class="form-control" placeholder="Standard/Plus/Pro/Pro Max" />
+                <div class="form-text">Nhập các giá trị cách nhau bằng dấu /</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Lưu bộ biến thể</button>
+        </div>
+    </form>
+</div>
+
+@* @model TechShop.Models.ProductVariant
 @{
     Layout = "~/Views/Admin/_AdminLayout.cshtml";
     ViewData["Title"] = "Thêm biến thể";
@@ -89,4 +138,4 @@
             filterOptionsByCategory();
         })();
     </script>
-}
+} *@

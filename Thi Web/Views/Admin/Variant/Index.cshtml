@@ -1,4 +1,41 @@
-@model List<TechShop.Models.ProductVariant>
+@model List<TechShop.Models.ProductVariantGroup>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Biến thể sản phẩm";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Biến thể theo danh mục</h2>
+        <a asp-action="Create" class="btn btn-primary">+ Thiết lập biến thể</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Danh mục</th>
+                        <th>Nhóm biến thể</th>
+                        <th>Giá trị</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var g in Model)
+                    {
+                        <tr>
+                            <td>@g.Category?.Name</td>
+                            <td>@g.Name</td>
+                            <td>@string.Join(" / ", g.Options.OrderBy(x => x.SortOrder).Select(x => x.Value))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@* @model List<TechShop.Models.ProductVariant>
 @{
     Layout = "~/Views/Admin/_AdminLayout.cshtml";
     ViewData["Title"] = "Biến thể sản phẩm";
@@ -64,4 +101,4 @@
             }
         </tbody>
     </table>
-</div>
+</div> *@

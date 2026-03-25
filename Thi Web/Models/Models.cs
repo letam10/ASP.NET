@@ -90,6 +90,7 @@ namespace TechShop.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true;
         public List<ProductVariant> Variants { get; set; } = new();
+        public ICollection<ProductVariantSelection> SelectedVariantOptions { get; set; } = new List<ProductVariantSelection>();
         // Quan hệ mới được thêm vào
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
@@ -298,19 +299,42 @@ namespace TechShop.Models
     public class ProductVariantGroup
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty; // Màu sắc, RAM, Ổ cứng...
+
+        [Required]
+        public string Name { get; set; } = string.Empty; // Màu Sắc, Dung Lượng, Nâng Cấp
+
+        public int CategoryId { get; set; }
+        public Category? Category { get; set; }
+
+        public int SortOrder { get; set; } = 0;
+        public bool IsActive { get; set; } = true;
+
         public List<ProductVariantOption> Options { get; set; } = new();
     }
-
     public class ProductVariantOption
     {
         public int Id { get; set; }
+
         public int ProductVariantGroupId { get; set; }
-        public string Value { get; set; } = string.Empty; // Đen, 16GB, 1TB...
-
         public ProductVariantGroup? ProductVariantGroup { get; set; }
-    }
 
+        [Required]
+        public string Value { get; set; } = string.Empty; // Xanh, Đỏ, 16GB, 1TB, Pro...
+
+        public string? ColorHex { get; set; } // chỉ dùng cho màu sắc, ví dụ #000000
+        public int SortOrder { get; set; } = 0;
+        public bool IsActive { get; set; } = true;
+    }
+    public class ProductVariantSelection
+    {
+        public int Id { get; set; }
+
+        public int ProductId { get; set; }
+        public Product? Product { get; set; }
+
+        public int ProductVariantOptionId { get; set; }
+        public ProductVariantOption? ProductVariantOption { get; set; }
+    }
     public class ProductVariant
     {
         public int Id { get; set; }
