@@ -360,4 +360,6 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
-FodyWeavers.xsd
+# Local settings
+Thi Web/appsettings.Local.json
+Thi Web/appsettings.Development.json

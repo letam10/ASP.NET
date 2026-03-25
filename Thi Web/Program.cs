@@ -11,6 +11,8 @@ using TechShop.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
