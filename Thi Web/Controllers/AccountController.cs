@@ -1,6 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.WebUtilities;
 using TechShop.Models;
 
 namespace TechShop.Controllers
@@ -73,11 +75,22 @@ namespace TechShop.Controllers
             {
                 await _userManager.AddToRoleAsync(user, "Customer");
                 await _signInManager.SignInAsync(user, false);
-                await _emailService.SendWelcomeEmailAsync(user.Email, user.FullName);
+
+                try
+                {
+                    await _emailService.SendAsync(
+                        model.Email,
+                        "Chào mừng đến với TechShop",
+                        $"<h2>Xin chào {System.Net.WebUtility.HtmlEncode(model.FullName)}</h2><p>Tài khoản của bạn đã được tạo thành công.</p>");
+                }
+                catch
+                {
+                    // không chặn đăng ký nếu email lỗi
+                }
+
                 TempData["Success"] = "Đăng ký thành công! Chào mừng bạn đến với TechShop.";
                 return RedirectToAction("Index", "Home");
             }
-
             foreach (var error in result.Errors)
                 ModelState.AddModelError("", error.Description);
 
@@ -97,8 +110,16 @@ namespace TechShop.Controllers
 
         // ===== GOOGLE & FACEBOOK LOGIN =====
         [HttpGet]
-        public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+        public async Task<IActionResult> ExternalLogin(string provider, string? returnUrl = null)
         {
+            var providers = await _signInManager.GetExternalAuthenticationSchemesAsync();
+            var providerExists = providers.Any(p => string.Equals(p.Name, provider, StringComparison.OrdinalIgnoreCase));
+            if (!providerExists)
+            {
+                TempData["Error"] = $"Đăng nhập {provider} chưa được cấu hình. Vui lòng kiểm tra appsettings.";
+                return RedirectToAction(nameof(Login), new { returnUrl });
+            }
+
             var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return Challenge(properties, provider);
@@ -138,7 +159,6 @@ namespace TechShop.Controllers
 
             if (user == null)
             {
-                // Tạo tài khoản mới
                 user = new ApplicationUser
                 {
                     UserName = email,
@@ -152,12 +172,25 @@ namespace TechShop.Controllers
                 {
                     foreach (var error in createResult.Errors)
                         ModelState.AddModelError("", error.Description);
+
                     TempData["Error"] = "Không thể tạo tài khoản: " +
                         string.Join(", ", createResult.Errors.Select(e => e.Description));
                     return RedirectToAction(nameof(Login));
                 }
 
                 await _userManager.AddToRoleAsync(user, "Customer");
+
+                try
+                {
+                    await _emailService.SendAsync(
+                        user.Email!,
+                        "Đăng ký bằng Google thành công",
+                        $"<p>Xin chào {System.Net.WebUtility.HtmlEncode(user.FullName ?? user.Email!)}, tài khoản Google của bạn đã liên kết thành công với TechShop.</p>");
+                }
+                catch
+                {
+                    // không chặn luồng login
+                }
             }
 
             // Gắn external login vào tài khoản
@@ -279,9 +312,10 @@ namespace TechShop.Controllers
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
             var link = Url.Action(nameof(ResetPassword), "Account",
-                new { email = user.Email, token },
+                new { email = user.Email, token = encodedToken },
                 protocol: Request.Scheme);
 
             await _emailService.SendPasswordResetEmailAsync(user.Email!, link!);
@@ -306,7 +340,18 @@ namespace TechShop.Controllers
             if (user == null)
                 return RedirectToAction(nameof(ResetPasswordConfirmation));
 
-            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+            string decodedToken;
+            try
+            {
+                decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
+                return View(model);
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.Password);
             if (result.Succeeded)
                 return RedirectToAction(nameof(ResetPasswordConfirmation));
 

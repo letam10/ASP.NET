@@ -1,4 +1,4 @@
-﻿@model TechShop.Models.ServiceTicket
+@model TechShop.Models.ServiceTicket
 @{
     ViewData["Title"] = "Đặt lịch sửa chữa & Vệ sinh";
 }
@@ -6,8 +6,8 @@
 <style>
     /* === HEADER === */
     .booking-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
-        border-bottom: 1px solid rgba(99,102,241,.2);
+        background: var(--bg-dark);
+        border-bottom: 1px solid var(--border);
         padding: 36px 0 28px;
         margin-top: 70px;
         margin-bottom: 40px;
@@ -37,7 +37,7 @@
 
     .booking-header h1 {
         font-size: clamp(1.5rem, 3vw, 2.2rem);
-        font-weight: 800; color: #f1f5f9;
+        font-weight: 800; color: var(--text-primary);
         margin: 0 0 8px; letter-spacing: -.02em;
     }
 
@@ -48,7 +48,7 @@
         background-clip: text;
     }
 
-    .booking-header p { color: #64748b; font-size: .92rem; margin: 0; }
+    .booking-header p { color: var(--text-secondary); font-size: .92rem; margin: 0; }
 
     /* === SERVICE FEATURE BADGES === */
     .service-features {
@@ -61,9 +61,9 @@
         display: inline-flex; align-items: center; gap: 7px;
         padding: 7px 14px; border-radius: 100px;
         font-size: .78rem; font-weight: 600;
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,.08);
-        color: #94a3b8;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
     }
 
     .sf-badge i { color: #6366f1; }
@@ -72,15 +72,15 @@
     .booking-card {
         max-width: 720px;
         margin: 0 auto 60px;
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,.08);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
         border-radius: 24px;
         overflow: hidden;
     }
 
     .booking-card-head {
         padding: 26px 32px;
-        border-bottom: 1px solid rgba(255,255,255,.06);
+        border-bottom: 1px solid var(--border);
         display: flex; align-items: center; gap: 14px;
         background: rgba(99,102,241,.05);
     }
@@ -95,10 +95,10 @@
 
     .booking-card-head h5 {
         margin: 0 0 3px; font-size: 1rem; font-weight: 800;
-        color: #f1f5f9; letter-spacing: -.01em;
+        color: var(--text-primary); letter-spacing: -.01em;
     }
 
-    .booking-card-head p { margin: 0; font-size: .8rem; color: #64748b; }
+    .booking-card-head p { margin: 0; font-size: .8rem; color: var(--text-secondary); }
 
     .booking-card-body { padding: 30px 32px; }
 
@@ -132,10 +132,10 @@
     .bk-input,
     .bk-select,
     .bk-textarea {
-        background: rgba(255,255,255,.04);
-        border: 1px solid rgba(255,255,255,.09);
+        background: var(--input-bg);
+        border: 1px solid var(--border);
         border-radius: 11px;
-        color: #f1f5f9;
+        color: var(--text-primary);
         font-size: .88rem;
         padding: 11px 14px;
         outline: none;
@@ -209,7 +209,7 @@
     .bk-divider::before,
     .bk-divider::after {
         content: ''; flex: 1;
-        height: 1px; background: rgba(255,255,255,.06);
+        height: 1px; background: var(--border);
     }
 
     /* Submit */

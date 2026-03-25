@@ -1,4 +1,4 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
@@ -24,6 +24,28 @@
             sessionStorage.removeItem(KEY);
         }
     }
+})();
+
+(function () {
+    document.addEventListener("DOMContentLoaded", function () {
+        const avatarTrigger = document.getElementById("navAvatarTrigger");
+        const avatarInput = document.getElementById("navAvatarInput");
+        const avatarForm = document.getElementById("nav-avatar-upload-form");
+
+        if (!avatarTrigger || !avatarInput || !avatarForm) return;
+
+        avatarTrigger.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            avatarInput.click();
+        });
+
+        avatarInput.addEventListener("change", function () {
+            if (avatarInput.files && avatarInput.files.length > 0) {
+                avatarForm.submit();
+            }
+        });
+    });
 })();
 
 // Global handler: nếu AJAX gặp 401 thì đưa về Login có returnUrl
@@ -53,3 +75,41 @@ $(document).on("click", ".btn-wishlist", function () {
             }
         });
 });
+
+(function () {
+    const THEME_KEY = "techshop-theme";
+    const root = document.documentElement;
+
+    function updateThemeButton(theme) {
+        const icon = document.getElementById("themeToggleIcon");
+        const text = document.getElementById("themeToggleText");
+        if (!icon || !text) return;
+
+        if (theme === "dark") {
+            icon.className = "bi bi-sun-fill";
+            text.textContent = "Light";
+        } else {
+            icon.className = "bi bi-moon-stars-fill";
+            text.textContent = "Dark";
+        }
+    }
+
+    function applyTheme(theme) {
+        root.setAttribute("data-theme", theme);
+        localStorage.setItem(THEME_KEY, theme);
+        updateThemeButton(theme);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const initialTheme = root.getAttribute("data-theme") || localStorage.getItem(THEME_KEY) || "light";
+        applyTheme(initialTheme);
+
+        const btn = document.getElementById("themeToggleBtn");
+        if (!btn) return;
+
+        btn.addEventListener("click", function () {
+            const currentTheme = root.getAttribute("data-theme") || "light";
+            applyTheme(currentTheme === "dark" ? "light" : "dark");
+        });
+    });
+})();

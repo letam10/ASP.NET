@@ -1,4 +1,4 @@
-﻿@{
+@{
     var path = Context.Request.Path.Value ?? string.Empty;
 
     bool IsActive(params string[] prefixes)
@@ -56,11 +56,15 @@
                            class="sidebar-link @(Context.Request.Path.Value != null && Context.Request.Path.Value.Contains("AdminDashboard") ? "active" : "")">
                             <i class="bi bi-speedometer2"></i><span>Dashboard</span>
                         </a>
+
                         <a asp-controller="AdminProduct" asp-action="Index"
                            class="sidebar-link @(IsActive("/AdminProduct", "/Admin/AdminProduct") ? "active" : "")">
                             <i class="bi bi-box"></i><span>Sản phẩm</span>
                         </a>
-
+                        <a asp-controller="AdminVariant" asp-action="Index"
+                           class="sidebar-link @(Context.Request.Path.Value != null && Context.Request.Path.Value.Contains("AdminVariant") ? "active" : "")">
+                            <i class="bi bi-diagram-3"></i><span>Biến thể sản phẩm</span>
+                        </a>
                         <a asp-controller="AdminCategory" asp-action="Index"
                            class="sidebar-link @(IsActive("/AdminCategory", "/Admin/AdminCategory") ? "active" : "")">
                             <i class="bi bi-tags"></i><span>Danh mục</span>
@@ -88,6 +92,11 @@
 
                     @if (isAdmin)
                     {
+                        <a asp-controller="AdminCoupon" asp-action="Index"
+                           class="sidebar-link @(IsActive("/AdminCoupon", "/Admin/AdminCoupon") ? "active" : "")">
+                            <i class="bi bi-ticket-perforated"></i><span>Mã giảm giá</span>
+                        </a>
+
                         <a asp-controller="AdminUser" asp-action="Index"
                            class="sidebar-link @(IsActive("/AdminUser", "/Admin/AdminUser") ? "active" : "")">
                             <i class="bi bi-people"></i><span>Người dùng</span>

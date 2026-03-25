@@ -1,34 +1,58 @@
-﻿@model List<Microsoft.AspNetCore.Identity.IdentityRole>
+@model List<Microsoft.AspNetCore.Identity.IdentityRole>
 @{
-    ViewData["Title"] = "Quản lý Role";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý vai trò (Roles)";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
 }
+
 <div class="admin-page-header">
-    <div><h4><i class="bi bi-shield-lock me-2"></i>Quản lý Role</h4></div>
-    <a asp-controller="AdminRole" asp-action="Create" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-1"></i>Thêm Role
+    <div>
+        <h4 class="text-primary fw-bold"><i class="bi bi-shield-lock me-2"></i>Quản lý vai trò</h4>
+        <p class="text-muted mb-0 small">Hệ thống có <strong class="text-primary">@Model.Count</strong> vai trò người dùng</p>
+    </div>
+    <a asp-controller="AdminRole" asp-action="Create" class="btn btn-primary px-4 shadow-sm">
+        <i class="bi bi-plus-lg me-2"></i>Thêm vai trò mới
     </a>
 </div>
 
-<div class="admin-table-wrap">
-    <table class="table admin-table">
-        <thead><tr><th>Tên Role</th><th>ID</th><th>Thao tác</th></tr></thead>
+<div class="admin-table-wrap border-0 shadow-sm">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width: 250px;">Tên vai trò</th>
+                <th>Mã định danh (ID)</th>
+                <th class="text-end">Thao tác</th>
+            </tr>
+        </thead>
         <tbody>
             @foreach (var role in Model)
             {
                 <tr>
-                    <td><span class="badge fs-6 @(role.Name == "Admin" ? "bg-danger" : "bg-primary")">@role.Name</span></td>
-                    <td class="text-muted" style="font-size:0.75rem">@role.Id</td>
                     <td>
-                        @if (role.Name != "Admin")
-                        {
-                            <form asp-controller="AdminRole" asp-action="Delete" method="post" class="d-inline"
-                                  onsubmit="return confirm('Xóa role này?')">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@role.Id" />
-                                <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash3"></i></button>
-                            </form>
-                        }
+                        <span class="admin-badge @(role.Name == "Admin" ? "danger" : "info") px-3 py-2 fs-6">
+                            <i class="bi bi-shield-check me-2"></i>@role.Name
+                        </span>
+                    </td>
+                    <td>
+                        <code class="text-muted small bg-light-subtle px-2 py-1 rounded">@role.Id</code>
+                    </td>
+                    <td>
+                        <div class="admin-actions">
+                            @if (role.Name != "Admin")
+                            {
+                                <form asp-controller="AdminRole" asp-action="Delete" method="post" class="m-0"
+                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa vai trò này?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@role.Id" />
+                                    <button type="submit" class="btn-admin-action delete shadow-sm" title="Xóa">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted small italic">Mặc định</span>
+                            }
+                        </div>
                     </td>
                 </tr>
             }

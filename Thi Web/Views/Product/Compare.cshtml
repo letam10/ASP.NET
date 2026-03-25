@@ -1,4 +1,4 @@
-﻿@model List<TechShop.Models.Product>
+@model List<TechShop.Models.Product>
 @{
     ViewData["Title"] = "So sánh sản phẩm";
     var allSpecs = Model.SelectMany(p => p.Specifications.Select(s => s.SpecName)).Distinct().ToList();
@@ -10,8 +10,8 @@
 
     /* === HEADER === */
     .cmp-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
-        border-bottom: 1px solid rgba(99,102,241,.2);
+        background: var(--bg-dark);
+        border-bottom: 1px solid var(--border);
         padding: 32px 0 24px;
         margin-bottom: 36px;
         position: relative; overflow: hidden;
@@ -38,7 +38,7 @@
 
     .cmp-header h1 {
         font-size: clamp(1.4rem, 2.5vw, 2rem);
-        font-weight: 800; color: #f1f5f9; margin: 0 0 4px;
+        font-weight: 800; color: var(--text-primary); margin: 0 0 4px;
         letter-spacing: -.02em;
     }
 
@@ -48,7 +48,7 @@
         background-clip: text;
     }
 
-    .cmp-header p { color: #64748b; font-size: .88rem; margin: 0; }
+    .cmp-header p { color: var(--text-secondary); font-size: .88rem; margin: 0; }
 
     /* === EMPTY STATE === */
     .cmp-empty {
@@ -65,8 +65,8 @@
         margin: 0 auto 20px;
     }
 
-    .cmp-empty h4 { color: #e2e8f0; font-weight: 700; margin-bottom: 8px; }
-    .cmp-empty p  { color: #475569; font-size: .9rem; margin-bottom: 6px; }
+    .cmp-empty h4 { color: var(--text-primary); font-weight: 700; margin-bottom: 8px; }
+    .cmp-empty p  { color: var(--text-secondary); font-size: .9rem; margin-bottom: 6px; }
 
     .cmp-empty-hint {
         background: rgba(99,102,241,.08);
@@ -100,8 +100,8 @@
 
     /* Header row (product cards) */
     .cmp-table thead tr {
-        background: #0f172a;
-        border-bottom: 2px solid rgba(99,102,241,.2);
+        background: var(--bg-card);
+        border-bottom: 2px solid var(--border);
     }
 
     .cmp-table thead th {
@@ -124,12 +124,12 @@
         display: flex; flex-direction: column;
         align-items: center; gap: 10px;
         text-align: center;
-        border-left: 1px solid rgba(255,255,255,.05);
+        border-left: 1px solid var(--border);
     }
 
     .cmp-prod-img-wrap {
         width: 110px; height: 110px;
-        background: #1e293b;
+        background: var(--bg-dark-2);
         border-radius: 14px; overflow: hidden;
         display: flex; align-items: center; justify-content: center;
         padding: 10px; flex-shrink: 0;
@@ -140,14 +140,14 @@
     }
 
     .cmp-prod-name {
-        font-size: .88rem; font-weight: 700; color: #e2e8f0;
+        font-size: .88rem; font-weight: 700; color: var(--text-primary);
         line-height: 1.35;
         display: -webkit-box; -webkit-line-clamp: 2;
         -webkit-box-orient: vertical; overflow: hidden;
     }
 
     .cmp-prod-price {
-        font-size: 1rem; font-weight: 800; color: #f1f5f9;
+        font-size: 1rem; font-weight: 800; color: var(--text-primary);
         letter-spacing: -.01em;
     }
 
@@ -179,21 +179,21 @@
 
     /* Body rows */
     .cmp-table tbody tr {
-        border-bottom: 1px solid rgba(255,255,255,.04);
+        border-bottom: 1px solid var(--border);
         transition: background .15s;
     }
 
     .cmp-table tbody tr:last-child { border-bottom: none; }
-    .cmp-table tbody tr:hover { background: rgba(255,255,255,.02); }
+    .cmp-table tbody tr:hover { background: var(--bg-card-hover); }
 
-    .cmp-table tbody tr:nth-child(even) { background: rgba(255,255,255,.015); }
-    .cmp-table tbody tr:nth-child(even):hover { background: rgba(255,255,255,.03); }
+    .cmp-table tbody tr:nth-child(even) { background: var(--bg-dark-2); }
+    .cmp-table tbody tr:nth-child(even):hover { background: var(--bg-card-hover); }
 
     .cmp-table tbody td {
         padding: 13px 18px;
         vertical-align: middle;
         border: none;
-        color: #94a3b8;
+        color: var(--text-secondary);
         text-align: center;
     }
 
@@ -202,13 +202,13 @@
         text-align: left !important;
         font-size: .75rem; font-weight: 700;
         letter-spacing: .06em; text-transform: uppercase;
-        color: #475569 !important;
-        border-right: 1px solid rgba(255,255,255,.05) !important;
+        color: var(--text-muted) !important;
+        border-right: 1px solid var(--border) !important;
         white-space: nowrap;
     }
 
     /* Spec value */
-    .cmp-spec-val { color: #cbd5e1 !important; font-size: .87rem; }
+    .cmp-spec-val { color: var(--text-primary) !important; font-size: .87rem; }
 
     /* Dash for missing */
     .cmp-spec-dash { color: #334155 !important; }
@@ -226,7 +226,7 @@
 
     /* Product column borders */
     .cmp-table tbody td:not(:first-child) {
-        border-left: 1px solid rgba(255,255,255,.04);
+        border-left: 1px solid var(--border);
     }
 </style>
 

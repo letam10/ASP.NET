@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @inject UserManager<TechShop.Models.ApplicationUser> UserManager
 <!DOCTYPE html>
 <html lang="vi">
@@ -6,6 +6,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TechShop</title>
+    <script>
+        (function () {
+            var savedTheme = localStorage.getItem("techshop-theme");
+            if (savedTheme === "dark" || savedTheme === "light") {
+                document.documentElement.setAttribute("data-theme", savedTheme);
+            } else {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -86,6 +96,11 @@
                                         <i class="bi bi-tools me-2"></i>Phiếu dịch vụ
                                     </a>
                                 </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="AdminCoupon" asp-action="Index">
+                                            <i class="bi bi-ticket-perforated me-2"></i>Mã giảm giá
+                                        </a>
+                                    </li>
                                 @if (User.IsInRole("Admin"))
                                 {
                                     <li><hr class="dropdown-divider"></li>
@@ -113,6 +128,12 @@
 
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item me-2">
+                        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Chuyển giao diện sáng tối">
+                            <i class="bi bi-moon-stars-fill" id="themeToggleIcon"></i>
+                            <span id="themeToggleText">Dark</span>
+                        </button>
+                    </li>
+                    <li class="nav-item me-2">
                         <a class="nav-link cart-icon" asp-controller="Cart" asp-action="Index">
                             <i class="bi bi-cart3"></i>
                             @{
@@ -134,9 +155,20 @@
                     @if (User.Identity!.IsAuthenticated)
                     {
                         var user = await UserManager.GetUserAsync(User);
+                        var avatarInitial = (user?.FullName ?? User.Identity.Name ?? "U").Trim()[0].ToString().ToUpper();
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle me-1"></i>@User.Identity.Name?.Split('@')[0]
+                                <span class="nav-avatar me-2">
+                                    @if (!string.IsNullOrWhiteSpace(user?.AvatarUrl))
+                                    {
+                                        <img src="@user.AvatarUrl" alt="Avatar" class="nav-avatar-img" />
+                                    }
+                                    else
+                                    {
+                                        @avatarInitial
+                                    }
+                                </span>
+                                @User.Identity.Name?.Split('@')[0]
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
                                 <li>
@@ -215,10 +247,10 @@
                     <h5><i class="bi bi-cpu-fill me-2"></i>TechShop</h5>
                     <p class="text-muted">Cửa hàng công nghệ uy tín hàng đầu Việt Nam. Chất lượng cao, giá tốt nhất.</p>
                     <div class="social-links">
-                        <a href="#"><i class="bi bi-facebook"></i></a>
-                        <a href="#"><i class="bi bi-youtube"></i></a>
-                        <a href="#"><i class="bi bi-instagram"></i></a>
-                        <a href="#"><i class="bi bi-tiktok"></i></a>
+                        <a href="https://facebook.com" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
+                        <a href="https://youtube.com" target="_blank" rel="noopener"><i class="bi bi-youtube"></i></a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
+                        <a href="https://tiktok.com" target="_blank" rel="noopener"><i class="bi bi-tiktok"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-2 col-6 mb-4">
@@ -233,17 +265,17 @@
                 <div class="col-lg-2 col-6 mb-4">
                     <h6>Hỗ trợ</h6>
                     <ul class="list-unstyled footer-links">
-                        <li><a href="#">Chính sách đổi trả</a></li>
-                        <li><a href="#">Bảo hành</a></li>
-                        <li><a href="#">Vận chuyển</a></li>
-                        <li><a href="#">Liên hệ</a></li>
+                        <li><a asp-controller="Home" asp-action="ChinhSach">Chính sách đổi trả</a></li>
+                        <li><a asp-controller="Home" asp-action="ChinhSach">Bảo hành</a></li>
+                        <li><a asp-controller="Home" asp-action="ChinhSach">Vận chuyển</a></li>
+                        <li><a asp-controller="Home" asp-action="GioiThieu">Liên hệ</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-4 mb-4">
                     <h6>Liên hệ</h6>
-                    <p class="text-muted"><i class="bi bi-geo-alt me-2"></i>123 Nguyễn Huệ, Q.1, TP.HCM</p>
-                    <p class="text-muted"><i class="bi bi-telephone me-2"></i>1800 6789</p>
-                    <p class="text-muted"><i class="bi bi-envelope me-2"></i>support@techshop.vn</p>
+                    <p class="text-muted"><a asp-controller="Home" asp-action="GioiThieu"><i class="bi bi-geo-alt me-2"></i>123 Nguyễn Huệ, Q.1, TP.HCM</a></p>
+                    <p class="text-muted"><a asp-controller="Home" asp-action="GioiThieu"><i class="bi bi-telephone me-2"></i>1800 6789</a></p>
+                    <p class="text-muted"><a asp-controller="Home" asp-action="GioiThieu"><i class="bi bi-envelope me-2"></i>support@techshop.vn</a></p>
                 </div>
             </div>
             <hr class="border-secondary">
@@ -254,6 +286,45 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function getAntiForgeryToken() {
+            return document.querySelector('#global-anti-forgery-form input[name="__RequestVerificationToken"]')?.value || '';
+        }
+
+        function toggleWishlist(productId, btn) {
+            $.ajax({
+                url: '/Product/ToggleWishlist',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    __RequestVerificationToken: getAntiForgeryToken()
+                },
+                success: function (res) {
+                    if (!res.success) {
+                        if (res.redirectUrl) {
+                            window.location.href = res.redirectUrl;
+                            return;
+                        }
+                        alert(res.message);
+                        return;
+                    }
+
+                    if (btn) {
+                        btn.classList.toggle('active', res.isAdded);
+
+                        const icon = btn.querySelector('i');
+                        if (icon) {
+                            icon.classList.toggle('bi-heart', !res.isAdded);
+                            icon.classList.toggle('bi-heart-fill', res.isAdded);
+                        }
+                    }
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra khi thao tác yêu thích.');
+                }
+            });
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
     <!-- Tawk.to -->
     <script type="text/javascript">
@@ -282,5 +353,8 @@
             s0.parentNode.insertBefore(s1,s0);
         })();
     </script>
+    <form id="global-anti-forgery-form" style="display:none;">
+        @Html.AntiForgeryToken()
+    </form>
 </body>
 </html>

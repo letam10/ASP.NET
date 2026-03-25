@@ -1,4 +1,4 @@
-﻿@model TechShop.Controllers.ProfileViewModel
+@model TechShop.Controllers.ProfileViewModel
 @inject UserManager<TechShop.Models.ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Hồ sơ cá nhân";
@@ -8,8 +8,8 @@
 
 <style>
     .profile-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
-        border-bottom: 1px solid rgba(99,102,241,.2);
+        background: var(--bg-dark);
+        border-bottom: 1px solid var(--border);
         padding: 36px 0 28px;
         margin-top: 70px;
         margin-bottom: 36px;
@@ -44,12 +44,12 @@
         box-shadow: 0 0 0 4px rgba(99,102,241,.08);
     }
     .profile-meta h4 {
-        color: #f1f5f9; font-weight: 800;
+        color: var(--text-primary); font-weight: 800;
         font-size: 1.4rem; margin: 0 0 4px; letter-spacing: -.02em;
     }
     .profile-meta-info {
         display: flex; flex-wrap: wrap; gap: 12px;
-        font-size: .84rem; color: #64748b;
+        font-size: .84rem; color: var(--text-secondary);
     }
     .profile-meta-info span { display: flex; align-items: center; gap: 6px; }
     .profile-meta-info i { color: #6366f1; }
@@ -79,8 +79,8 @@
     }
     @@media (max-width: 700px) { .profile-cards { grid-template-columns: 1fr; } }
     .pf-card {
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,.07);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
         border-radius: 20px; overflow: hidden;
         transition: border-color .25s;
     }
@@ -88,7 +88,7 @@
     .pf-card-head {
         display: flex; align-items: center; gap: 10px;
         padding: 18px 22px 16px;
-        border-bottom: 1px solid rgba(255,255,255,.06);
+        border-bottom: 1px solid var(--border);
     }
     .pf-card-icon {
         width: 36px; height: 36px; border-radius: 10px;
@@ -109,7 +109,7 @@
     }
     .pf-card-head h6 {
         margin: 0; font-size: .9rem; font-weight: 700;
-        color: #e2e8f0; letter-spacing: -.01em;
+        color: var(--text-primary); letter-spacing: -.01em;
     }
     .pf-card-body { padding: 22px; }
     .pf-field { margin-bottom: 18px; }
@@ -117,13 +117,13 @@
     .pf-label {
         display: block; margin-bottom: 7px;
         font-size: .78rem; font-weight: 600;
-        letter-spacing: .06em; text-transform: uppercase; color: #64748b;
+        letter-spacing: .06em; text-transform: uppercase; color: var(--text-secondary);
     }
     .pf-input {
         width: 100%;
-        background: rgba(255,255,255,.04);
-        border: 1px solid rgba(255,255,255,.09);
-        border-radius: 11px; color: #f1f5f9;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 11px; color: var(--text-primary);
         font-size: .88rem; padding: 10px 14px;
         outline: none;
         transition: border-color .2s, background .2s, box-shadow .2s;
@@ -137,8 +137,8 @@
     }
     .pf-input[readonly] { opacity: .5; cursor: not-allowed; }
     .pf-input[readonly]:focus {
-        border-color: rgba(255,255,255,.09);
-        background: rgba(255,255,255,.04);
+        border-color: var(--border);
+        background: var(--input-bg);
         box-shadow: none;
     }
     .pf-hint { display: block; margin-top: 5px; font-size: .75rem; color: #475569; }
@@ -174,8 +174,8 @@
 
     /* 2FA Card */
     .twofa-card {
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,.07);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
         border-radius: 20px; overflow: hidden;
         transition: border-color .25s;
     }
@@ -237,7 +237,7 @@
         height: 112px;
         border-radius: 30px;
         object-fit: cover;
-        border: 3px solid rgba(255,255,255,.16);
+        border: 3px solid var(--border);
         box-shadow: 0 12px 28px rgba(0,0,0,.35);
     }
 
@@ -323,9 +323,11 @@
                 <div class="pf-card-body">
                     <form asp-controller="Profile" asp-action="Index" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
-                        <label class="pf-label">Avatar</label>
-                        <input asp-for="AvatarFile" type="file" class="pf-input" accept="image/*" />
-                        <span class="pf-hint">Tối đa 2MB. Định dạng: jpg, jpeg, png, webp.</span>
+                        <div class="pf-field">
+                            <label class="pf-label">Avatar</label>
+                            <input asp-for="AvatarFile" type="file" class="pf-input" accept="image/*" />
+                            <span class="pf-hint">Tối đa 2MB. Định dạng: jpg, jpeg, png, webp.</span>
+                        </div>
 
                         <div class="pf-field">
                             <label asp-for="FullName" class="pf-label"></label>

@@ -101,6 +101,12 @@
                 {
                     <div class="col-6 col-md-4 col-lg-3">
                         <div class="product-card">
+                            <button type="button"
+                                    class="wishlist-btn"
+                                    onclick="toggleWishlist(@product.Id, this)"
+                                    title="Yêu thích">
+                                <i class="bi bi-heart"></i>
+                            </button>
                             <div class="product-img-wrap">
                                 <img src="@(product.ImageUrl ?? "https://via.placeholder.com/300x200")" alt="@product.Name" class="product-img" />
                                 <div class="product-overlay">
@@ -123,11 +129,6 @@
                                         <button type="submit" class="btn-add-cart" title="Thêm vào giỏ">
                                             <i class="bi bi-cart-plus"></i>
                                         </button>
-
-                                        <button type="button" class="btn-add-cart btn-wishlist" data-id="@product.Id" title="Yêu thích">
-                                            <i class="bi bi-heart"></i>
-                                        </button>
-
                                     </form>
                                 </div>
                             </div>

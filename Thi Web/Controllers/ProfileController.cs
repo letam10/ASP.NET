@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace TechShop.Controllers
 {
@@ -48,47 +48,12 @@ namespace TechShop.Controllers
             
             if (model.AvatarFile != null && model.AvatarFile.Length > 0)
             {
-                const long maxBytes = 2 * 1024 * 1024; // 2MB
-                if (model.AvatarFile.Length > maxBytes)
+                var avatarResult = await TrySaveAvatarAsync(user, model.AvatarFile);
+                if (!avatarResult.success)
                 {
-                    TempData["Error"] = "Avatar quá lớn (tối đa 2MB).";
+                    TempData["Error"] = avatarResult.message;
                     return View(model);
                 }
-
-                var allowedExt = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-                var ext = Path.GetExtension(model.AvatarFile.FileName).ToLowerInvariant();
-                if (!allowedExt.Contains(ext))
-                {
-                    TempData["Error"] = "Chỉ cho phép ảnh .jpg, .jpeg, .png, .webp";
-                    return View(model);
-                }
-
-                if (model.AvatarFile.ContentType == null || !model.AvatarFile.ContentType.StartsWith("image/"))
-                {
-                    TempData["Error"] = "File upload không phải hình ảnh.";
-                    return View(model);
-                }
-
-                var uploads = Path.Combine(_env.WebRootPath, "uploads", "avatars");
-                Directory.CreateDirectory(uploads);
-
-                var fileName = $"{user.Id}_{Guid.NewGuid():N}{ext}";
-                var filePath = Path.Combine(uploads, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.CreateNew))
-                {
-                    await model.AvatarFile.CopyToAsync(stream);
-                }
-
-                // (Tuỳ chọn) xóa avatar cũ nếu nằm trong /uploads/avatars/
-                if (!string.IsNullOrEmpty(user.AvatarUrl) && user.AvatarUrl.StartsWith("/uploads/avatars/"))
-                {
-                    var oldPath = Path.Combine(_env.WebRootPath, user.AvatarUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
-                    if (System.IO.File.Exists(oldPath))
-                        System.IO.File.Delete(oldPath);
-                }
-
-                user.AvatarUrl = "/uploads/avatars/" + fileName;
             }
 
             user.FullName = model.FullName;
@@ -137,6 +102,70 @@ namespace TechShop.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadAvatar(IFormFile? avatarFile)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account");
+
+            if (avatarFile == null || avatarFile.Length == 0)
+            {
+                TempData["Error"] = "Vui lòng chọn ảnh avatar.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var avatarResult = await TrySaveAvatarAsync(user, avatarFile);
+            if (!avatarResult.success)
+            {
+                TempData["Error"] = avatarResult.message;
+                return RedirectToAction(nameof(Index));
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            TempData[result.Succeeded ? "Success" : "Error"] = result.Succeeded
+                ? "Cập nhật avatar thành công!"
+                : "Không thể cập nhật avatar.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<(bool success, string message)> TrySaveAvatarAsync(ApplicationUser user, IFormFile avatarFile)
+        {
+            const long maxBytes = 2 * 1024 * 1024; // 2MB
+            if (avatarFile.Length > maxBytes)
+                return (false, "Avatar quá lớn (tối đa 2MB).");
+
+            var allowedExt = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var ext = Path.GetExtension(avatarFile.FileName).ToLowerInvariant();
+            if (!allowedExt.Contains(ext))
+                return (false, "Chỉ cho phép ảnh .jpg, .jpeg, .png, .webp");
+
+            if (avatarFile.ContentType == null || !avatarFile.ContentType.StartsWith("image/"))
+                return (false, "File upload không phải hình ảnh.");
+
+            var uploads = Path.Combine(_env.WebRootPath, "uploads", "avatars");
+            Directory.CreateDirectory(uploads);
+
+            var fileName = $"{user.Id}_{Guid.NewGuid():N}{ext}";
+            var filePath = Path.Combine(uploads, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.CreateNew))
+            {
+                await avatarFile.CopyToAsync(stream);
+            }
+
+            if (!string.IsNullOrEmpty(user.AvatarUrl) && user.AvatarUrl.StartsWith("/uploads/avatars/"))
+            {
+                var oldPath = Path.Combine(_env.WebRootPath, user.AvatarUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+                if (System.IO.File.Exists(oldPath))
+                    System.IO.File.Delete(oldPath);
+            }
+
+            user.AvatarUrl = "/uploads/avatars/" + fileName;
+            return (true, "");
         }
     }
 

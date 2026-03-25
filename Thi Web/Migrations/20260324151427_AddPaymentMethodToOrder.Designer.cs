@@ -12,8 +12,8 @@ using TechShop.Data;
 namespace Thi_Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260321153720_Add_AvatarUrl_To_User")]
-    partial class Add_AvatarUrl_To_User
+    [Migration("20260324151427_AddPaymentMethodToOrder")]
+    partial class AddPaymentMethodToOrder
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -368,6 +368,41 @@ namespace Thi_Web.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("CommissionLogs");
+                });
+
+            modelBuilder.Entity("TechShop.Models.Coupon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DiscountPercent")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ExpiredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("MaxDiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MinOrderAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Coupons");
                 });
 
             modelBuilder.Entity("TechShop.Models.Order", b =>
@@ -2084,6 +2119,99 @@ namespace Thi_Web.Migrations
                     b.ToTable("ProductSpecifications");
                 });
 
+            modelBuilder.Entity("TechShop.Models.ProductVariant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductVariants");
+                });
+
+            modelBuilder.Entity("TechShop.Models.ProductVariantGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductVariantGroups");
+                });
+
+            modelBuilder.Entity("TechShop.Models.ProductVariantOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductVariantGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductVariantGroupId");
+
+                    b.ToTable("ProductVariantOptions");
+                });
+
+            modelBuilder.Entity("TechShop.Models.ProductVariantValue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductVariantId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductVariantOptionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("ProductVariantOptionId");
+
+                    b.ToTable("ProductVariantValues");
+                });
+
             modelBuilder.Entity("TechShop.Models.Review", b =>
                 {
                     b.Property<int>("Id")
@@ -2405,6 +2533,47 @@ namespace Thi_Web.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("TechShop.Models.ProductVariant", b =>
+                {
+                    b.HasOne("TechShop.Models.Product", "Product")
+                        .WithMany("Variants")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("TechShop.Models.ProductVariantOption", b =>
+                {
+                    b.HasOne("TechShop.Models.ProductVariantGroup", "ProductVariantGroup")
+                        .WithMany("Options")
+                        .HasForeignKey("ProductVariantGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductVariantGroup");
+                });
+
+            modelBuilder.Entity("TechShop.Models.ProductVariantValue", b =>
+                {
+                    b.HasOne("TechShop.Models.ProductVariant", "ProductVariant")
+                        .WithMany("Values")
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TechShop.Models.ProductVariantOption", "ProductVariantOption")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantOptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ProductVariant");
+
+                    b.Navigation("ProductVariantOption");
+                });
+
             modelBuilder.Entity("TechShop.Models.Review", b =>
                 {
                     b.HasOne("TechShop.Models.Product", "Product")
@@ -2498,9 +2667,21 @@ namespace Thi_Web.Migrations
 
                     b.Navigation("Specifications");
 
+                    b.Navigation("Variants");
+
                     b.Navigation("WarrantyPackages");
 
                     b.Navigation("WishlistedBy");
+                });
+
+            modelBuilder.Entity("TechShop.Models.ProductVariant", b =>
+                {
+                    b.Navigation("Values");
+                });
+
+            modelBuilder.Entity("TechShop.Models.ProductVariantGroup", b =>
+                {
+                    b.Navigation("Options");
                 });
 
             modelBuilder.Entity("TechShop.Models.StoreBranch", b =>

@@ -1,4 +1,4 @@
-﻿@model TechShop.Models.Product
+@model TechShop.Models.Product
 @{
     ViewData["Title"] = Model.Name;
     var related = ViewBag.Related as List<TechShop.Models.Product>;
@@ -19,14 +19,14 @@
     /* === BREADCRUMB === */
     .detail-breadcrumb {
         display: flex; align-items: center; gap: 8px;
-        font-size: .8rem; color: #475569; margin-bottom: 28px;
+        font-size: .8rem; color: var(--text-muted); margin-bottom: 28px;
         flex-wrap: wrap;
     }
 
     .detail-breadcrumb a { color: #64748b; text-decoration: none; transition: color .18s; }
     .detail-breadcrumb a:hover { color: #818cf8; }
-    .detail-breadcrumb .sep { color: #334155; }
-    .detail-breadcrumb .current { color: #94a3b8; }
+    .detail-breadcrumb .sep { color: var(--text-secondary); }
+    .detail-breadcrumb .current { color: var(--text-primary); }
 
     /* === MAIN GRID === */
     .detail-grid {
@@ -48,8 +48,8 @@
     }
 
     .detail-img-main {
-        background: #1e293b;
-        border: 1px solid rgba(255,255,255,.07);
+        background: var(--bg-dark-2);
+        border: 1px solid var(--border);
         border-radius: 20px;
         overflow: hidden;
         aspect-ratio: 1;
@@ -74,10 +74,10 @@
         width: 64px; height: 64px;
         border-radius: 12px;
         object-fit: cover;
-        border: 2px solid rgba(255,255,255,.08);
+        border: 2px solid var(--border);
         cursor: pointer;
         transition: border-color .2s, transform .15s;
-        background: #1e293b;
+        background: var(--bg-dark-2);
     }
 
     .detail-thumb:hover {
@@ -102,7 +102,7 @@
     /* Title */
     .detail-title {
         font-size: clamp(1.3rem, 2.5vw, 1.85rem);
-        font-weight: 800; color: #f1f5f9;
+        font-weight: 800; color: var(--text-primary);
         line-height: 1.25; letter-spacing: -.02em;
         margin: 0;
     }
@@ -133,7 +133,7 @@
 
     .detail-price-main {
         font-size: 2rem; font-weight: 800;
-        color: #f1f5f9; letter-spacing: -.03em;
+        color: var(--text-primary); letter-spacing: -.03em;
     }
 
     .detail-price-old {
@@ -188,8 +188,8 @@
 
     .warranty-option {
         display: flex; align-items: center; gap: 10px;
-        background: rgba(255,255,255,.03);
-        border: 1px solid rgba(255,255,255,.08);
+        background: var(--bg-dark-2);
+        border: 1px solid var(--border);
         border-radius: 11px;
         padding: 10px 14px;
         cursor: pointer;
@@ -197,15 +197,15 @@
     }
 
     .warranty-option:has(input:checked) {
-        border-color: rgba(99,102,241,.4);
-        background: rgba(99,102,241,.08);
+        border-color: var(--primary);
+        background: var(--nav-link-hover-bg);
     }
 
     .warranty-option:hover { border-color: rgba(99,102,241,.3); }
 
     .warranty-option input[type="radio"] { accent-color: #6366f1; flex-shrink: 0; }
 
-    .warranty-option-name { font-size: .85rem; color: #e2e8f0; flex: 1; }
+    .warranty-option-name { font-size: .85rem; color: var(--text-primary); flex: 1; }
     .warranty-option-price { font-size: .82rem; font-weight: 700; }
     .warranty-option-price.free { color: #34d399; }
     .warranty-option-price.paid { color: #f87171; }
@@ -220,8 +220,8 @@
 
     .qty-ctrl {
         display: flex; align-items: center;
-        background: rgba(255,255,255,.04);
-        border: 1px solid rgba(255,255,255,.1);
+        background: var(--input-bg);
+        border: 1px solid var(--border);
         border-radius: 10px; overflow: hidden;
     }
 
@@ -237,7 +237,7 @@
 
     .qty-input {
         width: 48px; height: 36px; border: none;
-        background: transparent; color: #f1f5f9;
+        background: transparent; color: var(--text-primary);
         font-size: .9rem; font-weight: 700;
         text-align: center; outline: none;
     }
@@ -264,10 +264,10 @@
     .btn-wishlist,
     .btn-compare {
         display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-        background: rgba(255,255,255,.04);
-        border: 1px solid rgba(255,255,255,.1);
+        background: var(--input-bg);
+        border: 1px solid var(--border);
         border-radius: 12px; padding: 12px 18px;
-        font-size: .85rem; font-weight: 600; color: #94a3b8;
+        font-size: .85rem; font-weight: 600; color: var(--text-secondary);
         cursor: pointer; transition: background .2s, border-color .2s, color .2s;
     }
 
@@ -276,10 +276,10 @@
 
     .btn-disabled {
         display: inline-flex; align-items: center; gap: 8px;
-        background: rgba(255,255,255,.04);
-        border: 1px solid rgba(255,255,255,.06);
+        background: var(--input-bg);
+        border: 1px solid var(--border);
         border-radius: 12px; padding: 12px 24px;
-        font-size: .9rem; font-weight: 600; color: #334155;
+        font-size: .9rem; font-weight: 600; color: var(--text-muted);
         cursor: not-allowed;
     }
 
@@ -288,10 +288,10 @@
 
     .compare-select {
         flex: 1; min-width: 180px;
-        background: rgba(255,255,255,.04);
-        border: 1px solid rgba(255,255,255,.1);
+        background: var(--input-bg);
+        border: 1px solid var(--border);
         border-radius: 10px;
-        color: #94a3b8; font-size: .83rem;
+        color: var(--text-secondary); font-size: .83rem;
         padding: 9px 12px; outline: none;
         cursor: pointer;
         transition: border-color .2s;
@@ -316,8 +316,8 @@
     .trust-badges {
         display: flex; gap: 18px; flex-wrap: wrap;
         padding-top: 16px;
-        border-top: 1px solid rgba(255,255,255,.06);
-        font-size: .8rem; color: #64748b;
+        border-top: 1px solid var(--border);
+        font-size: .8rem; color: var(--text-secondary);
     }
 
     .trust-badge { display: flex; align-items: center; gap: 6px; }
@@ -327,7 +327,7 @@
     .trust-badge .ti-yellow { color: #fbbf24; }
 
     /* === RELATED SECTION === */
-    .related-section { border-top: 1px solid rgba(255,255,255,.06); padding-top: 48px; }
+    .related-section { border-top: 1px solid var(--border); padding-top: 48px; }
 
     .section-heading {
         font-size: 1.2rem; font-weight: 800; color: #f1f5f9;
@@ -349,8 +349,8 @@
     @@media (max-width: 768px) { .related-grid { grid-template-columns: repeat(2, 1fr); } }
 
     .rel-card {
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,.07);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
         border-radius: 16px; overflow: hidden;
         transition: transform .25s cubic-bezier(.34,1.56,.64,1), border-color .2s, box-shadow .2s;
         display: flex; flex-direction: column;
@@ -379,13 +379,13 @@
     .rel-card-body { padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
 
     .rel-card-name {
-        font-size: .85rem; font-weight: 600; color: #e2e8f0;
+        font-size: .85rem; font-weight: 600; color: var(--text-primary);
         display: -webkit-box; -webkit-line-clamp: 2;
         -webkit-box-orient: vertical; overflow: hidden;
         line-height: 1.4;
     }
 
-    .rel-card-price { font-size: .95rem; font-weight: 800; color: #f1f5f9; }
+    .rel-card-price { font-size: .95rem; font-weight: 800; color: var(--text-primary); }
 
     .rel-card-btn {
         display: block; text-align: center; margin-top: auto;
@@ -401,13 +401,13 @@
 
     /* === MODAL === */
     .modal-content.dark-modal {
-        background: #0f172a;
-        border: 1px solid rgba(99,102,241,.2);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
         border-radius: 20px;
     }
 
     .modal-header.dark-modal-head {
-        border-bottom: 1px solid rgba(255,255,255,.07);
+        border-bottom: 1px solid var(--border);
         padding: 20px 24px;
     }
 
@@ -547,6 +547,7 @@
                     @if (Model.Stock > 0)
                     {
                         <form id="addToCartForm" asp-controller="Product" asp-action="AddToCart" method="post">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" name="productId" value="@Model.Id" />
 
                             <div class="qty-row mb-3">
@@ -558,12 +559,27 @@
                                     <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
                                 </div>
                             </div>
-
+                            @if (Model.Variants != null && Model.Variants.Any(v => v.IsActive))
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label text-light fw-semibold">Chọn biến thể</label>
+                                    <select name="productVariantId" class="form-select bg-dark text-light border-secondary">
+                                        <option value="">-- Chọn biến thể --</option>
+                                        @foreach (var v in Model.Variants.Where(v => v.IsActive))
+                                        {
+                                            var label = string.Join(" / ", v.Values.Select(x => x.ProductVariantOption?.Value).Where(x => !string.IsNullOrWhiteSpace(x)));
+                                            <option value="@v.Id">
+                                                @label - @v.Price.ToString("N0") ₫ - Còn @v.Stock
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            }
                             <div class="action-btns">
                                 <button type="submit" class="btn-addcart">
                                     <i class="bi bi-cart-plus"></i> Thêm vào giỏ
                                 </button>
-                                <button type="button" class="btn-wishlist" onclick="toggleWishlist(@Model.Id)">
+                                <button type="button" class="btn-wishlist" onclick="toggleWishlist(@Model.Id, this)">
                                     <i class="bi bi-heart" id="wishlist-icon-@Model.Id"></i> Yêu thích
                                 </button>
                                 <button type="button" class="btn-compare" onclick="addToCompare(@Model.Id)">
@@ -609,7 +625,7 @@
         {
             <div class="related-section">
                 <h4 class="section-heading">
-                    Sản phẩm <span class="accent">cùng danh mục</span>
+                    <span class="accent">Sản phẩm cùng danh mục</span>
                 </h4>
                 <div class="related-grid">
                     @foreach (var p in related)
@@ -663,20 +679,6 @@
             if (val < 1) val = 1;
             if (val > parseInt(input.max)) val = parseInt(input.max);
             input.value = val;
-        }
-
-        function toggleWishlist(id) {
-            $.post('/Product/ToggleWishlist', { productId: id }, function (res) {
-                if (res.success) {
-                    alert(res.message);
-                    const icon = $('#wishlist-icon-' + id);
-                    icon.toggleClass('bi-heart', !res.isAdded).toggleClass('bi-heart-fill', res.isAdded);
-                } else {
-                    window.location.href = '/Account/Login';
-                }
-            }).fail(function (xhr) {
-                xhr.status === 401 ? window.location.href = '/Account/Login' : alert('Có lỗi xảy ra.');
-            });
         }
 
         function addToCompare(id) {

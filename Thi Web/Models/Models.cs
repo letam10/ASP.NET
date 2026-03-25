@@ -83,14 +83,13 @@ namespace TechShop.Models
         // Chính sách bảo hành mặc định
         [StringLength(200)]
         public string WarrantyPolicy { get; set; } = "Bảo hành chính hãng 12 tháng";
-
         public string? ImageUrl { get; set; } // Ảnh đại diện
         public int Stock { get; set; } // Tổng tồn kho
         public int CategoryId { get; set; }
         public Category? Category { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true;
-
+        public List<ProductVariant> Variants { get; set; } = new();
         // Quan hệ mới được thêm vào
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
@@ -256,6 +255,8 @@ namespace TechShop.Models
         public int Quantity { get; set; }
         public string? ImageUrl { get; set; }
         public decimal Subtotal => Price * Quantity;
+        public decimal Total { get; set; }
+        public int? ProductVariantId { get; set; }
     }
     // Ghi chép lịch sử nhận/tiêu hoa hồng
     public class CommissionLog
@@ -297,16 +298,19 @@ namespace TechShop.Models
     public class ProductVariantGroup
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty; // Màu sắc, RAM, Ổ cứng...
         public List<ProductVariantOption> Options { get; set; } = new();
     }
+
     public class ProductVariantOption
     {
         public int Id { get; set; }
         public int ProductVariantGroupId { get; set; }
         public string Value { get; set; } = string.Empty; // Đen, 16GB, 1TB...
+
         public ProductVariantGroup? ProductVariantGroup { get; set; }
     }
+
     public class ProductVariant
     {
         public int Id { get; set; }

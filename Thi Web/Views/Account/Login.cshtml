@@ -1,4 +1,4 @@
-﻿@model TechShop.Models.LoginViewModel
+@model TechShop.Models.LoginViewModel
 @{
     ViewData["Title"] = "Đăng nhập";
     Layout = null;
@@ -11,7 +11,7 @@
     <title>Đăng nhập — TechShop</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -88,7 +88,7 @@
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 440px;
+            max-width: 520px;
             padding: 20px;
         }
 
@@ -119,18 +119,39 @@
             box-shadow: 0 4px 16px rgba(99,102,241,0.4);
         }
 
+        /* ---- Card Cyberpunk Wrap ---- */
+        .login-card-wrap {
+            position: relative;
+            padding: 2px;
+            border-radius: 26px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), 0 0 50px rgba(255, 0, 174, 0.2);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .login-card-wrap::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent 70%, #00f3ff 85%, #ff00ae 100%);
+            animation: spinCyber 3.5s linear infinite;
+            z-index: -1;
+        }
+
+        @@keyframes spinCyber {
+            100% { transform: rotate(360deg); }
+        }
+
         /* ---- Card ---- */
         .login-card {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(10, 15, 28, 0.96);
             border-radius: 24px;
             padding: 36px 36px 32px;
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            box-shadow:
-                0 0 0 1px rgba(99,102,241,0.1),
-                0 24px 60px rgba(0,0,0,0.5),
-                inset 0 1px 0 rgba(255,255,255,0.06);
+            position: relative;
+            z-index: 1;
         }
 
         .card-heading {
@@ -139,11 +160,12 @@
 }
 
 .card-heading h1 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.55rem;
-    font-weight: 800;
+    font-weight: 700;
+    text-transform: uppercase;
     color: #f1f5f9;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
     margin-bottom: 6px;
 }
 
@@ -359,6 +381,19 @@
 
         .btn-login:active { transform: translateY(0); }
 
+        /* ---- Forgot Password ---- */
+        .forgot-pass-link {
+            display: block;
+            text-align: center;
+            margin-top: -12px;
+            margin-bottom: 22px;
+            font-size: 0.85rem;
+            color: #818cf8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .forgot-pass-link:hover { color: #a5b4fc; }
+
         /* ---- Footer ---- */
         .card-footer-text {
             text-align: center;
@@ -393,6 +428,7 @@
 
         /* ---- Responsive ---- */
         @@media (max-width: 480px) {
+            .login-card-wrap { border-radius: 22px; }
             .login-card { padding: 28px 22px 26px; border-radius: 20px; }
             .social-grid { grid-template-columns: 1fr; }
         }
@@ -418,9 +454,10 @@
         </div>
 
         <!-- Card -->
-        <div class="login-card">
-            <div class="card-heading">
-                <h1>Chào mừng trở lại 👋</h1>
+        <div class="login-card-wrap">
+            <div class="login-card">
+                <div class="card-heading">
+                <h1>Chào mừng trở lại</h1>
                 <p>Đăng nhập để tiếp tục mua sắm</p>
             </div>
 
@@ -454,6 +491,10 @@
             <form asp-action="Login" method="post" asp-route-returnUrl="@ViewBag.ReturnUrl">
                 @Html.AntiForgeryToken()
 
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert-form">@TempData["Error"]</div>
+                }
                 <div asp-validation-summary="ModelOnly" class="alert-form"></div>
 
                 <div class="field-group">
@@ -489,13 +530,15 @@
                     <i class="bi bi-box-arrow-in-right"></i>
                     Đăng nhập
                 </button>
-                <a asp-controller="Account" asp-action="ForgotPassword">Quên mật khẩu?</a>
+                
+                <a asp-controller="Account" asp-action="ForgotPassword" class="forgot-pass-link">Quên mật khẩu?</a>
 
                 <p class="card-footer-text">
                     Chưa có tài khoản?
                     <a asp-controller="Account" asp-action="Register">Đăng ký ngay</a>
                 </p>
             </form>
+        </div>
         </div>
 
         <div class="bottom-link">

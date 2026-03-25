@@ -1,66 +1,103 @@
-﻿@model List<TechShop.Models.Product>
+@model List<TechShop.Models.Product>
 @{
     ViewData["Title"] = "Quản lý sản phẩm";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
-}
-<div class="admin-page-header">
-    <div><h4><i class="bi bi-box me-2"></i>Quản lý sản phẩm</h4><p class="text-muted mb-0">@Model.Count sản phẩm</p></div>
-    <a asp-controller="AdminProduct" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Thêm sản phẩm</a>
-</div>
-@{
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
     var cats = ViewBag.Categories as List<TechShop.Models.Category>;
     int? selected = ViewBag.SelectedCategory as int?;
 }
 
-<div class="mb-3 p-3 rounded" style="background:#0f172a;border:1px solid rgba(255,255,255,.07)">
-    <div class="d-flex flex-wrap gap-2">
-        <a asp-action="Index" class="btn btn-sm @(selected == null ? "btn-primary" : "btn-outline-light")">
-            Tất cả
-        </a>
-        @foreach (var c in cats!)
-        {
-            <a asp-action="Index" asp-route-categoryId="@c.Id"
-               class="btn btn-sm @(selected==c.Id ? "btn-primary" : "btn-outline-light")">
-                @c.Name (@c.Products.Count)
+<div class="admin-page-header">
+    <div>
+        <h4 class="text-primary fw-bold"><i class="bi bi-box-seam me-2"></i>Quản lý sản phẩm</h4>
+        <p class="text-muted mb-0 small">Tổng cộng: <strong class="text-primary">@Model.Count</strong> sản phẩm</p>
+    </div>
+    <a asp-controller="AdminProduct" asp-action="Create" class="btn btn-primary px-4 shadow-sm">
+        <i class="bi bi-plus-lg me-2"></i>Thêm sản phẩm mới
+    </a>
+</div>
+
+<!-- Bộ lọc danh mục -->
+<div class="admin-form-card mb-4 p-3 border-0 shadow-sm">
+    <div class="d-flex align-items-center gap-3">
+        <span class="text-muted small fw-bold text-uppercase"><i class="bi bi-filter me-1"></i>Lọc:</span>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-action="Index" class="btn btn-sm @(selected == null ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3">
+                Tất cả
             </a>
-        }
+            @foreach (var c in cats!)
+            {
+                <a asp-action="Index" asp-route-categoryId="@c.Id"
+                   class="btn btn-sm @(selected == c.Id ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3">
+                    @c.Name (@c.Products.Count)
+                </a>
+            }
+        </div>
     </div>
 </div>
 
-<div class="admin-table-wrap">
-    <table class="table admin-table">
-        <thead><tr><th>Ảnh</th><th>Tên sản phẩm</th><th>Danh mục</th><th>Giá</th><th>Tồn kho</th><th>Thao tác</th></tr></thead>
+<div class="admin-table-wrap border-0 shadow-sm">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;">Ảnh</th>
+                <th>Thông tin sản phẩm</th>
+                <th>Danh mục</th>
+                <th>Đơn giá</th>
+                <th>Kho hàng</th>
+                <th class="text-end">Thao tác</th>
+            </tr>
+        </thead>
         <tbody>
             @foreach (var p in Model)
             {
                 <tr>
-                    <td><img src="@(p.ImageUrl ?? "https://via.placeholder.com/50")" style="width:50px;height:50px;object-fit:cover;border-radius:8px" /></td>
-                    <td><strong>@p.Name</strong></td>
-                    <td><span class="badge badge-cat">@p.Category?.Name</span></td>
-                    <td class="text-primary fw-bold">@p.Price.ToString("N0") ₫</td>
-                    <td>@if(p.Stock==0){
-                        <span class="badge bg-danger">Hết</span>
-                    }else if (p.Stock < 5)
-                    {
-
-                        <span class="badge bg-warning">@p.Stock</span>
-                    }
-                    else
-                    {
-
-                        <span class="badge bg-success">@p.Stock</span>
-                    }
-                </td>
-                <td>
-                    <a asp-controller="AdminProduct" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i></a>
-                    <form asp-controller="AdminProduct" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Xóa?')">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@p.Id" />
-                        <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash3"></i></button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-</div>
+                    <td>
+                        <img src="@(p.ImageUrl ?? "https://via.placeholder.com/150")" class="admin-td-img shadow-sm" alt="@p.Name" />
+                    </td>
+                    <td>
+                        <div class="fw-bold text-primary">@p.Name</div>
+                        <small class="text-muted">ID: #@p.Id</small>
+                    </td>
+                    <td>
+                        <span class="admin-badge info shadow-none">
+                            <i class="bi bi-tag me-1"></i>@(p.Category?.Name ?? "N/A")
+                        </span>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-success">@p.Price.ToString("N0") <small>₫</small></div>
+                    </td>
+                    <td>
+                        @if (p.Stock == 0)
+                        {
+                            <span class="admin-badge danger">Hết hàng</span>
+                        }
+                        else if (p.Stock < 5)
+                        {
+                            <span class="admin-badge warning">Sắp hết (@p.Stock)</span>
+                        }
+                        else
+                        {
+                            <span class="admin-badge success">Sẵn sàng (@p.Stock)</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="admin-actions">
+                            <a asp-controller="AdminProduct" asp-action="Edit" asp-route-id="@p.Id" 
+                               class="btn-admin-action edit shadow-sm" title="Sửa">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form asp-controller="AdminProduct" asp-action="Delete" method="post" class="d-inline" 
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@p.Id" />
+                                <button type="submit" class="btn-admin-action delete shadow-sm" title="Xóa">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

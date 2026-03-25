@@ -1,70 +1,109 @@
-﻿@model List<TechShop.Models.ApplicationUser>
+@model List<TechShop.Models.ApplicationUser>
 @{
     ViewData["Title"] = "Quản lý người dùng";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
     var userRoles = ViewBag.UserRoles as Dictionary<string, IList<string>>;
 }
+
 <div class="admin-page-header">
-    <div><h4><i class="bi bi-people me-2"></i>Quản lý người dùng</h4><p class="text-muted mb-0">Tổng @Model.Count người dùng</p></div>
+    <div>
+        <h4 class="text-primary fw-bold"><i class="bi bi-people me-2"></i>Quản lý người dùng</h4>
+        <p class="text-muted mb-0 small">Tổng cộng: <strong class="text-primary">@Model.Count</strong> tài khoản hệ thống</p>
+    </div>
 </div>
 
-<div class="admin-table-wrap">
-    <table class="table admin-table">
-        <thead><tr><th>Họ tên</th><th>Email</th><th>Quyền</th><th>Thẻ / Điểm</th><th>Thao tác</th></tr></thead>
+<div class="admin-table-wrap border-0 shadow-sm">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Họ tên & Email</th>
+                <th>Vai trò</th>
+                <th>Điểm & Hạng thẻ</th>
+                <th class="text-end">Thao tác</th>
+            </tr>
+        </thead>
         <tbody>
             @foreach (var user in Model)
             {
                 <tr>
-                    <td><strong>@(user.FullName ?? "N/A")</strong></td>
-                    <td>@user.Email</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; color: var(--primary);">
+                                <i class="bi bi-person-fill fs-5"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-primary">@(user.FullName ?? "N/A")</div>
+                                <small class="text-muted">@user.Email</small>
+                            </div>
+                        </div>
+                    </td>
                     <td>
                         @if (userRoles!.ContainsKey(user.Id))
                         {
                             foreach (var role in userRoles[user.Id])
                             {
-                                <span class="badge @(role == "Admin" ? "bg-danger" : "bg-primary") me-1">@role</span>
+                                <span class="admin-badge @(role == "Admin" ? "danger" : "info") me-1">
+                                    <i class="bi bi-shield-check me-1"></i>@role
+                                </span>
                             }
                         }
                     </td>
                     <td>
-                        <span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> @user.LoyaltyPoints</span>
-                        <span class="badge bg-secondary">@user.MembershipTier</span>
+                        <div class="d-flex flex-column gap-1">
+                            <span class="admin-badge warning shadow-none w-fit">
+                                <i class="bi bi-star-fill me-1"></i>@user.LoyaltyPoints <small class="ms-1 text-muted">điểm</small>
+                            </span>
+                            <span class="admin-badge success shadow-none w-fit">
+                                <i class="bi bi-award me-1"></i>@user.MembershipTier
+                            </span>
+                        </div>
                     </td>
                     <td>
-                        <div class="d-flex gap-1">
-                            <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#editLoyalty-@user.Id" title="Sửa Điểm/Thẻ">
-                                <i class="bi bi-star"></i>
+                        <div class="admin-actions">
+                            <button class="btn-admin-action shadow-sm" data-bs-toggle="modal" 
+                                    data-bs-target="#editLoyalty-@user.Id" title="Sửa Điểm/Thẻ">
+                                <i class="bi bi-gem"></i>
                             </button>
 
                             <a asp-controller="AdminUser" asp-action="AssignRole" asp-route-userId="@user.Id"
-                               class="btn btn-sm btn-info text-white" title="Phân Quyền"><i class="bi bi-key"></i></a>
+                               class="btn-admin-action shadow-sm text-info" title="Phân quyền">
+                                <i class="bi bi-key-fill"></i>
+                            </a>
 
                             <form asp-controller="AdminUser" asp-action="Delete" method="post" class="m-0"
-                                  onsubmit="return confirm('Xóa người dùng này?')">
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa người dùng này?')">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@user.Id" />
-                                <button type="submit" class="btn btn-sm btn-danger" title="Xóa"><i class="bi bi-trash3"></i></button>
+                                <button type="submit" class="btn-admin-action delete shadow-sm" title="Xóa">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
                             </form>
                         </div>
                     </td>
                 </tr>
 
+                <!-- Modal cập nhật điểm/thẻ -->
                 <div class="modal fade" id="editLoyalty-@user.Id" tabindex="-1">
-                    <div class="modal-dialog">
-                        <form asp-action="UpdateLoyalty" method="post" class="modal-content">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <form asp-action="UpdateLoyalty" method="post" class="modal-content border-0 shadow-lg bg-card">
                             @Html.AntiForgeryToken()
-                            <div class="modal-header bg-warning">
-                                <h5 class="modal-title"><i class="bi bi-star me-2"></i>Cập nhật thẻ: @user.FullName</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <div class="modal-header border-bottom border-light-subtle py-3">
+                                <h5 class="modal-title fw-bold text-primary">
+                                    <i class="bi bi-pencil-square me-2"></i>Cập nhật tài khoản
+                                </h5>
+                                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
                             </div>
-                            <div class="modal-body text-start">
+                            <div class="modal-body p-4 text-start">
+                                <p class="text-muted small mb-4">Điều chỉnh thông số thành viên cho <strong>@user.FullName</strong></p>
                                 <input type="hidden" name="userId" value="@user.Id" />
-                                <div class="mb-3">
-                                    <label class="fw-bold">Điểm tích lũy (Loyalty Points)</label>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Điểm tích lũy (Loyalty Points)</label>
                                     <input type="number" name="points" class="form-control" value="@user.LoyaltyPoints" required min="0" />
                                 </div>
-                                <div class="mb-3">
-                                    <label class="fw-bold">Hạng thẻ</label>
+                                
+                                <div class="mb-2">
+                                    <label class="form-label fw-bold">Hạng thành viên</label>
                                     <select name="tier" class="form-select">
                                         <option value="Bronze" selected="@(user.MembershipTier == "Bronze")">Bronze (Đồng)</option>
                                         <option value="Silver" selected="@(user.MembershipTier == "Silver")">Silver (Bạc)</option>
@@ -73,8 +112,9 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                            <div class="modal-footer border-top-0 p-4">
+                                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Hủy</button>
+                                <button type="submit" class="btn btn-primary px-4 shadow-sm">Lưu thay đổi</button>
                             </div>
                         </form>
                     </div>

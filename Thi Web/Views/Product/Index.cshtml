@@ -1,4 +1,4 @@
-﻿@model List<TechShop.Models.Product>
+@model List<TechShop.Models.Product>
 @{
     ViewData["Title"] = "Sản phẩm";
     var categories = ViewBag.Categories as List<TechShop.Models.Category>;
@@ -29,7 +29,7 @@
 
 <style>
     .shop-header {
-        background: linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);
+        background: var(--bg-dark);
         border-bottom: 1px solid rgba(99,102,241,.2);
         padding: 36px 0 28px;
         margin-top: 70px;
@@ -69,7 +69,7 @@
     .shop-header-title {
         font-size: clamp(1.6rem,3vw,2.4rem);
         font-weight: 800;
-        color: #f1f5f9;
+        color: var(--text-primary);
         margin: 0 0 6px;
         line-height: 1.2;
         letter-spacing: -.02em
@@ -83,13 +83,13 @@
         }
 
     .shop-header-sub {
-        color: #64748b;
+        color: var(--text-secondary);
         font-size: .9rem;
         margin: 0
     }
 
         .shop-header-sub strong {
-            color: #94a3b8
+            color: var(--text-primary)
         }
 
     .shop-layout {
@@ -123,8 +123,8 @@
     }
 
     .filter-card {
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,.07);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
         border-radius: 16px;
         overflow: hidden;
         transition: border-color .2s
@@ -139,12 +139,12 @@
         align-items: center;
         gap: 8px;
         padding: 13px 16px;
-        border-bottom: 1px solid rgba(255,255,255,.06);
+        border-bottom: 1px solid var(--border);
         font-size: .72rem;
         font-weight: 700;
         letter-spacing: .1em;
         text-transform: uppercase;
-        color: #94a3b8
+        color: var(--text-secondary)
     }
 
         .filter-card-head i {
@@ -162,10 +162,10 @@
 
         .search-wrap input {
             width: 100%;
-            background: rgba(255,255,255,.04);
-            border: 1px solid rgba(255,255,255,.08);
+            background: var(--input-bg);
+            border: 1px solid var(--border);
             border-radius: 10px;
-            color: #f1f5f9;
+            color: var(--text-primary);
             font-size: .87rem;
             padding: 9px 38px 9px 13px;
             outline: none;
@@ -216,14 +216,14 @@
         padding: 9px 10px;
         border-radius: 10px;
         font-size: .84rem;
-        color: #94a3b8;
+        color: var(--text-secondary);
         text-decoration: none;
         transition: background .18s,color .18s
     }
 
         .filter-nav-item:hover {
-            background: rgba(255,255,255,.05);
-            color: #e2e8f0
+            background: var(--nav-link-hover-bg);
+            color: var(--text-primary)
         }
 
         .filter-nav-item.active {
@@ -249,8 +249,8 @@
         justify-content: space-between;
         flex-wrap: wrap;
         gap: 10px;
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,.07);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
         border-radius: 14px;
         padding: 12px 18px;
         margin-bottom: 22px
@@ -285,7 +285,7 @@
         }
 
     .toolbar-count strong {
-        color: #e2e8f0
+        color: var(--text-primary)
     }
 
     .toolbar-sort {
@@ -302,10 +302,10 @@
         }
 
     .sort-select {
-        background: rgba(255,255,255,.04);
-        border: 1px solid rgba(255,255,255,.1);
+        background: var(--input-bg);
+        border: 1px solid var(--border);
         border-radius: 8px;
-        color: #e2e8f0;
+        color: var(--text-primary);
         font-size: .83rem;
         padding: 6px 10px;
         outline: none;
@@ -339,8 +339,8 @@
     }
 
     .pcard {
-        background: #0f172a;
-        border: 1px solid rgba(255,255,255,.07);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
         border-radius: 18px;
         overflow: hidden;
         display: flex;
@@ -460,7 +460,7 @@
     .pcard-name {
         font-size: .88rem;
         font-weight: 600;
-        color: #e2e8f0;
+        color: var(--text-primary);
         margin: 0;
         line-height: 1.4;
         display: -webkit-box;
@@ -489,7 +489,7 @@
         justify-content: space-between;
         margin-top: auto;
         padding-top: 10px;
-        border-top: 1px solid rgba(255,255,255,.05)
+        border-top: 1px solid var(--border)
     }
 
     .pcard-price-wrap {
@@ -501,7 +501,7 @@
     .pcard-price {
         font-size: 1rem;
         font-weight: 800;
-        color: #f1f5f9;
+        color: var(--text-primary);
         letter-spacing: -.01em
     }
 
@@ -547,8 +547,8 @@
         justify-content: center;
         padding: 80px 20px;
         text-align: center;
-        background: #0f172a;
-        border: 1px dashed rgba(255,255,255,.1);
+        background: var(--bg-card);
+        border: 1px dashed var(--border);
         border-radius: 20px
     }
 
@@ -567,7 +567,7 @@
     }
 
     .empty-state h4 {
-        color: #e2e8f0;
+        color: var(--text-primary);
         font-weight: 700;
         margin-bottom: 8px
     }
@@ -615,9 +615,9 @@
         font-size: .85rem;
         font-weight: 600;
         text-decoration: none;
-        border: 1px solid rgba(255,255,255,.08);
-        background: rgba(255,255,255,.04);
-        color: #94a3b8;
+        border: 1px solid var(--border);
+        background: var(--input-bg);
+        color: var(--text-secondary);
         transition: all .2s
     }
 
@@ -778,6 +778,12 @@
                         int es = 5 - fs - (hh ? 1 : 0);
 
                         <div class="pcard">
+                            <button type="button"
+                                    class="wishlist-btn wishlist-btn-shop"
+                                    onclick="toggleWishlist(@item.Id, this)"
+                                    title="Yêu thích">
+                                <i class="bi bi-heart"></i>
+                            </button>
                             <div class="pcard-img-wrap">
                                 <img src="@(item.ImageUrl ?? "https://via.placeholder.com/300")" alt="@item.Name" class="pcard-img" loading="lazy" />
                                 <div class="pcard-overlay">

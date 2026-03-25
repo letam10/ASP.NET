@@ -1,41 +1,42 @@
-﻿@{
-    ViewData["Title"] = "Chat hỗ trợ";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // đổi nếu layout admin của bạn khác tên
+@{
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "Hỗ trợ khách hàng";
 }
 
-<div class="container-fluid py-4">
-    <div class="card border-0 shadow-sm" style="background:#111827;color:#fff;">
-        <div class="card-body">
-            <h3 class="mb-3">
-                <i class="bi bi-chat-dots me-2"></i>Chat hỗ trợ
-            </h3>
+<div class="admin-page-header">
+    <div>
+        <h4 class="text-primary fw-bold"><i class="bi bi-chat-dots me-2"></i>Trung tâm hỗ trợ trực tuyến</h4>
+        <p class="text-muted mb-0 small">Quản lý các kênh chat và phản hồi</p>
+    </div>
+</div>
 
-            <p class="text-light-emphasis">
-                Trang này dùng để mở nhanh Tawk.to cho Admin/Nhân viên.
-                Nếu muốn chat trực tiếp với khách, bạn mở dashboard hoặc direct chat ở nút bên dưới.
+<div class="admin-table-wrap border-0 shadow-sm p-4" style="background: var(--bg-card); border-radius: 12px;">
+    <div class="row align-items-center">
+        <div class="col-md-7">
+            <h5 class="fw-bold mb-3 text-dark">Kết nối với khách hàng trực tuyến</h5>
+            <p class="text-muted">
+                Hệ thống tích hợp <strong>Tawk.to</strong> để hỗ trợ khách hàng theo thời gian thực. 
+                Vui lòng sử dụng các nút bên dưới để truy cập vào bảng điều khiển tập trung hoặc chat trực tiếp.
             </p>
 
-            <div class="d-flex flex-wrap gap-2 mt-3">
-                <a href="@ViewBag.TawkDashboardUrl"
-                   target="_blank"
-                   rel="noopener"
-                   class="btn btn-primary">
-                    <i class="bi bi-box-arrow-up-right me-1"></i>Mở Tawk Dashboard
+            <div class="d-flex flex-wrap gap-3 mt-4">
+                <a href="@ViewBag.TawkDashboardUrl" target="_blank" rel="noopener" class="btn btn-primary px-4 shadow-sm">
+                    <i class="bi bi-speedometer2 me-2"></i>Mở Tawk Dashboard
                 </a>
-
-                <a href="@ViewBag.TawkDirectChatUrl"
-                   target="_blank"
-                   rel="noopener"
-                   class="btn btn-outline-info">
-                    <i class="bi bi-chat-left-text me-1"></i>Mở Direct Chat
+                <a href="@ViewBag.TawkDirectChatUrl" target="_blank" rel="noopener" class="btn btn-outline-info px-4 shadow-sm">
+                    <i class="bi bi-chat-left-text me-2"></i>Mở Direct Chat
                 </a>
             </div>
 
-            <hr class="my-4 border-secondary" />
-
-            <div class="alert alert-info mb-0">
-                Nếu Tawk dashboard không cho nhúng iframe thì đó là bình thường.
-                Khi đó cách đúng là mở dashboard/direct chat ở tab mới.
+            <div class="alert admin-badge info d-block mt-4 border-0 p-3 shadow-none text-start" style="border-radius: 8px;">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <strong>Lưu ý:</strong> Tawk.to có thể không cho phép nhúng trực tiếp vào iframe vì lý do bảo mật. 
+                Cách tốt nhất là quản trị viên thao tác trên các tab riêng biệt.
+            </div>
+        </div>
+        <div class="col-md-5 text-center d-none d-md-block">
+            <div class="p-4 rounded-circle bg-primary-subtle d-inline-block shadow-sm" style="width: 200px; height: 200px;">
+                <i class="bi bi-headset" style="font-size: 80px; color: var(--primary); line-height: 150px;"></i>
             </div>
         </div>
     </div>

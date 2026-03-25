@@ -8,56 +8,77 @@
         <h2>Sản phẩm <span class="text-gradient">yêu thích</span> của bạn</h2>
     </div>
 
-    @if (!Model.Any())
-    {
-        <div class="text-center py-5">
-            <i class="bi bi-heart text-muted" style="font-size: 4rem;"></i>
-            <h4 class="mt-3 text-muted">Danh sách yêu thích trống</h4>
-            <p>Hãy thêm các sản phẩm bạn quan tâm vào đây để xem lại sau nhé.</p>
-            <a asp-action="Index" class="btn btn-primary mt-2">Khám phá sản phẩm</a>
-        </div>
-    }
-    else
-    {
-        <div class="row g-4">
-            @foreach (var p in Model)
-            {
-                <div class="col-6 col-md-4 col-lg-3" id="wishlist-item-@p.Id">
-                    <div class="product-card position-relative">
-                        <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 rounded-circle z-3"
-                                onclick="removeWishlist(@p.Id)" title="Bỏ yêu thích">
-                            <i class="bi bi-x"></i>
-                        </button>
+    <div id="wishlist-empty" class="text-center py-5 @(Model.Any() ? "d-none" : "")">
+        <i class="bi bi-heart text-muted" style="font-size: 4rem;"></i>
+        <h4 class="mt-3 text-muted">Danh sách yêu thích trống</h4>
+        <p>Hãy thêm các sản phẩm bạn quan tâm vào đây để xem lại sau nhé.</p>
+        <a asp-action="Index" class="btn btn-primary mt-2">Khám phá sản phẩm</a>
+    </div>
 
-                        <div class="product-img-wrap">
-                            <img src="@(p.ImageUrl ?? "https://via.placeholder.com/300")" alt="@p.Name" class="product-img" />
-                        </div>
-                        <div class="product-body">
-                            <h6 class="product-name">@p.Name</h6>
-                            <div class="product-footer">
-                                <span class="product-price">@p.Price.ToString("N0") ₫</span>
-                                <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id" class="btn-add-cart">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                            </div>
+    <div id="wishlist-grid" class="row g-4 @(Model.Any() ? "" : "d-none")">
+        @foreach (var p in Model)
+        {
+            <div class="col-6 col-md-4 col-lg-3" id="wishlist-item-@p.Id">
+                <div class="product-card position-relative">
+                    <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 rounded-circle z-3"
+                            onclick="removeWishlist(@p.Id)" title="Bỏ yêu thích">
+                        <i class="bi bi-x"></i>
+                    </button>
+
+                    <div class="product-img-wrap">
+                        <img src="@(p.ImageUrl ?? "https://via.placeholder.com/300")" alt="@p.Name" class="product-img" />
+                    </div>
+                    <div class="product-body">
+                        <h6 class="product-name">@p.Name</h6>
+                        <div class="product-footer">
+                            <span class="product-price">@((p.DiscountPrice ?? p.Price).ToString("N0")) ₫</span>
+                            <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id" class="btn-add-cart">
+                                <i class="bi bi-eye"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
-            }
-        </div>
-    }
+            </div>
+        }
+    </div>
 </div>
 
 @section Scripts {
     <script>
         function removeWishlist(id) {
-            if(confirm('Bạn muốn bỏ sản phẩm này khỏi danh sách yêu thích?')) {
-                $.post('/Product/ToggleWishlist', { productId: id }, function(res) {
-                    if(res.success) {
-                        $('#wishlist-item-' + id).fadeOut(); // Ẩn card bằng jQuery animation
+            if (!confirm('Bạn muốn bỏ sản phẩm này khỏi danh sách yêu thích?')) return;
+
+            $.ajax({
+                url: '/Product/ToggleWishlist',
+                type: 'POST',
+                data: {
+                    productId: id,
+                    __RequestVerificationToken: document.querySelector('#global-anti-forgery-form input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                success: function (res) {
+                    if (!res.success) {
+                        if (res.redirectUrl) {
+                            window.location.href = res.redirectUrl;
+                            return;
+                        }
+                        alert(res.message);
+                        return;
                     }
-                });
-            }
+
+                    const item = $('#wishlist-item-' + id);
+                    item.fadeOut(250, function () {
+                        $(this).remove();
+
+                        if ($('#wishlist-grid > div[id^="wishlist-item-"]').length === 0) {
+                            $('#wishlist-grid').addClass('d-none');
+                            $('#wishlist-empty').removeClass('d-none');
+                        }
+                    });
+                },
+                error: function () {
+                    alert('Không thể xóa sản phẩm khỏi danh sách yêu thích.');
+                }
+            });
         }
     </script>
 }

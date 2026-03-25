@@ -11,6 +11,8 @@ using TechShop.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -29,40 +31,38 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Google & Facebook OAuth
-builder.Services
-    .AddAuthentication()
-    .AddCookie();
+// Authentication & External Logins
+var authBuilder = builder.Services.AddAuthentication();
 
+// Google
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-
-if (!string.IsNullOrWhiteSpace(googleClientId) &&
-    !string.IsNullOrWhiteSpace(googleClientSecret))
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
 {
-    builder.Services.AddAuthentication()
-        .AddGoogle(options =>
-        {
-            options.ClientId = googleClientId;
-            options.ClientSecret = googleClientSecret;
-        });
+    authBuilder.AddGoogle(options =>
+    {
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+    });
 }
 
+// Facebook
 var facebookAppId = builder.Configuration["Authentication:Facebook:AppId"];
 var facebookAppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
-
-if (!string.IsNullOrWhiteSpace(facebookAppId) &&
-    !string.IsNullOrWhiteSpace(facebookAppSecret))
+if (!string.IsNullOrWhiteSpace(facebookAppId) && !string.IsNullOrWhiteSpace(facebookAppSecret))
 {
-    builder.Services.AddAuthentication()
-        .AddFacebook(options =>
-        {
-            options.AppId = facebookAppId;
-            options.AppSecret = facebookAppSecret;
-        });
+    authBuilder.AddFacebook(options =>
+    {
+        options.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
+        options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
+        options.Fields.Add("name");
+        options.Fields.Add("email");
+        options.Scope.Clear(); // xóa scope mặc định
+        options.Scope.Add("public_profile"); // chỉ dùng public_profile
+    });
 }
 
-// Xác minh 2 bước (2FA)
+// 2FA Setup
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
