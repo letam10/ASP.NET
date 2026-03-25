@@ -259,17 +259,8 @@
             <i class="bi bi-person-circle"></i> Tài khoản của tôi
         </div>
         <div class="profile-avatar-row">
-            <div class="profile-avatar-wrap">
-                @if (!string.IsNullOrWhiteSpace(Model.AvatarUrl))
-                {
-                    <img src="@Model.AvatarUrl" alt="Avatar" class="profile-avatar" />
-                }
-                else
-                {
-                    <div class="profile-avatar profile-avatar-fallback">
-                        @((Model.FullName ?? Model.Email ?? "U").Trim()[0].ToString().ToUpper())
-                    </div>
-                }
+            <div class="profile-avatar profile-avatar-fallback">
+                @((Model.FullName ?? Model.Email ?? "U").Trim()[0].ToString().ToUpper())
             </div>
             <div class="profile-meta">
                 <h4>@Model.FullName</h4>
@@ -323,11 +314,6 @@
                 <div class="pf-card-body">
                     <form asp-controller="Profile" asp-action="Index" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
-                        <div class="pf-field">
-                            <label class="pf-label">Avatar</label>
-                            <input asp-for="AvatarFile" type="file" class="pf-input" accept="image/*" />
-                            <span class="pf-hint">Tối đa 2MB. Định dạng: jpg, jpeg, png, webp.</span>
-                        </div>
 
                         <div class="pf-field">
                             <label asp-for="FullName" class="pf-label"></label>

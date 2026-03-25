@@ -1,17 +1,147 @@
 @{
-    ViewData["Title"] = "Chính sách";
+    ViewData["Title"] = "Chính sách TechShop";
 }
 
-<div class="container py-5" style="margin-top:70px">
-    <h2 class="page-title mb-4"><i class="bi bi-file-earmark-text me-2"></i>Chính sách</h2>
-    <div class="card p-4" style="background:var(--bg-card);border:1px solid var(--border);">
-        <h5>Chính sách đổi trả</h5>
-        <p class="text-muted mb-4">Khách hàng có thể đổi trả trong 30 ngày với sản phẩm đủ điều kiện theo quy định của TechShop.</p>
+<style>
+    .policy-header {
+        background: var(--bg-dark-2);
+        padding: 80px 0 40px;
+        margin-top: 60px;
+        border-bottom: 1px solid var(--border);
+    }
+    .policy-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    .policy-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .policy-icon {
+        width: 50px; height: 50px;
+        background: rgba(var(--bs-primary-rgb), 0.1);
+        color: var(--primary);
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    .policy-content h5 { font-weight: 700; margin-bottom: 15px; color: var(--text-primary); }
+    .policy-content p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+    .policy-list { list-style: none; padding-left: 0; margin-top: 15px; }
+    .policy-list li { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: start; gap: 10px; }
+    .policy-list li i { color: var(--primary); margin-top: 3px; }
+</style>
 
-        <h5>Bảo hành</h5>
-        <p class="text-muted mb-4">Sản phẩm được bảo hành chính hãng theo thời hạn ghi trên hóa đơn và thông tin sản phẩm.</p>
+<section class="policy-header text-center">
+    <div class="container">
+        <span class="badge bg-primary-soft text-primary mb-2 px-3 py-2 rounded-pill">TechShop Transparency</span>
+        <h1 class="fw-bold display-4">Trung tâm <span class="text-gradient">Chính sách</span></h1>
+        <p class="text-muted max-width-600 mx-auto">Chúng tôi cam kết mang lại sự minh bạch và bảo vệ tối đa quyền lợi cho khách hàng trong mọi giao dịch.</p>
+    </div>
+</section>
 
-        <h5>Vận chuyển</h5>
-        <p class="text-muted mb-0">TechShop hỗ trợ giao hàng toàn quốc, thời gian giao tùy khu vực và trạng thái tồn kho.</p>
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Đổi trả -->
+        <div class="col-md-6 col-lg-4">
+            <div class="policy-card">
+                <div class="policy-icon"><i class="bi bi-arrow-repeat"></i></div>
+                <div class="policy-content">
+                    <h5>Chính sách Đổi trả</h5>
+                    <p>TechShop hỗ trợ đổi trả linh hoạt nhằm đảm bảo khách hàng luôn hài lòng với sản phẩm đã chọn.</p>
+                    <ul class="policy-list">
+                        <li><i class="bi bi-check-circle-fill"></i> Đổi mới 1-1 trong 7 ngày nếu có lỗi NSX.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Trả hàng hoàn tiền trong 30 ngày (phí 10-20%).</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Sản phẩm phải còn nguyên tem, hộp và quà tặng.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bảo hành -->
+        <div class="col-md-6 col-lg-4">
+            <div class="policy-card">
+                <div class="policy-icon"><i class="bi bi-shield-check"></i></div>
+                <div class="policy-content">
+                    <h5>Chính sách Bảo hành</h5>
+                    <p>Cam kết bảo hành chính hãng theo tiêu chuẩn của nhà sản xuất cho tất cả thiết bị.</p>
+                    <ul class="policy-list">
+                        <li><i class="bi bi-check-circle-fill"></i> Bảo hành 12-36 tháng tùy dòng sản phẩm.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Hỗ trợ mượn máy thay thế trong lúc bảo hành.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Tra cứu bảo hành online qua SĐT/Số Seri.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vận chuyển -->
+        <div class="col-md-6 col-lg-4">
+            <div class="policy-card">
+                <div class="policy-icon"><i class="bi bi-truck"></i></div>
+                <div class="policy-content">
+                    <h5>Chính sách Vận chuyển</h5>
+                    <p>Giao hàng siêu tốc và an toàn đến tận tay khách hàng trên phạm vi toàn quốc.</p>
+                    <ul class="policy-list">
+                        <li><i class="bi bi-check-circle-fill"></i> Miễn phí giao hàng nội thành cho đơn từ 500K.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Giao hàng hỏa tốc trong 2h tại TP.HCM & Hà Nội.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Được kiểm tra hàng trước khi thanh toán (COD).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảo mật -->
+        <div class="col-md-6 col-lg-4">
+            <div class="policy-card">
+                <div class="policy-icon"><i class="bi bi-lock"></i></div>
+                <div class="policy-content">
+                    <h5>Chính sách Bảo mật</h5>
+                    <p>Dữ liệu của bạn được bảo vệ bởi các tiêu chuẩn an ninh cao nhất của chúng tôi.</p>
+                    <ul class="policy-list">
+                        <li><i class="bi bi-check-circle-fill"></i> Không chia sẻ thông tin cho bên thứ ba.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Mã hóa SSL 256-bit cho mọi giao dịch.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Khách hàng có quyền xóa dữ liệu cá nhân.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thanh toán -->
+        <div class="col-md-6 col-lg-4">
+            <div class="policy-card">
+                <div class="policy-icon"><i class="bi bi-credit-card"></i></div>
+                <div class="policy-content">
+                    <h5>Chương trình Trả góp</h5>
+                    <p>Sở hữu công nghệ ngay hôm nay với các gói tài chính linh hoạt, lãi suất cực thấp.</p>
+                    <ul class="policy-list">
+                        <li><i class="bi bi-check-circle-fill"></i> Hỗ trợ trả góp 0% qua thẻ tín dụng.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Duyệt hồ sơ online chỉ trong 15 phút.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Liên kết với hơn 20 ngân hàng lớn.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thành viên -->
+        <div class="col-md-6 col-lg-4">
+            <div class="policy-card">
+                <div class="policy-icon"><i class="bi bi-person-badge"></i></div>
+                <div class="policy-content">
+                    <h5>Khách hàng Thân thiết</h5>
+                    <p>Đăng ký thành viên TechShop để nhận được những ưu đãi đặc quyền và tích điểm đổi quà.</p>
+                    <ul class="policy-list">
+                        <li><i class="bi bi-check-circle-fill"></i> Giảm thêm 1-5% cho các hạng thẻ Bronze/Silver/Gold.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Quà tặng sinh nhật và ưu đãi lễ tết.</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Ưu tiên trải nghiệm sớm các dòng flagship mới.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

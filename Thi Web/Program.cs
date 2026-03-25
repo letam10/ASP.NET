@@ -138,6 +138,7 @@ app.UseAuthorization();
 using (var scope = app.Services.CreateScope())
 {
     await TechShop.Data.SeedData.Initialize(scope.ServiceProvider);
+    await TechShop.Data.DataBooster.Boost(scope.ServiceProvider);
 }
 
 app.MapControllerRoute(

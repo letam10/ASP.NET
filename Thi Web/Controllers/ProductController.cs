@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -208,8 +208,8 @@ namespace TechShop.Controllers
             if (compareIds.Contains(productId))
                 return Json(new { success = true, count = compareIds.Count, message = "Sản phẩm đã nằm trong so sánh." });
 
-            if (compareIds.Count >= 2)
-                return Json(new { success = false, message = "Chỉ được so sánh tối đa 2 sản phẩm." });
+            if (compareIds.Count >= 4)
+                return Json(new { success = false, message = "Chỉ được so sánh tối đa 4 sản phẩm." });
 
             if (compareIds.Count == 1)
             {
@@ -233,6 +233,13 @@ namespace TechShop.Controllers
                 compareIds.Remove(productId);
                 HttpContext.Session.SetString("CompareList", JsonSerializer.Serialize(compareIds));
             }
+            return RedirectToAction(nameof(Compare));
+        }
+
+        [HttpPost]
+        public IActionResult ClearCompare()
+        {
+            HttpContext.Session.Remove("CompareList");
             return RedirectToAction(nameof(Compare));
         }
 
@@ -336,5 +343,54 @@ namespace TechShop.Controllers
             return PartialView("_CompareQuick");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> SearchProducts(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term)) return Json(new List<object>());
+
+            var results = await _context.Products
+                .Where(p => p.IsActive && p.Name.Contains(term))
+                .Take(10)
+                .Select(p => new {
+                    id = p.Id,
+                    name = p.Name,
+                    price = p.Price.ToString("N0") + " ₫",
+                    image = p.ImageUrl ?? "https://via.placeholder.com/50",
+                    categoryId = p.CategoryId
+                })
+                .ToListAsync();
+
+            return Json(results);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddToCompareAjax(int productId)
+        {
+            var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == productId);
+            if (product == null) return Json(new { success = false, message = "Sản phẩm không tồn tại." });
+
+            var compareListStr = HttpContext.Session.GetString("CompareList");
+            var compareIds = string.IsNullOrEmpty(compareListStr)
+                ? new List<int>()
+                : JsonSerializer.Deserialize<List<int>>(compareListStr)!;
+
+            if (compareIds.Contains(productId))
+                return Json(new { success = false, message = "Sản phẩm đã có trong danh sách so sánh." });
+
+            if (compareIds.Count >= 4)
+                return Json(new { success = false, message = "Chỉ được so sánh tối đa 4 sản phẩm." });
+
+            if (compareIds.Count > 0)
+            {
+                var firstId = compareIds[0];
+                var first = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == firstId);
+                if (first != null && first.CategoryId != product.CategoryId)
+                    return Json(new { success = false, message = "Chỉ được so sánh các sản phẩm cùng danh mục." });
+            }
+
+            compareIds.Add(productId);
+            HttpContext.Session.SetString("CompareList", JsonSerializer.Serialize(compareIds));
+            return Json(new { success = true, count = compareIds.Count, message = "Đã thêm vào so sánh." });
+        }
     }
 }

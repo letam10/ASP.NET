@@ -1,17 +1,134 @@
 @{
-    ViewData["Title"] = "Giới thiệu";
+    ViewData["Title"] = "Giới thiệu về TechShop";
 }
 
-<div class="container py-5" style="margin-top:70px">
-    <h2 class="page-title mb-4"><i class="bi bi-info-circle me-2"></i>Giới thiệu</h2>
-    <div class="card p-4" style="background:var(--bg-card);border:1px solid var(--border);">
-        <p class="text-muted">
-            TechShop là cửa hàng công nghệ chuyên cung cấp sản phẩm chính hãng, dịch vụ kỹ thuật và giải pháp mua sắm hiện đại.
-        </p>
-        <ul class="mb-0">
-            <li>Địa chỉ: 123 Nguyễn Huệ, Q.1, TP.HCM</li>
-            <li>Hotline: 1800 6789</li>
-            <li>Email: support@techshop.vn</li>
-        </ul>
+<style>
+    .about-hero {
+        position: relative;
+        padding: 100px 0;
+        background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200');
+        background-size: cover;
+        background-position: center;
+        border-radius: 0 0 50px 50px;
+        margin-top: 60px;
+        overflow: hidden;
+    }
+    .about-hero::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 100px;
+        background: linear-gradient(to top, var(--bg-dark), transparent);
+    }
+    .hero-content { position: relative; z-index: 2; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: -50px; position: relative; z-index: 3; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 30px; text-align: center; backdrop-filter: blur(10px); transition: transform 0.3s ease; }
+    .stat-card:hover { transform: translateY(-10px); border-color: var(--primary); }
+    .stat-num { font-size: 2.5rem; font-weight: 800; color: var(--primary); display: block; }
+    .stat-text { color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
+
+    .vision-section { padding: 80px 0; }
+    .vision-card { background: rgba(var(--bs-primary-rgb), 0.03); border-radius: 30px; border: 1px solid rgba(var(--bs-primary-rgb), 0.1); padding: 50px; }
+    
+    .feature-icon-box { 
+        width: 60px; height: 60px; background: rgba(var(--bs-primary-rgb), 0.1); 
+        color: var(--primary); border-radius: 15px; display: flex; align-items: center; 
+        justify-content: center; font-size: 1.5rem; margin-bottom: 20px;
+    }
+    
+    .text-gradient-purple {
+        background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+</style>
+
+<section class="about-hero text-center text-white">
+    <div class="container hero-content">
+        <h1 class="display-3 fw-bold mb-3">Về <span class="text-gradient">TechShop</span></h1>
+        <p class="lead max-width-600 mx-auto opacity-75">Chúng tôi không chỉ bán thiết bị, chúng tôi mang đến những giải pháp công nghệ đỉnh cao và trải nghiệm mua sắm tương lai.</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="stats-grid">
+        <div class="stat-card shadow-lg">
+            <span class="stat-num">10+</span>
+            <span class="stat-text">Năm kinh nghiệm</span>
+        </div>
+        <div class="stat-card shadow-lg">
+            <span class="stat-num">50K+</span>
+            <span class="stat-text">Khách hàng tin dùng</span>
+        </div>
+        <div class="stat-card shadow-lg">
+            <span class="stat-num">100%</span>
+            <span class="stat-text">Chính hãng</span>
+        </div>
+        <div class="stat-card shadow-lg">
+            <span class="stat-num">24/7</span>
+            <span class="stat-text">Hỗ trợ tận tâm</span>
+        </div>
+    </div>
+
+    <div class="vision-section">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="vision-card">
+                    <h2 class="fw-bold mb-4">Tầm nhìn & <span class="text-gradient-purple">Sứ mệnh</span></h2>
+                    <p class="text-muted mb-4">TechShop được thành lập với khát khao trở thành điểm đến số 1 cho những tín đồ công nghệ. Chúng tôi tin rằng công nghệ có sức mạnh thay đổi cuộc sống và công việc của mỗi cá nhân.</p>
+                    
+                    <div class="d-flex gap-3 mb-4">
+                        <div class="feature-icon-box flex-shrink-0"><i class="bi bi-rocket-takeoff"></i></div>
+                        <div>
+                            <h5>Tiên phong công nghệ</h5>
+                            <p class="small text-muted">Luôn cập nhật những xu hướng và sản phẩm mới nhất từ các tập đoàn công nghệ hàng đầu thế giới.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-3">
+                        <div class="feature-icon-box flex-shrink-0"><i class="bi bi-heart-pulse"></i></div>
+                        <div>
+                            <h5>Khách hàng là trọng tâm</h5>
+                            <p class="small text-muted">Mọi dịch vụ và chính sách của chúng tôi đều xoay quanh việc tối ưu hóa lợi ích và trải nghiệm cho bạn.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400" class="img-fluid rounded-4 shadow" alt="Tech" />
+                    </div>
+                    <div class="col-6 mt-5">
+                        <img src="https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=400" class="img-fluid rounded-4 shadow" alt="Tech" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row py-5 border-top border-light g-4">
+        <div class="col-md-4">
+            <div class="p-4 rounded-4 border bg-dark-surface h-100">
+                <i class="bi bi-geo-alt fs-2 text-primary mb-3"></i>
+                <h5 class="fw-bold">Địa chỉ Trụ sở</h5>
+                <p class="text-muted mb-0">123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 rounded-4 border bg-dark-surface h-100">
+                <i class="bi bi-telephone fs-2 text-primary mb-3"></i>
+                <h5 class="fw-bold">Hotline Liên hệ</h5>
+                <p class="text-muted mb-0">Tư vấn mua hàng: 1800 6789<br>Hỗ trợ kỹ thuật: 1800 9999</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 rounded-4 border bg-dark-surface h-100">
+                <i class="bi bi-envelope fs-2 text-primary mb-3"></i>
+                <h5 class="fw-bold">Email Phản hồi</h5>
+                <p class="text-muted mb-0">Góp ý dịch vụ: feedback@techshop.vn<br>Hợp tác kinh doanh: partner@techshop.vn</p>
+            </div>
+        </div>
     </div>
 </div>

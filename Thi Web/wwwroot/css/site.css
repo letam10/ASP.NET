@@ -149,6 +149,133 @@ a {
         color: var(--accent);
     }
 
+/* ---- Smooth Theme Transition ---- */
+body {
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+.navbar, .card, .btn, .site-footer, .cat-card, .product-card {
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Fix footer stretching */
+.site-footer {
+    padding: 60px 0 30px;
+    margin-top: 0;
+}
+
+/* ---- Page Preloader ---- */
+#preloader {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #050510;
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader-content {
+    text-align: center;
+}
+
+.loader-logo {
+    font-size: 3rem;
+    color: var(--primary-light);
+    margin-bottom: 20px;
+    animation: pulseLogo 1.5s infinite ease-in-out;
+}
+
+.loader-line {
+    width: 150px;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto 15px;
+}
+
+.loader-line::after {
+    content: '';
+    position: absolute;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--primary-light), transparent);
+    animation: loadingLine 1.5s infinite;
+}
+
+.loader-text {
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: 5px;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+@keyframes pulseLogo {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+}
+
+@keyframes loadingLine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* ---- Ripple Effect ---- */
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    border-radius: 50%;
+    width: 0;
+    height: 0;
+    animation: rippleEffect 0.6s linear;
+}
+
+@keyframes rippleEffect {
+    from { width: 0; height: 0; opacity: 1; }
+    to { width: 400px; height: 400px; opacity: 0; }
+}
+
+/* ---- Magic Cursor ---- */
+#magic-cursor {
+    position: fixed;
+    width: 25px;
+    height: 25px;
+    background: rgba(var(--primary-rgb), 0.2);
+    border: 1px solid var(--primary-light);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 999999;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s, background 0.3s, border 0.3s;
+    display: none; /* Hiện bằng JS trên desktop */
+}
+
+@media (min-width: 992px) {
+    #magic-cursor { display: block; }
+}
+
+#magic-cursor.hover {
+    width: 50px;
+    height: 50px;
+    background: rgba(var(--primary-rgb), 0.1);
+    border-color: var(--accent);
+}
+
+#magic-cursor.active {
+    width: 20px;
+    height: 20px;
+    background: var(--primary-light);
+}
+
 /* ---- Text Gradient ---- */
 .text-gradient {
     background: linear-gradient(135deg, var(--primary-light), var(--accent));
@@ -839,6 +966,7 @@ a {
     flex: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin: 0;
@@ -856,6 +984,7 @@ a {
     font-weight: 700;
     font-size: 1rem;
     color: var(--primary-light);
+    text-align: left;
 }
 
 .btn-add-cart {

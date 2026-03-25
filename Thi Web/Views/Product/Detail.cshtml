@@ -151,12 +151,32 @@
         font-size: .78rem; font-weight: 700;
     }
 
-    /* Description */
+    /* Description & Specs */
+    .detail-section { margin-top: 15px; }
+    .section-title-sm { 
+        font-size: 0.78rem; font-weight: 800; text-transform: uppercase; 
+        letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 12px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .section-title-sm::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
     .detail-desc {
-        font-size: .9rem; color: #64748b; line-height: 1.7;
-        border-left: 2px solid rgba(99,102,241,.3);
-        padding-left: 14px;
-        margin: 0;
+        font-size: .92rem; color: #94a3b8; line-height: 1.8;
+        padding-left: 0; margin: 0;
+    }
+
+    .spec-table-mini {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+        border-radius: 16px; padding: 16px;
+    }
+
+    .spec-item-mini { display: flex; flex-direction: column; gap: 2px; }
+    .spec-item-mini .s-name { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .spec-item-mini .s-value { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+
+    @@media (max-width: 576px) {
+        .spec-table-mini { grid-template-columns: 1fr; }
     }
 
     /* === TRADE IN CARD === */
@@ -400,19 +420,22 @@
     .rel-card-btn:hover { background: #6366f1; color: #fff; }
 
     /* === MODAL === */
-    .modal-content.dark-modal {
+    .modal-content.custom-modal {
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 20px;
+        border-radius: 24px;
+        box-shadow: var(--shadow-lg);
     }
 
-    .modal-header.dark-modal-head {
+    .modal-header.custom-modal-head {
         border-bottom: 1px solid var(--border);
         padding: 20px 24px;
+        background: rgba(var(--bs-primary-rgb), 0.03);
     }
 
-    .modal-title { color: #f1f5f9; font-weight: 700; }
-    .btn-close-white { filter: invert(1) opacity(.5); }
+    .modal-title { color: var(--text-primary); font-weight: 800; font-family: 'Manrope', sans-serif; }
+    .btn-close-custom { filter: var(--theme-invert); opacity: .5; transition: opacity .2s; }
+    .btn-close-custom:hover { opacity: 1; }
 </style>
 
 <div class="detail-wrapper">
@@ -498,7 +521,27 @@
                 <!-- Description -->
                 @if (!string.IsNullOrEmpty(Model.Description))
                 {
-                    <p class="detail-desc">@Model.Description</p>
+                    <div class="detail-section">
+                        <h5 class="section-title-sm">Mô tả sản phẩm</h5>
+                        <p class="detail-desc">@Model.Description</p>
+                    </div>
+                }
+
+                <!-- Specifications -->
+                @if (Model.Specifications != null && Model.Specifications.Any())
+                {
+                    <div class="detail-section mt-4">
+                        <h5 class="section-title-sm">Thông số kỹ thuật</h5>
+                        <div class="spec-table-mini">
+                            @foreach (var spec in Model.Specifications.Take(6))
+                            {
+                                <div class="spec-item-mini">
+                                    <span class="s-name">@spec.SpecName</span>
+                                    <span class="s-value">@spec.SpecValue</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 }
 
                 <!-- Trade-in -->
@@ -655,12 +698,18 @@
 <!-- Compare Modal -->
 <div class="modal fade" id="compareModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content dark-modal">
-            <div class="modal-header dark-modal-head">
-                <h5 class="modal-title">So sánh sản phẩm</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content custom-modal">
+            <div class="modal-header custom-modal-head">
+                <h5 class="modal-title"><i class="bi bi-bar-chart-line me-2"></i>So sánh thông số kỹ thuật</h5>
+                <button type="button" class="btn-close btn-close-custom" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="compareModalBody">Đang tải...</div>
+            <div class="modal-body p-4" id="compareModalBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

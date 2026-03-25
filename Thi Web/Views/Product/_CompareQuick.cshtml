@@ -1,4 +1,4 @@
-﻿@{
+@{
     var current = ViewBag.Current as TechShop.Models.Product;
     var other = ViewBag.Other as TechShop.Models.Product;
     var allSpecs = ViewBag.AllSpecs as List<string>;
@@ -6,44 +6,136 @@
 
 @if (current == null || other == null)
 {
-    <div class="alert alert-danger">Dữ liệu so sánh không hợp lệ.</div>
+    <div class="alert alert-info shadow-sm border-0" style="background: rgba(99,102,241, 0.1); color: #6366f1;">
+        <i class="bi bi-info-circle me-2"></i>Dữ liệu so sánh đang được cập nhật...
+    </div>
 }
 else
 {
-    <div class="row g-3">
-        <div class="col-md-6">
-            <h5 class="text-white">@current.Name</h5>
-            <div class="text-danger fw-bold">@current.Price.ToString("N0") ₫</div>
+    <div class="quick-compare-wrapper">
+        <!-- Comparison Head -->
+        <div class="qc-head">
+            <div class="qc-card current">
+                <div class="qc-badge">Đang xem</div>
+                <div class="qc-img-box">
+                    <img src="@(current.ImageUrl ?? "https://via.placeholder.com/150")" alt="@current.Name" />
+                </div>
+                <div class="qc-info">
+                    <h6 class="qc-name">@current.Name</h6>
+                    <div class="qc-price">@current.Price.ToString("N0") ₫</div>
+                </div>
+            </div>
+            
+            <div class="qc-vs">VS</div>
+
+            <div class="qc-card other">
+                <div class="qc-badge">So sánh</div>
+                <div class="qc-img-box">
+                    <img src="@(other.ImageUrl ?? "https://via.placeholder.com/150")" alt="@other.Name" />
+                </div>
+                <div class="qc-info">
+                    <h6 class="qc-name">@other.Name</h6>
+                    <div class="qc-price">@other.Price.ToString("N0") ₫</div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6">
-            <h5 class="text-white">@other.Name</h5>
-            <div class="text-danger fw-bold">@other.Price.ToString("N0") ₫</div>
+
+        <!-- Spec Comparison -->
+        <div class="qc-specs">
+            <div class="qc-specs-label">
+                <i class="bi bi-ui-checks-grid me-2"></i>Bảng đối chiếu thông số
+            </div>
+            
+            @foreach (var spec in allSpecs!)
+            {
+                var v1 = current.Specifications.FirstOrDefault(s => s.SpecName == spec)?.SpecValue;
+                var v2 = other.Specifications.FirstOrDefault(s => s.SpecName == spec)?.SpecValue;
+                bool isDiff = v1 != v2;
+
+                <div class="qc-row @(isDiff ? "qc-diff" : "")">
+                    <div class="qc-label">@spec</div>
+                    <div class="qc-vals">
+                        <div class="qc-val @(isDiff && !string.IsNullOrEmpty(v1) ? "qc-v-accent" : "")">
+                            @(string.IsNullOrEmpty(v1) ? "—" : v1)
+                        </div>
+                        <div class="qc-val @(isDiff && !string.IsNullOrEmpty(v2) ? "qc-v-accent-2" : "")">
+                            @(string.IsNullOrEmpty(v2) ? "—" : v2)
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 
-    <hr class="border-secondary" />
+    <style>
+        .quick-compare-wrapper {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            padding: 5px;
+        }
 
-    <div class="table-responsive">
-        <table class="table table-dark table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>Thông số</th>
-                    <th>@current.Name</th>
-                    <th>@other.Name</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var spec in allSpecs!)
-                {
-                    var v1 = current.Specifications.FirstOrDefault(s => s.SpecName == spec)?.SpecValue;
-                    var v2 = other.Specifications.FirstOrDefault(s => s.SpecName == spec)?.SpecValue;
-                    <tr>
-                        <td>@spec</td>
-                        <td>@(string.IsNullOrEmpty(v1) ? "-" : v1)</td>
-                        <td>@(string.IsNullOrEmpty(v2) ? "-" : v2)</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+        .qc-head {
+            display: flex; align-items: stretch; gap: 15px; position: relative;
+            margin-bottom: 25px;
+        }
+
+        .qc-card {
+            flex: 1; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px 15px 15px; position: relative;
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .qc-card.current { border-top: 3px solid #818cf8; }
+        .qc-card.other { border-top: 3px solid #c084fc; }
+
+        .qc-badge {
+            position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%);
+            background: #f8fafc; border: 1px solid var(--border);
+            color: #64748b; font-size: 0.6rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            padding: 2px 10px; border-radius: 100px;
+        }
+
+        .qc-img-box { height: 100px; display: flex; align-items: center; justify-content: center; background: white; border-radius: 12px; padding: 5px; margin-bottom: 12px; }
+        .qc-img-box img { max-height: 100%; max-width: 100%; object-fit: contain; }
+
+        .qc-name { font-size: 0.8rem; font-weight: 700; height: 2.6em; overflow: hidden; margin-bottom: 6px; color: var(--text-primary); }
+        .qc-price { font-size: 0.95rem; font-weight: 800; color: #818cf8; }
+        .qc-card.other .qc-price { color: #c084fc; }
+
+        .qc-vs {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            width: 32px; height: 32px; border-radius: 50%;
+            background: white; border: 1px solid var(--border);
+            color: #6366f1; font-weight: 900; font-size: 0.65rem;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(99,102,241, 0.2); z-index: 10;
+        }
+
+        .qc-specs { 
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .qc-specs-label { 
+            padding: 12px 18px; background: rgba(99,102,241, 0.05); 
+            border-bottom: 1px solid var(--border); font-weight: 800; font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 0.05em; color: #6366f1;
+        }
+
+        .qc-row { border-bottom: 1px solid var(--border); padding: 10px 18px; }
+        .qc-row:last-child { border-bottom: none; }
+        .qc-diff { background: rgba(99,102,241, 0.02); }
+
+        .qc-label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
+        .qc-vals { display: flex; gap: 10px; }
+        .qc-val { flex: 1; font-size: 0.82rem; font-weight: 600; color: var(--text-primary); }
+        
+        .qc-v-accent { color: #818cf8; }
+        .qc-v-accent-2 { color: #c084fc; }
+
+        @@media (max-width: 576px) {
+            .qc-head { gap: 10px; }
+            .qc-vs { width: 28px; height: 28px; font-size: 0.6rem; }
+        }
+    </style>
 }
+

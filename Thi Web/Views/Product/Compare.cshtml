@@ -1,31 +1,33 @@
 @model List<TechShop.Models.Product>
 @{
-    ViewData["Title"] = "So sánh sản phẩm";
+    ViewData["Title"] = "So sánh Thông số | TechShop";
     var allSpecs = Model.SelectMany(p => p.Specifications.Select(s => s.SpecName)).Distinct().ToList();
+    int maxLimit = 4;
+    int currentCount = Model.Count;
 }
 
 <style>
-    /* === WRAPPER === */
-    .cmp-wrapper { margin-top: 80px; padding-bottom: 80px; }
-
-    /* === HEADER === */
+    /* === HEADER (From Booking) === */
     .cmp-header {
         background: var(--bg-dark);
         border-bottom: 1px solid var(--border);
-        padding: 32px 0 24px;
-        margin-bottom: 36px;
-        position: relative; overflow: hidden;
+        padding: 36px 0 28px;
+        margin-top: 70px;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
     }
 
     .cmp-header::before {
-        content: ''; position: absolute; inset: 0;
+        content: '';
+        position: absolute; inset: 0;
         background:
-            radial-gradient(ellipse 60% 80% at 10% 50%, rgba(99,102,241,.11) 0%, transparent 70%),
-            radial-gradient(ellipse 40% 60% at 90% 30%, rgba(168,85,247,.08) 0%, transparent 70%);
+            radial-gradient(ellipse 60% 80% at 10% 50%, rgba(99,102,241,.12) 0%, transparent 70%),
+            radial-gradient(ellipse 40% 60% at 90% 30%, rgba(168,85,247,.09) 0%, transparent 70%);
         pointer-events: none;
     }
 
-    .cmp-header .container { position: relative; }
+    .cmp-header .container { position: relative; text-align: center; }
 
     .cmp-header-label {
         display: inline-flex; align-items: center; gap: 6px;
@@ -33,316 +35,410 @@
         text-transform: uppercase; color: #818cf8;
         background: rgba(99,102,241,.12);
         border: 1px solid rgba(99,102,241,.25);
-        border-radius: 100px; padding: 4px 12px; margin-bottom: 10px;
+        border-radius: 100px; padding: 4px 14px; margin-bottom: 14px;
     }
 
     .cmp-header h1 {
-        font-size: clamp(1.4rem, 2.5vw, 2rem);
-        font-weight: 800; color: var(--text-primary); margin: 0 0 4px;
-        letter-spacing: -.02em;
+        font-size: clamp(1.5rem, 3vw, 2.2rem);
+        font-weight: 800; color: var(--text-primary);
+        margin: 0 0 8px; letter-spacing: -.02em;
     }
 
     .cmp-header h1 .accent {
         background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         background-clip: text;
     }
 
-    .cmp-header p { color: var(--text-secondary); font-size: .88rem; margin: 0; }
+    .cmp-header p { color: var(--text-secondary); font-size: .92rem; margin: 0; }
 
-    /* === EMPTY STATE === */
-    .cmp-empty {
-        max-width: 480px; margin: 0 auto;
-        text-align: center; padding: 60px 20px;
+    /* === FEATURES (From Booking) === */
+    .cmp-features {
+        display: flex; justify-content: center;
+        flex-wrap: wrap; gap: 10px;
+        margin-bottom: 36px;
     }
 
-    .cmp-empty-icon {
-        width: 64px; height: 64px; border-radius: 18px;
-        background: rgba(99,102,241,.1);
-        border: 1px solid rgba(99,102,241,.2);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.6rem; color: #6366f1;
-        margin: 0 auto 20px;
-    }
-
-    .cmp-empty h4 { color: var(--text-primary); font-weight: 700; margin-bottom: 8px; }
-    .cmp-empty p  { color: var(--text-secondary); font-size: .9rem; margin-bottom: 6px; }
-
-    .cmp-empty-hint {
-        background: rgba(99,102,241,.08);
-        border: 1px solid rgba(99,102,241,.18);
-        border-radius: 12px; padding: 12px 16px;
-        font-size: .84rem; color: #818cf8; margin-bottom: 20px;
-    }
-
-    .btn-cmp-go {
-        display: inline-flex; align-items: center; gap: 8px;
-        background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
-        color: #fff; border: none; border-radius: 100px;
-        padding: 11px 28px; font-size: .88rem; font-weight: 700;
-        text-decoration: none; cursor: pointer;
-        box-shadow: 0 6px 20px rgba(99,102,241,.3);
-        transition: transform .18s, box-shadow .2s;
-    }
-
-    .btn-cmp-go:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(99,102,241,.45); color: #fff; }
-
-    /* === TABLE WRAPPER === */
-    .cmp-table-wrap { overflow-x: auto; }
-
-    /* === COMPARE TABLE === */
-    .cmp-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: .875rem;
-        min-width: 560px;
-    }
-
-    /* Header row (product cards) */
-    .cmp-table thead tr {
+    .cmp-f-badge {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 7px 14px; border-radius: 100px;
+        font-size: .78rem; font-weight: 600;
         background: var(--bg-card);
-        border-bottom: 2px solid var(--border);
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
     }
 
-    .cmp-table thead th {
-        padding: 0;
-        vertical-align: top;
-        border: none;
+    .cmp-f-badge i { color: #6366f1; }
+
+    /* === MAIN CARD (From Booking) === */
+    .cmp-card {
+        max-width: 1200px;
+        margin: 0 auto 60px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
     }
 
-    .cmp-table thead th:first-child {
-        width: 200px; min-width: 160px;
-        padding: 20px 18px;
-        font-size: .72rem; font-weight: 700;
-        letter-spacing: .1em; text-transform: uppercase;
-        color: #475569; vertical-align: middle;
+    .cmp-card-head {
+        padding: 26px 32px;
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; gap: 14px;
+        background: rgba(99,102,241,.05);
     }
 
-    /* Product card inside th */
-    .cmp-prod-card {
-        padding: 20px 16px;
-        display: flex; flex-direction: column;
-        align-items: center; gap: 10px;
-        text-align: center;
-        border-left: 1px solid var(--border);
-    }
-
-    .cmp-prod-img-wrap {
-        width: 110px; height: 110px;
-        background: var(--bg-dark-2);
-        border-radius: 14px; overflow: hidden;
-        display: flex; align-items: center; justify-content: center;
-        padding: 10px; flex-shrink: 0;
-    }
-
-    .cmp-prod-img-wrap img {
-        width: 100%; height: 100%; object-fit: contain;
-    }
-
-    .cmp-prod-name {
-        font-size: .88rem; font-weight: 700; color: var(--text-primary);
-        line-height: 1.35;
-        display: -webkit-box; -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical; overflow: hidden;
-    }
-
-    .cmp-prod-price {
-        font-size: 1rem; font-weight: 800; color: var(--text-primary);
-        letter-spacing: -.01em;
-    }
-
-    .cmp-prod-actions { display: flex; gap: 8px; }
-
-    .btn-cmp-detail {
-        display: inline-flex; align-items: center; gap: 5px;
+    .cmp-card-head-icon {
+        width: 44px; height: 44px; border-radius: 13px;
         background: rgba(99,102,241,.15);
         border: 1px solid rgba(99,102,241,.25);
-        border-radius: 8px; padding: 6px 12px;
-        font-size: .75rem; font-weight: 600; color: #a5b4fc;
-        text-decoration: none;
-        transition: background .18s, color .18s;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; color: #818cf8; flex-shrink: 0;
     }
 
-    .btn-cmp-detail:hover { background: #6366f1; color: #fff; }
-
-    .btn-cmp-remove {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 30px; height: 30px;
-        background: rgba(239,68,68,.1);
-        border: 1px solid rgba(239,68,68,.2);
-        border-radius: 8px; color: #f87171;
-        cursor: pointer; font-size: .8rem;
-        transition: background .18s;
+    .cmp-card-head h5 {
+        margin: 0 0 3px; font-size: 1rem; font-weight: 800;
+        color: var(--text-primary); letter-spacing: -.01em;
     }
 
-    .btn-cmp-remove:hover { background: rgba(239,68,68,.25); }
+    .cmp-card-head p { margin: 0; font-size: .8rem; color: var(--text-secondary); }
 
-    /* Body rows */
-    .cmp-table tbody tr {
+    /* === SEARCH SECTION === */
+    .cmp-search-inner {
+        padding: 24px 32px;
+        background: rgba(255,255,255,0.01);
         border-bottom: 1px solid var(--border);
-        transition: background .15s;
     }
 
-    .cmp-table tbody tr:last-child { border-bottom: none; }
-    .cmp-table tbody tr:hover { background: var(--bg-card-hover); }
-
-    .cmp-table tbody tr:nth-child(even) { background: var(--bg-dark-2); }
-    .cmp-table tbody tr:nth-child(even):hover { background: var(--bg-card-hover); }
-
-    .cmp-table tbody td {
-        padding: 13px 18px;
-        vertical-align: middle;
-        border: none;
-        color: var(--text-secondary);
-        text-align: center;
+    #cmpProductSearch {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        border-radius: 12px;
+        padding: 12px 18px 12px 45px;
+        font-size: .95rem;
+        transition: all 0.3s ease;
+    }
+    
+    #cmpProductSearch:focus {
+        border-color: #6366f1;
+        background: rgba(99,102,241,.06);
+        box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+    }
+    
+    .search-icon-btn {
+        position: absolute;
+        left: 45px; top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.1rem;
+        color: #818cf8;
+        opacity: 0.8;
     }
 
-    /* Spec label cell */
-    .cmp-spec-label {
-        text-align: left !important;
-        font-size: .75rem; font-weight: 700;
-        letter-spacing: .06em; text-transform: uppercase;
-        color: var(--text-muted) !important;
-        border-right: 1px solid var(--border) !important;
-        white-space: nowrap;
+    .search-results-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 32px; right: 32px;
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        max-height: 400px;
+        overflow-y: auto;
+        display: none;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        z-index: 1001;
     }
 
-    /* Spec value */
-    .cmp-spec-val { color: var(--text-primary) !important; font-size: .87rem; }
+    .search-result-item {
+        display: flex; align-items: center; gap: 15px;
+        padding: 12px 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-bottom: 1px solid var(--border);
+    }
+    .search-result-item:hover { background: rgba(99,102,241, 0.08); }
+    .search-result-item img { width: 45px; height: 45px; object-fit: contain; background: #fff; border-radius: 8px; padding: 4px; }
+    .search-result-info h6 { margin: 0; font-size: .9rem; font-weight: 700; color: var(--text-primary); }
+    .search-result-info span { font-size: 0.8rem; color: #818cf8; font-weight: 600; }
 
-    /* Dash for missing */
-    .cmp-spec-dash { color: #334155 !important; }
+    /* === COMPARISON TABLE === */
+    .table-responsive { width: 100%; overflow-x: auto; }
+    .cmp-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; min-width: 800px; }
+    
+    .cmp-table th, .cmp-table td { padding: 20px; border-bottom: 1px solid var(--border); }
 
-    /* Section divider row */
-    .cmp-section-row td {
-        background: rgba(99,102,241,.06) !important;
-        color: #6366f1 !important;
-        font-size: .7rem !important; font-weight: 700 !important;
-        letter-spacing: .12em !important; text-transform: uppercase !important;
-        text-align: left !important;
-        padding: 8px 18px !important;
-        border-top: 1px solid rgba(99,102,241,.15) !important;
+    .col-label { 
+        width: 200px; 
+        background: rgba(99,102,241, 0.02) !important; 
+        font-weight: 700; 
+        color: #64748b; 
+        text-transform: uppercase; 
+        font-size: 0.72rem; 
+        letter-spacing: 0.1em;
+        border-right: 1px solid var(--border);
     }
 
-    /* Product column borders */
-    .cmp-table tbody td:not(:first-child) {
-        border-left: 1px solid var(--border);
+    .col-product { position: relative; vertical-align: top; border-right: 1px solid var(--border); }
+    .col-product:last-child { border-right: none; }
+    
+    .cmp-prod-card { text-align: center; }
+    .cmp-prod-img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 12px; background: white; border-radius: 12px; padding: 10px; }
+    .cmp-prod-name { font-weight: 800; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px; height: 2.6em; overflow: hidden; line-height: 1.3; }
+    .cmp-prod-price { font-weight: 800; color: #818cf8; font-size: 1rem; }
+    
+    .btn-remove-cmp {
+        position: absolute; top: 10px; right: 10px;
+        width: 28px; height: 28px; border-radius: 8px;
+        background: rgba(244, 63, 94, 0.1); color: #f43f5e;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
     }
+    .btn-remove-cmp:hover { background: #f43f5e; color: white; }
+
+    /* EMPTY SLOT (Like Booking divider) */
+    .digital-slot {
+        height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        border: 2px dashed var(--border); border-radius: 16px; 
+        cursor: pointer; transition: all 0.3s; color: #64748b;
+        background: rgba(0,0,0,0.01);
+    }
+    .digital-slot:hover { border-color: #818cf8; background: rgba(99,102,241, 0.05); color: #818cf8; }
+    .digital-slot i { font-size: 2rem; margin-bottom: 10px; opacity: 0.5; }
+    .digital-slot span { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Spec Rows */
+    .spec-divider {
+        background: rgba(99,102,241, 0.05); height: 40px; 
+        display: flex; align-items: center; justify-content: center;
+        text-transform: uppercase; font-size: 0.7rem; font-weight: 800; letter-spacing: 2px; color: #6366f1;
+    }
+
+    .spec-value { font-size: 0.85rem; font-weight: 600; text-align: center; color: var(--text-primary); }
+    .highlight-diff { background: rgba(99,102,241, 0.04); }
+    
+    /* Footer Action */
+    .cmp-footer-action { padding: 30px; border-top: 1px solid var(--border); text-align: center; }
+    .btn-wipe {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: transparent; border: 1.5px solid var(--border);
+        padding: 10px 30px; border-radius: 100px;
+        font-size: .88rem; font-weight: 700; color: var(--text-secondary);
+        transition: all 0.2s;
+    }
+    .btn-wipe:hover { border-color: #f43f5e; color: #f43f5e; background: rgba(244,63,94,0.05); }
 </style>
 
-<!-- HEADER -->
+<!-- PAGE HEADER (From Booking) -->
 <div class="cmp-header">
     <div class="container">
         <div class="cmp-header-label">
-            <i class="bi bi-bar-chart-line"></i> So sánh sản phẩm
+            <i class="bi bi-intersect"></i> Hệ thống so sánh
         </div>
-        <h1>So sánh <span class="accent">thông số kỹ thuật</span></h1>
-        <p>Đang so sánh @Model.Count / 2 sản phẩm</p>
+        <h1>So sánh <span class="accent">Thông số & Hiệu năng</span></h1>
+        <p>Phân tích chuyên sâu — Đối chiếu kỹ thuật — Lựa chọn tối ưu</p>
     </div>
 </div>
 
-<div class="cmp-wrapper">
-    <div class="container">
+<!-- FEATURES (From Booking) -->
+<div class="container">
+    <div class="cmp-features">
+        <span class="cmp-f-badge"><i class="bi bi-cpu"></i> Phân tích phần cứng</span>
+        <span class="cmp-f-badge"><i class="bi bi-graph-up-arrow"></i> Điểm số hiệu năng</span>
+        <span class="cmp-f-badge"><i class="bi bi-display"></i> Trải nghiệm thị giác</span>
+        <span class="cmp-f-badge"><i class="bi bi-battery-charging"></i> Thời lượng pin thực tế</span>
+    </div>
+</div>
 
-        @if (Model.Count < 2)
+<!-- MAIN CARD (From Booking) -->
+<div class="container">
+    <div class="cmp-card">
+        
+        <div class="cmp-card-head">
+            <div class="cmp-card-head-icon">
+                <i class="bi bi-layout-three-columns"></i>
+            </div>
+            <div>
+                <h5>Đối chiếu sản phẩm</h5>
+                <p>Thêm tối đa 4 sản phẩm cùng danh mục để thực hiện phân tích</p>
+            </div>
+        </div>
+
+        <!-- Search Selection -->
+        <div class="cmp-search-inner position-relative">
+            <i class="bi bi-search search-icon-btn"></i>
+            <input type="text" id="cmpProductSearch" class="form-control" placeholder="Tìm tên sản phẩm để bắt đầu so sánh..." autocomplete="off">
+            <div id="searchSuggestions" class="search-results-dropdown"></div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="table-responsive">
+            <table class="cmp-table">
+                <thead>
+                    <tr>
+                        <th class="col-label">Thông số cốt lõi</th>
+                        @for (int i = 0; i < maxLimit; i++)
+                        {
+                            <th class="col-product text-center">
+                                @if (i < currentCount)
+                                {
+                                    var p = Model[i];
+                                    <div class="cmp-prod-card">
+                                        <div class="btn-remove-cmp" onclick="removeFromCompare(@p.Id)" title="Xóa">
+                                            <i class="bi bi-x-lg"></i>
+                                        </div>
+                                        <a href="@Url.Action("Detail", "Product", new { id = p.Id })">
+                                            <img src="@(p.ImageUrl ?? "https://via.placeholder.com/150")" class="cmp-prod-img" alt="@p.Name">
+                                        </a>
+                                        <div class="cmp-prod-name">@p.Name</div>
+                                        <div class="cmp-prod-price">@p.Price.ToString("N0") ₫</div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="digital-slot" onclick="focusSearch()">
+                                        <i class="bi bi-plus-circle"></i>
+                                        <span>Thêm sản phẩm</span>
+                                    </div>
+                                }
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="spec-divider"><td colspan="5">Thông tin cơ bản</td></tr>
+                    <tr class="spec-row">
+                        <td class="col-label">Mức giá</td>
+                        @for (int i = 0; i < maxLimit; i++)
+                        {
+                            <td class="spec-value">
+                                @if (i < currentCount) { <strong>@Model[i].Price.ToString("N0") ₫</strong> } else { <span>—</span> }
+                            </td>
+                        }
+                    </tr>
+                    <tr class="spec-row">
+                        <td class="col-label">Bảo hành</td>
+                        @for (int i = 0; i < maxLimit; i++)
+                        {
+                            <td class="spec-value">
+                                @if (i < currentCount) { @(Model[i].WarrantyPolicy ?? "12 tháng") } else { <span>—</span> }
+                            </td>
+                        }
+                    </tr>
+
+                    @if (allSpecs.Any())
+                    {
+                        <tr class="spec-divider"><td colspan="5">Cấu hình chi tiết</td></tr>
+                        @foreach (var specName in allSpecs)
+                        {
+                            bool isDifferent = false;
+                            if (currentCount > 1)
+                            {
+                                var values = Model.Select(p => p.Specifications.FirstOrDefault(s => s.SpecName == specName)?.SpecValue).ToList();
+                                isDifferent = values.Where(v => v != null).Distinct().Count() > 1;
+                            }
+
+                            <tr class="spec-row @(isDifferent ? "highlight-diff" : "")">
+                                <td class="col-label">@specName</td>
+                                @for (int i = 0; i < maxLimit; i++)
+                                {
+                                    <td class="spec-value">
+                                        @if (i < currentCount)
+                                        {
+                                            var val = Model[i].Specifications.FirstOrDefault(s => s.SpecName == specName)?.SpecValue;
+                                            @(string.IsNullOrEmpty(val) ? "N/A" : val)
+                                        }
+                                        else { <span>—</span> }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (currentCount > 0)
         {
-            <div class="cmp-empty">
-                <div class="cmp-empty-icon"><i class="bi bi-bar-chart"></i></div>
-                <h4>Chưa đủ sản phẩm để so sánh</h4>
-                <p>Cần chọn đủ <strong style="color:#e2e8f0">2 sản phẩm</strong> cùng danh mục để bắt đầu so sánh.</p>
+            <div class="cmp-footer-action">
+                <form asp-action="ClearCompare" method="post">
+                    <button type="submit" class="btn-wipe">
+                        <i class="bi bi-trash3"></i> Làm trống danh sách
+                    </button>
+                </form>
+            </div>
+        }
+    </div>
+</div>
 
-                @if (Model.Any())
-                {
-                    <div class="cmp-empty-hint">
-                        <i class="bi bi-check-circle me-1"></i>
-                        Đã chọn: <strong>@Model[0].Name</strong> — hãy thêm 1 sản phẩm nữa
-                    </div>
+@section Scripts {
+    <script>
+        const searchInput = document.getElementById('cmpProductSearch');
+        const suggestions = document.getElementById('searchSuggestions');
+
+        function focusSearch() {
+            if (searchInput) {
+                searchInput.focus();
+                window.scrollTo({ top: searchInput.offsetTop - 150, behavior: 'smooth' });
+            }
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const term = this.value.trim();
+                if (term.length < 2) {
+                    suggestions.style.display = 'none';
+                    return;
                 }
 
-                <a asp-controller="Product" asp-action="Index" class="btn-cmp-go">
-                    <i class="bi bi-grid"></i> Chọn sản phẩm để so sánh
-                </a>
-            </div>
-        }
-        else
-        {
-            <div class="cmp-table-wrap">
-                <table class="cmp-table">
-                    <thead>
-                        <tr>
-                            <th>Thông số</th>
-                            @foreach (var p in Model)
-                            {
-                                <th>
-                                    <div class="cmp-prod-card">
-                                        <div class="cmp-prod-img-wrap">
-                                            <img src="@(p.ImageUrl ?? "https://via.placeholder.com/150")"
-                                                 alt="@p.Name" />
-                                        </div>
-                                        <p class="cmp-prod-name">@p.Name</p>
-                                        <p class="cmp-prod-price">@p.Price.ToString("N0") ₫</p>
-                                        <div class="cmp-prod-actions">
-                                            <a asp-action="Detail" asp-route-id="@p.Id" class="btn-cmp-detail">
-                                                <i class="bi bi-eye"></i> Chi tiết
-                                            </a>
-                                            <form asp-action="RemoveFromCompare" method="post" class="m-0">
-                                                <input type="hidden" name="productId" value="@p.Id" />
-                                                <button type="submit" class="btn-cmp-remove" title="Xóa khỏi so sánh">
-                                                    <i class="bi bi-x-lg"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Section: Tổng quan -->
-                        <tr class="cmp-section-row">
-                            <td colspan="@(Model.Count + 1)">
-                                <i class="bi bi-info-circle me-2"></i>Tổng quan
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="cmp-spec-label">Bảo hành</td>
-                            @foreach (var p in Model)
-                            {
-                                <td class="cmp-spec-val">@(string.IsNullOrEmpty(p.WarrantyPolicy) ? "-" : p.WarrantyPolicy)</td>
-                            }
-                        </tr>
-
-                        <!-- Section: Thông số kỹ thuật -->
-                        @if (allSpecs.Any())
-                        {
-                            <tr class="cmp-section-row">
-                                <td colspan="@(Model.Count + 1)">
-                                    <i class="bi bi-cpu me-2"></i>Thông số kỹ thuật
-                                </td>
-                            </tr>
-                            @foreach (var specName in allSpecs)
-                            {
-                                <tr>
-                                    <td class="cmp-spec-label">@specName</td>
-                                    @foreach (var p in Model)
-                                    {
-                                        var val = p.Specifications.FirstOrDefault(s => s.SpecName == specName)?.SpecValue;
-                                        if (string.IsNullOrEmpty(val))
-                                        {
-                                            <td class="cmp-spec-dash">—</td>
-                                        }
-                                        else
-                                        {
-                                            <td class="cmp-spec-val">@val</td>
-                                        }
-                                    }
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
-            </div>
+                $.getJSON('/Product/SearchProducts', { term: term }, function(data) {
+                    if (data.length > 0) {
+                        let html = '';
+                        data.forEach(p => {
+                            html += '<div class="search-result-item" onclick="addToCompare(' + p.id + ')">' +
+                                    '<img src="' + p.image + '" alt="' + p.name + '">' +
+                                    '<div class="search-result-info">' +
+                                    '<h6>' + p.name + '</h6>' +
+                                    '<span>' + p.price + '</span>' +
+                                    '</div>' +
+                                    '</div>';
+                        });
+                        suggestions.innerHTML = html;
+                        suggestions.style.display = 'block';
+                    } else {
+                        suggestions.style.display = 'none';
+                    }
+                });
+            });
         }
 
-    </div>
-</div>
+        document.addEventListener('click', function(e) {
+            if (searchInput && suggestions && !searchInput.contains(e.target) && !suggestions.contains(e.target)) {
+                suggestions.style.display = 'none';
+            }
+        });
+
+        function addToCompare(id) {
+            if (suggestions) suggestions.style.display = 'none';
+            $.post('/Product/AddToCompareAjax', { productId: id }, function(res) {
+                if (res.success) {
+                    location.reload();
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Thông báo',
+                        text: res.message,
+                        confirmButtonColor: '#6366f1'
+                    });
+                }
+            });
+        }
+
+        function removeFromCompare(id) {
+             $.post('/Product/RemoveFromCompare', { productId: id }, function() {
+                location.reload();
+            });
+        }
+    </script>
+}
