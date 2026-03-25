@@ -12,6 +12,7 @@ namespace TechShop.Controllers
     // ADMIN PRODUCT CONTROLLER
     // ================================================================
     [Authorize(Roles = "Admin, Staff")]
+    [Route("Admin/Product/{action=Index}")]
     public class AdminProductController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -99,6 +100,7 @@ namespace TechShop.Controllers
     // ADMIN CATEGORY CONTROLLER
     // ================================================================
     [Authorize(Roles = "Admin,Staff")]
+    [Route("Admin/Category/{action=Index}")]
     public class AdminCategoryController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -168,6 +170,7 @@ namespace TechShop.Controllers
     // ADMIN ORDER CONTROLLER
     // ================================================================
     [Authorize(Roles = "Admin,Staff")]
+    [Route("Admin/Order/{action=Index}")]
     public class AdminOrderController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -270,6 +273,7 @@ namespace TechShop.Controllers
     // ADMIN USER CONTROLLER
     // ================================================================
     [Authorize(Roles = "Admin")]
+    [Route("Admin/User/{action=Index}")]
     public class AdminUserController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -350,6 +354,7 @@ namespace TechShop.Controllers
     // ADMIN ROLE CONTROLLER
     // ================================================================
     [Authorize(Roles = "Admin")]
+    [Route("Admin/Role/{action=Index}")]
     public class AdminRoleController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -388,6 +393,7 @@ namespace TechShop.Controllers
     // ADMIN DASHBOARD CONTROLLER
     // ================================================================
     [Authorize(Roles = "Admin,Staff")]
+    [Route("Admin/Dashboard/{action=Index}")]
     public class AdminDashboardController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -440,6 +446,7 @@ namespace TechShop.Controllers
     }
 
     [Authorize(Roles = "Admin")]
+    [Route("Admin/Variant/{action=Index}")]
     public class AdminVariantController : Controller
     {
         private readonly ApplicationDbContext _context;

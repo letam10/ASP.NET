@@ -1,53 +1,62 @@
 @model List<TechShop.Models.Coupon>
 @{
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
     ViewData["Title"] = "Mã giảm giá";
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Mã giảm giá</h2>
-        <a asp-action="Create" class="btn btn-primary">+ Tạo mã mới</a>
+<div class="admin-page-header">
+    <div>
+        <h4 class="text-primary fw-bold"><i class="bi bi-ticket-perforated me-2"></i>Quản lý mã giảm giá</h4>
+        <p class="text-muted mb-0 small">Hệ thống có <strong class="text-primary">@Model.Count</strong> chương trình khuyến mãi</p>
     </div>
+    <a asp-action="Create" class="btn btn-primary shadow-sm px-4">
+        <i class="bi bi-plus-lg me-2"></i>Tạo mã mới
+    </a>
+</div>
 
-    <div class="card shadow-sm">
-        <div class="card-body table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>Mã</th>
-                        <th>Giảm (%)</th>
-                        <th>Giảm tối đa</th>
-                        <th>Đơn tối thiểu</th>
-                        <th>Hết hạn</th>
-                        <th>Số lượng</th>
-                        <th>Trạng thái</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var c in Model)
-                    {
-                        <tr>
-                            <td><strong>@c.Code</strong></td>
-                            <td>@c.DiscountPercent%</td>
-                            <td>@(c.MaxDiscountAmount?.ToString("N0") ?? "-")</td>
-                            <td>@(c.MinOrderAmount?.ToString("N0") ?? "-")</td>
-                            <td>@(c.ExpiredAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
-                            <td>@c.Quantity</td>
-                            <td>
-                                @if (c.IsActive)
-                                {
-                                    <span class="badge bg-success">Đang bật</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Đã tắt</span>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="admin-table-wrap border-0 shadow-sm">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Mã Code</th>
+                <th>Mức giảm</th>
+                <th>Giới hạn tối đa</th>
+                <th>Đơn tối thiểu</th>
+                <th>Thời hạn</th>
+                <th>Số lượng</th>
+                <th class="text-center">Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td><strong class="text-primary">@c.Code</strong></td>
+                    <td>
+                        <span class="admin-badge info">@c.DiscountPercent%</span>
+                    </td>
+                    <td>@(c.MaxDiscountAmount?.ToString("N0") ?? "—") ₫</td>
+                    <td>@(c.MinOrderAmount?.ToString("N0") ?? "—") ₫</td>
+                    <td>
+                        <div class="small">
+                            <i class="bi bi-clock me-1"></i>@(c.ExpiredAt?.ToString("dd/MM/yyyy HH:mm") ?? "Vô hạn")
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-bold">@c.Quantity</span>
+                    </td>
+                    <td class="text-center">
+                        @if (c.IsActive)
+                        {
+                            <span class="admin-badge success">Đang bật</span>
+                        }
+                        else
+                        {
+                            <span class="admin-badge danger">Đã tắt</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

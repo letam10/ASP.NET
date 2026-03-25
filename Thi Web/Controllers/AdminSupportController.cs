@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace TechShop.Controllers
 {
     [Authorize(Roles = "Admin,Staff")]
+    [Route("Admin/Support/{action=Index}")]
     public class AdminSupportController : Controller
     {
         public IActionResult Index()

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TechShop.Data;
@@ -7,6 +7,7 @@ namespace TechShop.Controllers
 {
     // Cho phép cả Admin và Nhân viên truy cập
     [Authorize(Roles = "Admin,Employee")]
+    [Route("Admin/Service/{action=Index}")]
     public class AdminServiceController : Controller
     {
         private readonly ApplicationDbContext _context;

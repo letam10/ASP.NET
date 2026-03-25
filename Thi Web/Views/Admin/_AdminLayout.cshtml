@@ -3,7 +3,17 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] — TechShop Admin</title>
+    <title>@ViewData["Title"] — TechShop</title>
+    <script>
+        (function () {
+            var savedTheme = localStorage.getItem("techshop-theme");
+            if (savedTheme === "dark" || savedTheme === "light") {
+                document.documentElement.setAttribute("data-theme", savedTheme);
+            } else {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,56 +25,66 @@
 <body class="admin-body">
     <div class="admin-layout">
         <!-- Sidebar -->
-        <aside class="admin-sidebar">
+        <aside class="admin-sidebar shadow-lg">
             <div class="sidebar-brand">
                 <i class="bi bi-cpu-fill"></i>
                 <span>TechShop</span>
-                <small>Admin Panel</small>
             </div>
 
             <nav class="sidebar-nav">
                 @if (User.IsInRole("Admin"))
                 {
-                    <div class="nav-section-label">Sản phẩm</div>
-                    <a href="/Admin/AdminProduct/Index"
-                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/AdminProduct") ? "active" : "")">
+                    <div class="nav-section-label">Hệ thống</div>
+                    <a href="/Admin/Dashboard"
+                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Dashboard") ? "active" : "")">
+                        <i class="bi bi-speedometer2"></i><span>Tổng quan</span>
+                    </a>
+
+                    <div class="nav-section-label">Cửa hàng</div>
+                    <a href="/Admin/Product"
+                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Product") ? "active" : "")">
                         <i class="bi bi-box"></i><span>Sản phẩm</span>
                     </a>
 
-                    <a href="/Admin/AdminCategory/Index"
-                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/AdminCategory") ? "active" : "")">
+                    <a href="/Admin/Category"
+                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Category") ? "active" : "")">
                         <i class="bi bi-tags"></i><span>Danh mục</span>
                     </a>
 
-                    <div class="nav-section-label">Bán hàng</div>
-                    <a href="/Admin/AdminOrder/Index"
-                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/AdminOrder") ? "active" : "")">
+                    <a href="/Admin/Variant"
+                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Variant") ? "active" : "")">
+                        <i class="bi bi-stack"></i><span>Biến thể</span>
+                    </a>
+
+                    <div class="nav-section-label">Nghiệp vụ</div>
+                    <a href="/Admin/Order"
+                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Order") ? "active" : "")">
                         <i class="bi bi-receipt"></i><span>Đơn hàng</span>
                     </a>
 
-                    <a href="/Admin/AdminService/Index"
-                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/AdminService") ? "active" : "")">
-                        <i class="bi bi-wrench-adjustable"></i><span>Phiếu dịch vụ</span>
+                    <a href="/Admin/Service"
+                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Service") ? "active" : "")">
+                        <i class="bi bi-wrench-adjustable"></i><span>Dịch vụ</span>
                     </a>
 
-                    <div class="nav-section-label">Hệ thống</div>
-                    <a href="/Admin/AdminSupport/Index"
-                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/AdminSupport") ? "active" : "")">
-                        <i class="bi bi-chat-dots"></i><span>Chat hỗ trợ</span>
-                    </a>
-
-                    <a asp-controller="AdminCoupon" asp-action="Index"
-                       class="sidebar-link @(Context.Request.Path.Value != null && Context.Request.Path.Value.Contains("AdminCoupon") ? "active" : "")">
+                    <a href="/Admin/Coupon"
+                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Coupon") ? "active" : "")">
                         <i class="bi bi-ticket-perforated"></i><span>Mã giảm giá</span>
                     </a>
 
-                    <a href="/Admin/AdminUser/Index"
-                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/AdminUser") ? "active" : "")">
+                    <div class="nav-section-label">Tài khoản</div>
+                    <a href="/Admin/Support"
+                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Support") ? "active" : "")">
+                        <i class="bi bi-chat-dots"></i><span>Hỗ trợ chat</span>
+                    </a>
+
+                    <a href="/Admin/User"
+                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/User") ? "active" : "")">
                         <i class="bi bi-people"></i><span>Người dùng</span>
                     </a>
 
-                    <a href="/Admin/AdminRole/Index"
-                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/AdminRole") ? "active" : "")">
+                    <a href="/Admin/Role"
+                       class="sidebar-link @(Context.Request.Path.StartsWithSegments("/Admin/Role") ? "active" : "")">
                         <i class="bi bi-shield-lock"></i><span>Phân quyền</span>
                     </a>
                 }
@@ -74,7 +94,7 @@
                     <i class="bi bi-shop"></i><span>Về trang chủ</span>
                 </a>
                 <form asp-controller="Account" asp-action="Logout" method="post" class="mt-2">
-                    <button type="submit" class="sidebar-link w-100 border-0 bg-transparent text-start text-danger">
+                    <button type="submit" class="sidebar-link w-100 border-0 bg-transparent text-start text-danger hover-danger">
                         <i class="bi bi-box-arrow-right"></i><span>Đăng xuất</span>
                     </button>
                 </form>
@@ -83,31 +103,47 @@
 
         <!-- Main content -->
         <div class="admin-main">
-            <header class="admin-topbar">
+            <header class="admin-topbar shadow-sm">
                 <button class="sidebar-toggle" onclick="toggleSidebar()">
                     <i class="bi bi-list"></i>
                 </button>
                 <div class="topbar-title">@ViewData["Title"]</div>
-                <div class="topbar-user">
-                    <i class="bi bi-person-circle me-2"></i>
-                    <span>@User.Identity!.Name?.Split('@')[0]</span>
-                    <span class="badge bg-danger ms-2">Admin</span>
+                <div class="d-flex align-items-center gap-3">
+                    <button type="button" class="theme-toggle-btn admin-theme-btn" id="themeToggleBtn" title="Chế độ Sáng/Tối">
+                        <i class="bi bi-moon-stars-fill" id="themeToggleIcon"></i>
+                    </button>
+                    <div class="topbar-user">
+                        <i class="bi bi-person-circle me-2"></i>
+                        <span class="d-none d-md-inline">@User.Identity!.Name?.Split('@')[0]</span>
+                        <span class="badge bg-primary ms-1 shadow-sm px-2">Quản trị</span>
+                    </div>
                 </div>
             </header>
             <div class="admin-content">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+                        <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert"></button>
+                    </div>
+                }
                 @RenderBody()
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         function toggleSidebar() {
-        document.querySelector('.admin-sidebar').classList.toggle('collapsed');
+            document.querySelector('.admin-sidebar').classList.toggle('collapsed');
         }
-        // Auto-dismiss toasts
-        document.querySelectorAll('.toast').forEach(t => {
-        setTimeout(() => t.classList.remove('show'), 4000);
+        // Auto-dismiss alerts
+        document.querySelectorAll('.alert-success').forEach(alert => {
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 3000);
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

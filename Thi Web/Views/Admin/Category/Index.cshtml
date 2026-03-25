@@ -1,30 +1,59 @@
-﻿@model List<TechShop.Models.Category>
+@model List<TechShop.Models.Category>
 @{
     ViewData["Title"] = "Quản lý danh mục";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
 }
+
 <div class="admin-page-header">
-    <div><h4><i class="bi bi-tags me-2"></i>Quản lý danh mục</h4></div>
-    <a asp-controller="AdminCategory" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Thêm</a>
+    <div>
+        <h4 class="text-primary fw-bold"><i class="bi bi-tags me-2"></i>Quản lý danh mục</h4>
+        <p class="text-muted mb-0 small">Tổng cộng: <strong class="text-primary">@Model.Count</strong> danh mục sản phẩm</p>
+    </div>
+    <a asp-controller="AdminCategory" asp-action="Create" class="btn btn-primary px-4 shadow-sm">
+        <i class="bi bi-plus-lg me-2"></i>Thêm danh mục mới
+    </a>
 </div>
 
-<div class="admin-table-wrap">
-    <table class="table admin-table">
-        <thead><tr><th>Tên danh mục</th><th>Mô tả</th><th>Số SP</th><th>Thao tác</th></tr></thead>
+<div class="admin-table-wrap border-0 shadow-sm">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;">Mã</th>
+                <th>Tên danh mục</th>
+                <th>Mô tả</th>
+                <th class="text-center">Số sản phẩm</th>
+                <th class="text-end">Thao tác</th>
+            </tr>
+        </thead>
         <tbody>
             @foreach (var cat in Model)
             {
                 <tr>
-                    <td><strong>@cat.Name</strong></td>
-                    <td class="text-muted">@cat.Description</td>
-                    <td><span class="badge bg-primary">@cat.Products.Count</span></td>
+                    <td><code class="text-muted small">#@cat.Id</code></td>
+                    <td><strong class="text-dark">@cat.Name</strong></td>
                     <td>
-                        <a asp-controller="AdminCategory" asp-action="Edit" asp-route-id="@cat.Id" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i></a>
-                        <form asp-controller="AdminCategory" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Xóa?')">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@cat.Id" />
-                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash3"></i></button>
-                        </form>
+                        <div class="small text-muted text-truncate" style="max-width: 300px;">
+                            @cat.Description
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span class="admin-badge info shadow-none">@cat.Products.Count</span>
+                    </td>
+                    <td>
+                        <div class="admin-actions">
+                            <a asp-controller="AdminCategory" asp-action="Edit" asp-route-id="@cat.Id" 
+                               class="btn-admin-action edit shadow-sm" title="Sửa">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form asp-controller="AdminCategory" asp-action="Delete" method="post" class="d-inline" 
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này? Điều này có thể ảnh hưởng đến các sản phẩm thuộc danh mục.')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@cat.Id" />
+                                <button type="submit" class="btn-admin-action delete shadow-sm" title="Xóa">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             }

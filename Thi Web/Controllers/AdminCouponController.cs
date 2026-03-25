@@ -7,6 +7,7 @@ using TechShop.Models;
 namespace TechShop.Controllers
 {
     [Authorize(Roles = "Admin")]
+    [Route("Admin/Coupon/{action=Index}")]
     public class AdminCouponController : Controller
     {
         private readonly ApplicationDbContext _context;

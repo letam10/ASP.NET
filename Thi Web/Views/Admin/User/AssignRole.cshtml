@@ -1,6 +1,6 @@
-﻿@{
+@{
     ViewData["Title"] = "Phân quyền người dùng";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
     var user = ViewBag.User as TechShop.Models.ApplicationUser;
     var allRoles = ViewBag.AllRoles as List<Microsoft.AspNetCore.Identity.IdentityRole>;
     var userRoles = ViewBag.UserRoles as IList<string>;

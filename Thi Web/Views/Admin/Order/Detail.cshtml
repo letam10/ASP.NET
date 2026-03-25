@@ -1,7 +1,7 @@
-﻿@model TechShop.Models.Order
+@model TechShop.Models.Order
 @{
     ViewData["Title"] = $"Đơn hàng #{Model.Id}";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
 }
 <div class="admin-page-header">
     <div><h4><i class="bi bi-receipt me-2"></i>Đơn hàng #@Model.Id.ToString("D6")</h4></div>

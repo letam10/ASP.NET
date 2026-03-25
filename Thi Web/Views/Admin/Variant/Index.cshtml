@@ -1,45 +1,67 @@
-﻿@model List<TechShop.Models.ProductVariant>
+@model List<TechShop.Models.ProductVariant>
 @{
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
     ViewData["Title"] = "Biến thể sản phẩm";
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Biến thể sản phẩm</h2>
-        <a asp-action="Create" class="btn btn-primary">+ Thêm biến thể</a>
+<div class="admin-page-header">
+    <div>
+        <h4 class="text-primary fw-bold"><i class="bi bi-stack me-2"></i>Danh sách biến thể</h4>
+        <p class="text-muted mb-0 small">Quản lý SKU và thuộc tính riêng biệt</p>
     </div>
+    <a asp-action="Create" class="btn btn-primary shadow-sm px-4">
+        <i class="bi bi-plus-lg me-2"></i>Thêm biến thể mới
+    </a>
+</div>
 
-    <div class="card shadow-sm">
-        <div class="card-body table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Sản phẩm</th>
-                        <th>SKU</th>
-                        <th>Giá</th>
-                        <th>Tồn kho</th>
-                        <th>Thuộc tính</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var v in Model)
-                    {
-                        <tr>
-                            <td>@v.Id</td>
-                            <td>@v.Product?.Name</td>
-                            <td>@v.Sku</td>
-                            <td>@v.Price.ToString("N0") ₫</td>
-                            <td>@v.Stock</td>
-                            <td>
-                                @string.Join(" / ", v.Values.Select(x =>
-                                $"{x.ProductVariantOption?.ProductVariantGroup?.Name}: {x.ProductVariantOption?.Value}"))
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="admin-table-wrap border-0 shadow-sm">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width: 60px;">ID</th>
+                <th>Sản phẩm gốc</th>
+                <th>Mã SKU</th>
+                <th>Giá bán</th>
+                <th>Tồn kho</th>
+                <th>Cấu hình thuộc tính</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var v in Model)
+            {
+                <tr>
+                    <td><code class="text-muted small">#@v.Id</code></td>
+                    <td>
+                        <div class="fw-bold text-dark">@v.Product?.Name</div>
+                    </td>
+                    <td>
+                        <span class="admin-badge info shadow-none">@v.Sku</span>
+                    </td>
+                    <td>
+                        <span class="fw-bold text-primary">@v.Price.ToString("N0") ₫</span>
+                    </td>
+                    <td>
+                        @if (v.Stock <= 5)
+                        {
+                            <span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle me-1"></i>@v.Stock</span>
+                        }
+                        else
+                        {
+                            <span>@v.Stock</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach (var val in v.Values)
+                            {
+                                <span class="admin-badge warning shadow-none" style="font-size: 0.75rem;">
+                                    <strong>@val.ProductVariantOption?.ProductVariantGroup?.Name:</strong> @val.ProductVariantOption?.Value
+                                </span>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

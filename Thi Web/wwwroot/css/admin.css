@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    TECHSHOP ADMIN PANEL CSS
    ============================================ */
 
@@ -192,6 +192,25 @@
     color: var(--text-secondary);
 }
 
+.admin-theme-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.admin-theme-btn:hover {
+    background: var(--nav-link-hover-bg);
+    color: var(--primary-light);
+    border-color: var(--primary-light);
+}
+
 /* Admin content */
 .admin-content {
     padding: 28px;
@@ -309,6 +328,109 @@
     margin: 4px 0 0;
     color: var(--text-primary);
 }
+
+/* ============================================
+   ADMIN DATA TABLE
+   ============================================ */
+.admin-table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.admin-table {
+    width: 100%;
+    margin-bottom: 0;
+    color: var(--text-primary);
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    background: var(--bg-dark-2);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-table td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tr:hover {
+    background: var(--bg-card-hover);
+}
+
+/* Admin Images in Table */
+.admin-td-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--bg-dark-2);
+    border: 1px solid var(--border);
+}
+
+/* ============================================
+   ADMIN BADGES
+   ============================================ */
+.admin-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.admin-badge.success { background: rgba(16,185,129,0.12); color: #10b981; }
+.admin-badge.warning { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.admin-badge.danger  { background: rgba(239,68,68,0.12); color: #ef4444; }
+.admin-badge.info    { background: rgba(37,99,235,0.12); color: #3b82f6; }
+
+/* ============================================
+   ADMIN ACTION BUTTONS
+   ============================================ */
+.admin-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.btn-admin-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+
+.btn-admin-action:hover {
+    color: var(--primary-light);
+    border-color: var(--primary-light);
+    background: var(--nav-link-hover-bg);
+}
+
+.btn-admin-action.edit:hover { color: var(--warning); border-color: var(--warning); background: rgba(245,158,11,0.1); }
+.btn-admin-action.delete:hover { color: var(--danger); border-color: var(--danger); background: rgba(239,68,68,0.1); }
 
 /* ============================================
    RESPONSIVE ADMIN

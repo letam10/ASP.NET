@@ -1,52 +1,97 @@
-﻿@model List<TechShop.Models.Order>
+@model List<TechShop.Models.Order>
 @{
     ViewData["Title"] = "Quản lý đơn hàng";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
 }
+
 <div class="admin-page-header">
     <div>
-        <h4><i class="bi bi-receipt me-2"></i>Quản lý đơn hàng</h4>
-        <p class="text-muted mb-0">Tổng @Model.Count đơn</p>
+        <h4 class="text-primary fw-bold"><i class="bi bi-receipt me-2"></i>Quản lý đơn hàng</h4>
+        <p class="text-muted mb-0 small">Tổng cộng: <strong class="text-primary">@Model.Count</strong> đơn hàng</p>
     </div>
 </div>
 
-<!-- ====== Thống kê ====== -->
-<div class="row mb-4">
+<!-- ====== Thống kê nhanh ====== -->
+<div class="row g-4 mb-4">
     <div class="col-md-4">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h5>Tổng doanh thu</h5>
-                <h3>@Model.Where(o => o.Status == "Completed").Sum(o => o.TotalAmount).ToString("N0") ₫</h3>
+        <div class="stat-card shadow-sm border-0">
+            <div class="stat-card-icon green">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div class="stat-card-body">
+                <p>Doanh thu (Hoàn thành)</p>
+                <h3>@Model.Where(o => o.Status == "Completed" || o.Status == "Delivered").Sum(o => o.TotalAmount).ToString("N0") <small class="fs-6">₫</small></h3>
             </div>
         </div>
     </div>
 
     <div class="col-md-4">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <h5>Đơn chờ xử lý</h5>
-                <h3>@(Model.Count(o => o.Status == "Pending")) đơn</h3>
+        <div class="stat-card shadow-sm border-0">
+            <div class="stat-card-icon blue">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="stat-card-body">
+                <p>Đơn chờ xử lý</p>
+                <h3>@(Model.Count(o => o.Status == "Pending" || o.Status == "Processing")) <small class="fs-6">đơn</small></h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card shadow-sm border-0">
+            <div class="stat-card-icon red">
+                <i class="bi bi-x-circle"></i>
+            </div>
+            <div class="stat-card-body">
+                <p>Đơn đã hủy</p>
+                <h3>@(Model.Count(o => o.Status == "Cancelled")) <small class="fs-6">đơn</small></h3>
             </div>
         </div>
     </div>
 </div>
-<!-- ====================================== -->
-<div class="admin-table-wrap">
-    <table class="table admin-table">
-        <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Ngày đặt</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead>
+
+<div class="admin-table-wrap border-0 shadow-sm">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width: 120px;">Mã đơn</th>
+                <th>Khách hàng</th>
+                <th>Ngày đặt trang</th>
+                <th>Tổng thanh toán</th>
+                <th>Trạng thái</th>
+                <th class="text-end">Thao tác</th>
+            </tr>
+        </thead>
         <tbody>
             @foreach (var order in Model)
             {
-                var cls = order.Status switch { "Completed" => "bg-success", "Cancelled" => "bg-danger", "Processing" => "bg-info", _ => "bg-warning" };
+                var (badgeClass, statusText) = order.Status switch
+                {
+                    "Completed" or "Delivered" => ("success", "Hoàn thành"),
+                    "Cancelled" => ("danger", "Đã hủy"),
+                    "Processing" => ("info", "Đang xử lý"),
+                    "Shipped" => ("info", "Đang giao"),
+                    _ => ("warning", "Chờ xử lý")
+                };
                 <tr>
-                    <td><strong>#@order.Id.ToString("D6")</strong></td>
-                    <td>@(order.User?.FullName ?? order.User?.Email ?? "N/A")</td>
+                    <td><strong class="text-primary">#@order.Id.ToString("D6")</strong></td>
+                    <td>
+                        <div class="fw-bold">@(order.User?.FullName ?? "Khách vãng lai")</div>
+                        <small class="text-muted">@order.User?.Email</small>
+                    </td>
                     <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td class="text-primary fw-bold">@order.TotalAmount.ToString("N0") ₫</td>
-                    <td><span class="badge @cls">@order.Status</span></td>
-                    <td><a asp-controller="AdminOrder" asp-action="Detail" asp-route-id="@order.Id" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a></td>
+                    <td><span class="fw-bold text-dark">@order.TotalAmount.ToString("N0") ₫</span></td>
+                    <td><span class="admin-badge @badgeClass">@statusText</span></td>
+                    <td>
+                        <div class="admin-actions">
+                            <a asp-controller="AdminOrder" asp-action="Detail" asp-route-id="@order.Id" 
+                               class="btn-admin-action shadow-sm" title="Xem chi tiết">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </div>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
-</div>
+</div>
