@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TechShop.Models
@@ -148,11 +148,11 @@ namespace TechShop.Models
     {
         public int Id { get; set; }
         public string? UserId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Vui lòng nhập họ tên của bạn")]
         public string CustomerName { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
         public string PhoneNumber { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "Vui lòng nhập tên thiết bị hoặc linh kiện")]
         public string DeviceModel { get; set; } = string.Empty; // Tên máy tính/Linh kiện
         public string ServiceType { get; set; } = "Vệ sinh máy"; //"Sửa chữa", "Nâng cấp"
         public string? Description { get; set; }

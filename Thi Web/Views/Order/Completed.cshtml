@@ -1,4 +1,4 @@
-﻿@model TechShop.Models.Order
+@model TechShop.Models.Order
 @{
     ViewData["Title"] = "Đặt hàng thành công";
 
@@ -18,9 +18,9 @@
 
 <style>
     .order-success-page {
-        background: linear-gradient(135deg, #0f172a, #020617);
+        background: var(--bg-body);
         min-height: 100vh;
-        color: #e5e7eb;
+        color: var(--text-primary);
     }
 
     .success-wrap {
@@ -40,12 +40,13 @@
     }
 
     .order-info-card {
-        background: rgba(255,255,255,0.05);
+        background: var(--bg-card);
         backdrop-filter: blur(12px);
-        border: 1px solid rgba(255,255,255,0.08);
-        color: #e5e7eb;
+        border: 1px solid var(--border);
+        color: var(--text-primary);
         padding: 30px;
         border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     }
 
     .text-gradient {
@@ -116,7 +117,8 @@
     }
 
     .qr-bank-info {
-        background: #000000;
+        background: var(--bg-dark-2);
+        color: #fff;
         padding: 10px;
         border-radius: 8px;
         font-size: 14px;
@@ -215,7 +217,7 @@
                 <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
                     Về trang chủ
                 </a>
-                <a asp-controller="Order" asp-action="MyOrders" class="btn btn-outline-light btn-lg">
+                <a asp-controller="Order" asp-action="MyOrders" class="btn btn-outline-secondary btn-lg">
                     Xem đơn hàng
                 </a>
             </div>

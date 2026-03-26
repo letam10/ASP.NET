@@ -52,10 +52,19 @@ namespace TechShop.Controllers
                 }
             }
 
+            // Lấy sản phẩm đang giảm giá (Promo)
+            var promoProducts = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && p.DiscountPrice.HasValue && p.DiscountPrice < p.Price)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(12)
+                .ToListAsync();
+
             ViewBag.Categories = categories;
             ViewBag.SelectedCategory = categoryId;
             ViewBag.Search = search;
             ViewBag.WishlistProducts = wishlistProducts;
+            ViewBag.PromoProducts = promoProducts;
 
             return View(products);
         }

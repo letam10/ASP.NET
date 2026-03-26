@@ -252,6 +252,7 @@
         @RenderBody()
     </main>
 
+
     <!-- Footer -->
     <footer class="site-footer">
         <div class="container">
@@ -304,19 +305,16 @@
     <script>
         // Initialize AOS
         $(document).ready(function() {
-            AOS.init({
-                duration: 800,
-                offset: 100,
-                once: true,
-                easing: 'ease-out-cubic'
-            });
 
             // Page Preloader Optimization
             const $preloader = $('#preloader');
             
             function hidePreloader() {
                 if ($preloader.is(':visible')) {
-                    $preloader.fadeOut(600);
+                    $preloader.fadeOut(600, function() {
+                        // Refresh AOS after preloader is completely gone
+                        AOS.refresh();
+                    });
                 }
             }
 
@@ -407,6 +405,9 @@
                             icon.classList.toggle('bi-heart', !res.isAdded);
                             icon.classList.toggle('bi-heart-fill', res.isAdded);
                         }
+                        
+                        // Refresh AOS if wishlist items change (might shift layout)
+                        setTimeout(() => { AOS.refresh(); }, 300);
                     }
                 },
                 error: function () {
@@ -414,6 +415,21 @@
                 }
             });
         }
+
+        // Initialize AOS after all setup
+        $(document).ready(function() {
+            AOS.init({
+                duration: 800,
+                offset: 50, 
+                once: true,
+                easing: 'ease-out-cubic'
+            });
+
+            // Final refresh on window load to catch late content
+            window.addEventListener('load', () => {
+                setTimeout(() => { AOS.refresh(); }, 500);
+            });
+        });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
     <!-- Tawk.to -->

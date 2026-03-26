@@ -41,6 +41,26 @@ namespace TechShop.Data
                 }
             }
 
+            // 3. Ensure at least 10 products have a DiscountPrice
+            var discountedCount = products.Count(p => p.DiscountPrice.HasValue && p.DiscountPrice < p.Price);
+            if (discountedCount < 10)
+            {
+                var needed = 10 - discountedCount;
+                var candidates = products
+                    .Where(p => !p.DiscountPrice.HasValue || p.DiscountPrice >= p.Price)
+                    .Take(needed)
+                    .ToList();
+
+                foreach (var c in candidates)
+                {
+                    // Apply a random-ish discount between 10% and 25%
+                    double discountPercent = 0.10 + (new Random().NextDouble() * 0.15);
+                    c.DiscountPrice = (decimal)((double)c.Price * (1.0 - discountPercent));
+                    // Round to nearest 10k or 1k for "natural" prices
+                    c.DiscountPrice = Math.Round(c.DiscountPrice.Value / 10000) * 10000;
+                }
+            }
+
             await context.SaveChangesAsync();
         }
 
